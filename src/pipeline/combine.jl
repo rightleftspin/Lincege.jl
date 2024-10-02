@@ -38,7 +38,7 @@ function nlce_summation(clusters, order)
     cluster_weights = Dict()
 
     for (cluster_hash, (cluster, cluster_mult, _)) in clusters
-        if nv(cluster) > order 
+        if nv(cluster) > order
             cluster_weights[cluster_hash] = 0
         else
             weights = _weight(clusters, cluster_hash)
@@ -46,7 +46,7 @@ function nlce_summation(clusters, order)
             cluster_weights = mergewith(+, cluster_weights, weights)
         end
     end
-    
+
     cluster_weights
 end
 
@@ -82,4 +82,3 @@ function _weight(clusters, cluster_hash)
 
     weight_dictionary
 end
-

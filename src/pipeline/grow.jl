@@ -41,22 +41,29 @@ Output:
       Array of subclusters of the input underlying cluster
 """
 function grow(
-        underlying_cluster, 
-        max_order::Int64, 
-        starting_vertices::Vector{Int64}
-    )
-    
-    out_array = Vector()
-    guarding_set::Set{Int} = Set([])
+    underlying_cluster::Union{AbstractNLCECluster,AbstractNLCELattice},
+    max_order::Int,
+    starting_vertices::Vector{V},
+) where {V<:Integer}
+
+    out_array::Vector{AbstractNLCECluster} = Vector()
+    guarding_set::Set{V} = Set([])
 
     for vertex in starting_vertices
-        neighbors::Set{Int} = Set(collect(filter(neighbor -> !(neighbor in guarding_set), underlying_cluster[vertex])))
+        init_neighbors::Set{V} = Set(
+            collect(
+                filter(
+                    neighbor -> !(neighbor in guarding_set),
+                    neighbors(underlying_cluster, vertex)[1],
+                ),
+            ),
+        )
         vertices = [vertex]
         _grow_from_site(
-            underlying_cluster, 
-            max_order, 
-            vertices, 
-            neighbors, 
+            underlying_cluster,
+            max_order,
+            vertices,
+            init_neighbors,
             guarding_set,
             out_array
         )
@@ -92,56 +99,59 @@ Output:
       output is the out_array that gets added to.
 """
 function _grow_from_site(
-        underlying_cluster, 
-        max_order::Int, 
-        subcluster_vertices::Vector{Int}, 
-        neighbors::Set{Int}, 
-        guarding_set::Set{Int},
-        out_array
-    )
-    
-    if size(subcluster_vertices)[1] == max_order
-        push!(out_array, subcluster_vertices)
+    underlying_cluster::Union{AbstractNLCECluster,AbstractNLCELattice},
+    max_order::Int,
+    subcluster_vertices::Vector{V},
+    current_neighbors::Set{V},
+    guarding_set::Set{V},
+    out_array::Vector{<:AbstractNLCECluster},
+) where {V<:Integer}
+
+    if length(subcluster_vertices) == max_order
+        push!(out_array, cluster(underlying_cluster, subcluster_vertices))
         return true
     end
 
     has_int_leaf = false
     new_guarding_set = copy(guarding_set)
 
-    while !isempty(neighbors)
-        neighbor = pop!(neighbors)
-        append!(subcluster_vertices, neighbor) 
+    while !isempty(current_neighbors)
+        neighbor = pop!(current_neighbors)
+        append!(subcluster_vertices, neighbor)
 
-        new_neighbors = copy(neighbors)
+        new_neighbors = copy(current_neighbors)
 
-        for vertex in underlying_cluster[neighbor]
-            if (!(vertex in subcluster_vertices) & 
-                !(vertex in new_guarding_set) & 
-                !(vertex in new_neighbors))
+        for vertex in neighbors(underlying_cluster, neighbor)[1]
+            if (
+                !(vertex in subcluster_vertices) &
+                !(vertex in new_guarding_set) &
+                !(vertex in new_neighbors)
+            )
 
                 push!(new_neighbors, vertex)
             end
         end
 
-        if _grow_from_site(underlying_cluster, 
-                          max_order, 
-                          subcluster_vertices, 
-                          new_neighbors, 
-                          new_guarding_set,
-                          out_array
-                         )
+        if _grow_from_site(
+            underlying_cluster,
+            max_order,
+            subcluster_vertices,
+            new_neighbors,
+            new_guarding_set,
+            out_array,
+        )
             pop!(subcluster_vertices)
             has_int_leaf = true
         else
             pop!(subcluster_vertices)
-            return(has_int_leaf)
+            return (has_int_leaf)
         end
         push!(new_guarding_set, neighbor)
-        if (length(underlying_cluster) - length(new_guarding_set)[1]) < max_order
-            return(has_int_leaf)
+        if (nv(underlying_cluster) - length(new_guarding_set)) < max_order
+            return (has_int_leaf)
         end
     end
-    return(has_int_leaf)
+    return (has_int_leaf)
 end
 
 """
@@ -161,13 +171,4 @@ Inputs:
 Output:
       Array of subclusters of the input underlying cluster
 """
-function grow_par(
-        underlying_cluster, 
-        max_order::Int64, 
-        starting_vertices::Vector{Int64}
-    )
-end
-
-
-
-
+function grow_par(underlying_cluster, max_order::Int64, starting_vertices::Vector{Int64}) end

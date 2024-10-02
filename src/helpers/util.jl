@@ -10,7 +10,10 @@ will generally be math heavy functions that are used often
 """
 Converts adjacency list for a graph to an adjacency matrix
 """
-function adj_list_to_adj_matrix(adj_list::AbstractVector{<:AbstractVector{<:Integer}}, values::AbstractVector{<:AbstractVector{<:Integer}})
+function adj_list_to_adj_matrix(
+    adj_list::AbstractVector{<:AbstractVector{<:Integer}},
+    values::AbstractVector{<:AbstractVector{<:Integer}},
+)
 
     # Find the number of vertices in the graph
     number_vertices = length(adj_list)
@@ -34,7 +37,7 @@ function adj_list_to_adj_matrix(adj_list::AbstractVector{<:AbstractVector{<:Inte
     # Wrapper function for an adjacency list without weights. This function
     # will instead add a weight of 1 for every edge
     values = deepcopy(adj_list)
-    for i in 1:length(values)
+    for i = 1:length(values)
         values[i] .= 1
     end
 
@@ -48,12 +51,12 @@ function adj_matrix_to_adj_list(adj_matrix::AbstractMatrix{<:Integer})
 
     # Find the number of vertices in the graph
     number_vertices = size(adj_matrix)[1]
-    
+
     adj_list::Vector{Vector{Int64}} = []
-    
-    for i in 1:number_vertices
+
+    for i = 1:number_vertices
         neighbors = []
-        for j in 1:number_vertices
+        for j = 1:number_vertices
             if adj_matrix[i, j] != 0
                 append!(neighbors, j)
             end
@@ -65,16 +68,19 @@ function adj_matrix_to_adj_list(adj_matrix::AbstractMatrix{<:Integer})
 
 end
 
-function adj_matrix_to_adj_list(adj_matrix::AbstractMatrix{<:Integer}, adj_matrix_weights::AbstractMatrix{<:Integer})
+function adj_matrix_to_adj_list(
+    adj_matrix::AbstractMatrix{<:Integer},
+    adj_matrix_weights::AbstractMatrix{<:Integer},
+)
 
     # Find the number of vertices in the graph
     number_vertices = size(adj_matrix)[1]
-    
+
     adj_list::Vector{Vector{Int64}} = []
-    
-    for i in 1:number_vertices
+
+    for i = 1:number_vertices
         neighbors = []
-        for j in 1:number_vertices
+        for j = 1:number_vertices
             if adj_matrix[i, j] != 0
                 append!(neighbors, adj_matrix_weights[i, j])
             end

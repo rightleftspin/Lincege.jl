@@ -33,47 +33,7 @@ Output:
       Hashmap relating the hash of the cluster to the cluster itself and
       the corresponding multiplicity of the cluster.
 """
-function prune(
-        clusters,
-        pruning_fxn
-    )
-
-    # Initialize the empty output dictionary
-    cluster_mult = Dict()
-
-    # Add function for multiplicity
-    add_mult_one = (cluster, mult) -> (cluster, mult + 1)
-
-    for cluster in clusters
-        # Find the hash and rearranged cluster for each cluster
-        hash, permutation = pruning_fxn(cluster)
-        # Add this information to the output dictionary
-        cluster_mult[hash] = add_mult_one(get(cluster_mult, hash, 0))
-    end
-
-    cluster_mult
-end
-
-"""
-Permuting version of the main function in step two of the pipeline.
-Collects clusters of the same type and counts their corresponding
-multiplicities. Importantly, this 
-
-Inputs: 
-      clusters: array of clusters to be pruned
-
-      pruning_fxn: function that will be applied to each cluster,
-      needs to return a hash of the cluster and the permutation 
-      required to convert the cluster to it's isomorphic form
-
-Output:
-      Hashmap relating the hash of the cluster to the cluster itself and
-      the corresponding multiplicity of the cluster.
-"""
-function prune_permute(
-        clusters,
-        pruning_fxn
-    )
+function prune(clusters::Vector{<:AbstractNLCECluster}, pruning_fxn)
 
     # Initialize the empty output dictionary
     cluster_mult = Dict()
@@ -106,10 +66,7 @@ Output:
       Hashmap relating the hash of the cluster to the cluster itself and
       the corresponding multiplicity of the cluster.
 """
-function prune_par(
-        clusters,
-        pruning_fxn
-    )
+function prune_par(clusters::Vector{<:AbstractNLCECluster}, pruning_fxn)
 
     # Initialize the empty output dictionary
     cluster_mult = Dict()

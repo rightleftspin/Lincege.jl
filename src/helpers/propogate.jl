@@ -34,10 +34,7 @@ Output:
       Hashmap relating the cluster to a hashmap of its subclusters
       and their corresponding multiplicities
 """
-function propogate(
-        clusters,
-        pruning_fxn
-    )
+function propogate(clusters, pruning_fxn)
 
     # Initialize the empty output dictionary
     subclusters = Dict()
@@ -46,7 +43,7 @@ function propogate(
         # Grow all possible subclusters smaller than the cluster 
         # from the cluster, starting vertices are all vertices 
         all_subclusters = grow(cluster, nv(cluster) - 1, 1:nv(cluster))
-        
+
         # Prune all subclusters and add them to the output dictionary
         subclusters[cluster] = prune(all_subclusters, pruning_fxn)
     end
@@ -70,10 +67,7 @@ Output:
       Hashmap relating the cluster to a hashmap of its subclusters
       and their corresponding multiplicities
 """
-function propogate_par(
-        clusters,
-        pruning_fxn
-    )
+function propogate_par(clusters, pruning_fxn)
 
     # Initialize the empty output dictionary
     subclusters = Dict()
@@ -82,7 +76,7 @@ function propogate_par(
         # Grow all possible subclusters smaller than the cluster 
         # from the cluster, starting vertices are all vertices 
         all_subclusters = grow(cluster, nv(cluster) - 1, 1:nv(cluster))
-        
+
         # Prune all subclusters and add them to the output dictionary
         subclusters[cluster] = prune(all_subclusters, pruning_fxn)
     end

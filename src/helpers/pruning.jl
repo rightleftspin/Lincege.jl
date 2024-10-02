@@ -40,13 +40,13 @@ function symmetric_pruning(cluster)
     vertex_type_cluster = []
     for vertex in sorted_vertices
         vertex_type = 0
-        for edge_weight in cluster[vertex] 
-            vertex_type += 2 ^ (edge_weight - 1)
+        for edge_weight in cluster[vertex]
+            vertex_type += 2^(edge_weight - 1)
         end
-        push!(vertex_type_cluster, vertex_type)                
+        push!(vertex_type_cluster, vertex_type)
     end
-         
-    return(cluster, vertex_type_cluster)
+
+    return (cluster, vertex_type_cluster)
 end
 
 """
@@ -73,7 +73,7 @@ Output:
       Tuple of cluster hash and rearranged cluster
 """
 function isomorphic_pruning(cluster)
-    
+
     # Create an empty DenseNautyGraph
     nauty_graph = NautyGraph(length(cluster[2]))
 
@@ -84,8 +84,8 @@ function isomorphic_pruning(cluster)
 
     # Canonize and find the corresponding permutation 
     permutation, _ = canonize!(nauty_graph)
-    
+
     # Return the nauty hash and the permuted cluster
-    return(ghash(nauty_graph), cluster)
-    
+    return (ghash(nauty_graph), cluster)
+
 end
