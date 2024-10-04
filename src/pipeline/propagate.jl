@@ -201,4 +201,4 @@ end
 """
 TODO: Parallel version of this algorithm
 """
-function grow_par(underlying_cluster, max_order::Int64, starting_vertices::Vector{Int64}) end
+#function grow_par(underlying_cluster, max_order::Int64, starting_vertices::Vector{Int64}) end
