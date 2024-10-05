@@ -1,44 +1,72 @@
+"""
+Example generating the data for a square lattice and 
+writing to a file meant to be read by fortran code
+"""
 module ex1
+
 using NLCE
-"""
-Example generating a square lattice and writing to a fortran formatted file
-"""
+
+# Set the basis, since there is only one atom, it is at [0, 0]
 basis = [[0, 0]]
+
+# Choose the primitive vectors, there are two on a square lattice
 primitive_vec = [[1, 0], [0, 1]]
+
+# Choosing nearest neighbors (within distance 1 from each other)
 neighborhood = [1]
+
+# Setting the maximum order
 max_order = 4
 
+# Generating all the clusters using this information
 nlce_clusters = simple_NLCE(basis, primitive_vec, neighborhood, max_order)
 
-filename = "examples/outputs/square_nn"
+# Writing all the files to the corresponding folder, creating the folder
+# if it does not exist
+filepath = "examples/outputs/ex-1/square_nn"
+mkpath(filepath)
+filename = filepath * "/square_nn"
+
+# Write all the files in the "fortran" format
 write_to_file_fortran(nlce_clusters, filename, max_order)
 
-#xmax = 2
-## Initialize the temperature grid
-#total_temp = collect(0.05:0.05:xmax)
-#all_energies = []
-#
-## Loop over each desired order
-#for order in 5:final_order
-#    # Initialize the energies
-#    total_energy = zeros(length(total_temp))
-#    # Perform the NLCE sum and find resulting weights
-#    nlce_weights = simple_nlce(basis, primitive_vectors, order)
-#    for (cluster, mult) in ( t = findall(p, x); 
-#        # Find the energies for each cluster and add it to the total sum
-#        ising_energy = ising_energies(cluster)
-#        total_energy += mult .* energy_solver(total_temp, ising_energy) 
-#    end
-#    push!(all_energies, total_energy)
-#end
-#
-## Plot
-#plot(total_temp, all_energies, label = collect(7:final_order))
-#xlims!(0, xmax)
-#ylims!(-1, 0)
-#title!("Ising Energy for a triangular Lattice")
-#xlabel!("Temperature")
-#ylabel!("Energy")
-#savefig("ising_energy.png")
-#
+
+"""
+Fortran format specifies for each cluster the number of bonds. Then it has each 
+bond listed below it in its own line, tab spaced. Between each cluster, there is 
+an empty line and at the end of the file is multiplicity for each cluster at
+every order. For example, with a maximum order of 4 on a square lattice,
+the file for the clusters of order 3 would look like this:
+
+start of file >>>
+2
+1	2	1
+1	3	1
+
+0 0 6 -38
+<<< end of file
+
+Here there is only one cluster, it has 2 bonds. The bonds connect
+vertices 1 and 2, and vertices 1 and 3 both with weight 1. The cluster
+has overall multiplicity 0 for both order 1 and 2, multiplicity 6 for 
+order 3 and -38 for order 4.
+
+A general example would look like this:
+
+start of file >>>
+number_of_bonds
+vertex1 vertex2 bond_weight
+vertex1 vertex3 bond_weight
+...
+
+number_of_bonds
+vertex1 vertex2 bond_weight
+vertex1 vertex3 bond_weight
+...
+
+multiplicity_1 multiplicity_2 ...
+multiplicity_1 multiplicity_2 ...
+...
+<<< end of file
+"""
 end
