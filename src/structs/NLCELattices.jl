@@ -82,11 +82,12 @@ function NLCELattice(
     primitive_vectors::AbstractVector{<:AbstractVector{<:Real}},
     neighborhood::AbstractVector{<:Real},
     max_order::Integer;
-    basis_colors::AbstractVector{<:Integer} = repeat([1], length(basis))
+    basis_colors::AbstractVector{<:Integer} = repeat([1], length(basis)),
 )
 
     max_order_padded = (2 * max_order) + 1
-    coordinates, colors, centers = generate_coordinates(basis, primitive_vectors, max_order_padded, basis_colors)
+    coordinates, colors, centers =
+        generate_coordinates(basis, primitive_vectors, max_order_padded, basis_colors)
 
     number_vertices = length(coordinates)
     adj_matrix = zeros(Int, number_vertices, number_vertices)

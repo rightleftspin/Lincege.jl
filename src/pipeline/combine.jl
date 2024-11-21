@@ -75,7 +75,7 @@ function _weight(
     clusters::AbstractDict{Integer,Tuple{<:AbstractNLCECluster,<:Real,<:AbstractDict}},
     cluster_hash::Integer,
 )
-    weight_dictionary = Dict([cluster_hash => 1//1])
+    weight_dictionary = Dict([cluster_hash => 1 // 1])
 
     if nv(clusters[cluster_hash][1]) > 1
         for (subcluster_hash, subcluster_mult) in clusters[cluster_hash][3]

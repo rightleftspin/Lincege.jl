@@ -7,7 +7,7 @@ module ex1
 using NLCE
 
 # Set the basis, since there is only one atom, it is at [0, 0]
-basis = [[0, 0], [1, 0], [1/2, sqrt(3)/2]]
+basis = [[0, 0], [1, 0], [1 / 2, sqrt(3) / 2]]
 
 # Choose the primitive vectors, there are two on a square lattice
 primitive_vec = [[2, 0], [-1, sqrt(3)]]

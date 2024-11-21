@@ -11,7 +11,7 @@ using NLCE
 basis::Vector{Vector{Float64}} = [[0, 0]]
 
 # Choose the primitive vectors, there are two on a square lattice
-primitive_vec::Vector{Vector{Float64}} = [[0.5, sqrt(3)/2], [1, 0]]
+primitive_vec::Vector{Vector{Float64}} = [[0.5, sqrt(3) / 2], [1, 0]]
 
 # Choosing nearest neighbors (within distance 1 from each other)
 neighborhood::Vector{Float64} = [1]

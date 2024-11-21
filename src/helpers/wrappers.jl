@@ -60,7 +60,10 @@ function simple_NLCE(
 end
 
 
-function write_to_file(nlce_output::AbstractDict{AbstractNLCECluster, Vector{<:Real}}, filename::AbstractString)
+function write_to_file(
+    nlce_output::AbstractDict{AbstractNLCECluster,Vector{<:Real}},
+    filename::AbstractString,
+)
 
     nlce_file = open(filename, "w")
 
@@ -74,10 +77,14 @@ function write_to_file(nlce_output::AbstractDict{AbstractNLCECluster, Vector{<:R
     close(nlce_file)
 end
 
-function write_to_file_fortran(nlce_output::AbstractDict{AbstractNLCECluster, Vector{<:Real}}, filename::AbstractString, max_order::Integer)
+function write_to_file_fortran(
+    nlce_output::AbstractDict{AbstractNLCECluster,Vector{<:Real}},
+    filename::AbstractString,
+    max_order::Integer,
+)
 
-    nlce_files = [open(filename * "_$(i).txt", "w") for i in 1:max_order]
-    sorted_clusters = sort(collect(keys(nlce_output)), by=nv)
+    nlce_files = [open(filename * "_$(i).txt", "w") for i = 1:max_order]
+    sorted_clusters = sort(collect(keys(nlce_output)), by = nv)
 
     for cluster in sorted_clusters
         edges = edge_list(cluster)
@@ -91,7 +98,6 @@ function write_to_file_fortran(nlce_output::AbstractDict{AbstractNLCECluster, Ve
     for cluster in sorted_clusters
         write(nlce_files[nv(cluster)], "$(join(nlce_output[cluster], ' '))\n")
     end
-    
+
     close.(nlce_files)
 end
-
