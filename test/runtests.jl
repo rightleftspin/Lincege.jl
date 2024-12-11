@@ -10,9 +10,11 @@ using Base.Iterators
 
     triangular_lattice =
         Dict("Basis" => [[0, 0]], "Primitive Vectors" => [[0.5, sqrt(3) / 2], [1, 0]])
-    
-    kagome_lattice =
-        Dict("Basis" => [[0, 0], [1, 0], [1 / 2, sqrt(3) / 2]], "Primitive Vectors" => [[2, 0], [-1, sqrt(3)]])
+
+    kagome_lattice = Dict(
+        "Basis" => [[0, 0], [1, 0], [1 / 2, sqrt(3) / 2]],
+        "Primitive Vectors" => [[2, 0], [-1, sqrt(3)]],
+    )
 
     @testset "NLCELattice" begin
         # Here I will test a variety of lattices at nearest neighbor up till order 6
