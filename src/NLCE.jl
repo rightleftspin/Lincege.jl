@@ -18,6 +18,6 @@ include("pipeline/prune.jl")
 include("pipeline/propagate.jl")
 include("pipeline/combine.jl")
 
-export simple_NLCE, write_to_file, write_to_file_fortran
+export simple_NLCE, coord_NLCE, write_to_file, write_to_file_fortran
 
 end

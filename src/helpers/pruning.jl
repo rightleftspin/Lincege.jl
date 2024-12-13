@@ -67,6 +67,26 @@ function isomorphic_pruning(cluster::AbstractNLCECluster)
 
 end
 
+"""
+Takes a cluster and finds the translationally invariant
+form of it. This does not return a hash.
+
+Inputs: 
+      cluster: takes a cluster struct, uses the direction
+      weights matrix in the cluster
+
+Output:
+      Tuple of cluster hash and nothing
+"""
+function translational_pruning(cluster::AbstractNLCECluster)
+
+            sum(
+                weight -> 2^weight,
+                direction_matrix(cluster)[sortperm(vertices(cluster)), :],
+                dims = 2,
+            )
+
+end
 
 function symmetric_pruning_pyrochlore(cluster::AbstractNLCECluster)
     L = nv(underlying_lattice(cluster))

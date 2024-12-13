@@ -119,3 +119,17 @@ function adj_matrix_to_edge_list(adj_matrix::AbstractMatrix{<:Integer})
     edge_list
 
 end
+
+"""
+Find the permutation group representation of a given group of transformations
+on the given coordinates. 
+    
+"""
+function find_permutations(coordinates::Vector{Vector{Real}}, group)
+    permutations = [] 
+    for group_elem in group
+        push!(permutations, findfirst.(isapprox.([group_elem * coord for coord in coordinates]), (coordinates,)))   
+    end
+
+    permutations
+end

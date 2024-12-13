@@ -94,6 +94,15 @@ function coord_NLCE(
         prune(symmetric_pruning, filtering(translational_pruning, generated_clusters))
 
     #iso_clusters = prune(isomorphic_pruning, sym_clusters)
+    count = 0
+    for (cluster, vals) in sym_clusters
+        if nv(vals[1]) == 5
+            count += vals[2]
+        end
+        println(nv(vals[1]))
+    end
+    println("")
+    println(count)
 
     # Account for the size of the unit cell in the pruning
     for (hash, (cluster, mult, subcluster_mult)) in sym_clusters
@@ -104,6 +113,9 @@ function coord_NLCE(
 
     # Find all their subclusters
     subclusters = propogate(symmetric_pruning, sym_clusters)
+
+    for (hash, clusters) in subclusters
+
 
     # Initialize an empty output dictionary
     output_dict = Dict{AbstractNLCECluster,Vector{<:Real}}()
