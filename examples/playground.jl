@@ -1,8 +1,4 @@
-"""
-Example generating the data for a pyrochlore lattice using symmetric
-hashing alongside isomorphic hashing. Writing to a file with coordinates
-"""
-module ex5
+module playground
 
 using NLCE
 
@@ -13,25 +9,42 @@ using NLCE
 #
 #neighborhood = [sqrt(3) / 4]
 
+# Pyrochlore Lattice
 basis = [[0, 0, 0], [0, 1 / 4, 1 / 4], [1 / 4, 0, 1 / 4], [1 / 4, 1 / 4, 0]]
 
 primitive_vec = [[0, 1 / 2, 1 / 2], [1 / 2, 0, 1 / 2], [1 / 2, 1 / 2, 0]]
 
 neighborhood = [sqrt(2) / 4]
 
-max_order = 4
+# Square Lattice
+#basis = [[0, 0]]
+#
+#primitive_vec = [[1, 0], [0, 1]]
+#
+#neighborhood = [1]
 
-#for elem in NLCE.pyrochlore_symmetries
-#    display(elem)
-#end
-# Generating all the clusters using this information
+# Triangular Lattice
+#basis::Vector{Vector{Float64}} = [[0, 0]]
+#
+#primitive_vec::Vector{Vector{Float64}} = [[0.5, sqrt(3) / 2], [1, 0]]
+#
+#neighborhood::Vector{Float64} = [1]
+
+max_order = 1
+
+for sym in NLCE.pyrochlore_symmetries
+    display(sym)
+end
+
+file_name = "pyrochlore_nn_sym"
+
 nlce_clusters = coord_NLCE(NLCE.pyrochlore_symmetries, basis, primitive_vec, neighborhood, max_order)
 
 # Writing all the files to the corresponding folder, creating the folder
 # if it does not exist
-filepath = "examples/outputs/ex-5/pyrochlore_nn_sym"
+filepath = "examples/outputs/ex-5/" * file_name
 mkpath(filepath)
-filename = filepath * "/pyrochlore_nn_sym"
+filename = filepath * "/" * file_name
 
 # Write all the files in the default format
 NLCE.write_to_file_coordinates(nlce_clusters, filename)

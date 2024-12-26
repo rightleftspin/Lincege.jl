@@ -86,41 +86,18 @@ function coord_NLCE(
 )
 
     # Create the lattice
-    lattice = NLCELattice(basis, primitive_vectors, neighborhood, max_order)
+    lattice = NLCELattice(basis, primitive_vectors, neighborhood, max_order, symmetries = symmetries)
     # Generate clusters on the lattice
+    println(all_coordinates(lattice))
     generated_clusters = grow(lattice, max_order)
     # find all the symmetrically distinct clusters
-    coordinates, colors, centers = generate_coordinates(
-        basis,
-        primitive_vectors,
-        max_order,
-        repeat([1], length(basis)),
-    )
-
-    permutations = find_permutations(coordinates, centers, symmetries)
-
-
-    symmetric_pruning(cluster_pruning) = (
-        hash(
-            sort(
-                NLCE.translational_form.([
-                    cluster(
-                        underlying_lattice(cluster_pruning),
-                        perm[vertices(cluster_pruning)],
-                    ) for perm in permutations
-                ]),
-            ),
-        ),
-        nothing,
-    )
-
     sym_clusters =
         prune(symmetric_pruning, filtering(translational_pruning, generated_clusters))
 
-    for (k, v) in sym_clusters
-        println(k)
-        println(v[2])
-    end
+    #for (k, v) in sym_clusters
+    #    println(k)
+    #    println(v[2])
+    #end
     #iso_clusters = prune(isomorphic_pruning, sym_clusters)
     #count = 0
     #for (cluster, vals) in sym_clusters
@@ -142,9 +119,6 @@ function coord_NLCE(
     # Find all their subclusters
     subclusters = propogate(symmetric_pruning, sym_clusters)
 
-    #for (hash, clusters) in subclusters
-
-
     # Initialize an empty output dictionary
     output_dict = Dict{AbstractNLCECluster,Vector{<:Real}}()
 
@@ -159,64 +133,3 @@ function coord_NLCE(
     output_dict
 end
 
-function write_to_file_coordinates(
-    nlce_output::AbstractDict{AbstractNLCECluster,Vector{<:Real}},
-    filename::AbstractString,
-)
-
-    nlce_file = open(filename, "w")
-
-    for (cluster, mults) in nlce_output
-        write(nlce_file, "$(nv(cluster)):")
-        for edge in edge_list(cluster)
-            write(nlce_file, " $(join(edge, ' '))")
-        end
-        for coord in all_coordinates(cluster)
-            write(nlce_file, " ($(join(coord, ',')))")
-        end
-        write(nlce_file, " : $(join(mults, ' '))\n")
-    end
-    close(nlce_file)
-end
-
-function write_to_file(
-    nlce_output::AbstractDict{AbstractNLCECluster,Vector{<:Real}},
-    filename::AbstractString,
-)
-
-    nlce_file = open(filename, "w")
-
-    for (cluster, mults) in nlce_output
-        write(nlce_file, "$(nv(cluster)):")
-        for edge in edge_list(cluster)
-            write(nlce_file, " $(join(edge, ' '))")
-        end
-        write(nlce_file, " : $(join(mults, ' '))\n")
-    end
-    close(nlce_file)
-end
-
-function write_to_file_fortran(
-    nlce_output::AbstractDict{AbstractNLCECluster,Vector{<:Real}},
-    filename::AbstractString,
-    max_order::Integer,
-)
-
-    nlce_files = [open(filename * "_$(i).txt", "w") for i = 1:max_order]
-    sorted_clusters = sort(collect(keys(nlce_output)), by = nv)
-
-    for cluster in sorted_clusters
-        edges = edge_list(cluster)
-        write(nlce_files[nv(cluster)], "$(length(edges))\n")
-        for edge in edges
-            write(nlce_files[nv(cluster)], "$(join(edge, '\t'))\n")
-        end
-        write(nlce_files[nv(cluster)], "\n")
-    end
-
-    for cluster in sorted_clusters
-        write(nlce_files[nv(cluster)], "$(join(nlce_output[cluster], ' '))\n")
-    end
-
-    close.(nlce_files)
-end

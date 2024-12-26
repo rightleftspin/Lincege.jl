@@ -80,13 +80,14 @@ function isomorphic_pruning(cluster::AbstractNLCECluster)
 end
 
 
-function symmetric_pruning(cluster::AbstractNLCECluster)
+function symmetric_pruning(cluster_prehash::AbstractNLCECluster)
+    println([perm[vertices(cluster_prehash)] for perm in permutations(underlying_lattice(cluster_prehash))])
     (
         hash(
             sort(([
                 translational_form(
-                    cluster(underlying_lattice(cluster), perm[vertices(cluster)]),
-                ) for perm in permutations(underlying_lattice(cluster))
+                                   cluster(underlying_lattice(cluster_prehash), Vector{Integer}(perm[vertices(cluster_prehash)])),
+                ) for perm in permutations(underlying_lattice(cluster_prehash))
             ])),
         ),
         nothing,

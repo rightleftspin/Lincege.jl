@@ -19,6 +19,7 @@ struct NLCELattice{D,W,L} <: AbstractNLCELattice
     adj_matrix::AbstractMatrix{<:Integer}
     adj_matrix_weights::AbstractArray{<:Integer,3}
     coordinates::AbstractVector{<:AbstractVector{<:Real}}
+    permutations::Union{<:AbstractVector{<:AbstractVector{<:Union{Nothing, Integer}}}, Nothing}
 
     function NLCELattice(
         center::AbstractVector{<:Integer},
@@ -27,6 +28,7 @@ struct NLCELattice{D,W,L} <: AbstractNLCELattice
         adj_matrix::AbstractMatrix{<:Integer},
         adj_matrix_weights::AbstractArray{<:Integer,3},
         coordinates::AbstractVector{<:AbstractVector{<:Real}},
+        permutations::Union{<:AbstractVector{<:AbstractVector{<:Union{Nothing, Integer}}}, Nothing},
         directed::Bool,
         edge_weighted::Bool,
         vertex_labeled::Bool,
@@ -49,6 +51,7 @@ struct NLCELattice{D,W,L} <: AbstractNLCELattice
             adj_matrix,
             adj_matrix_weights,
             coordinates,
+            permutations,
         )
     end
 end
@@ -60,6 +63,7 @@ function NLCELattice(
     adj_matrix::AbstractMatrix{<:Integer},
     adj_matrix_weights::AbstractArray{<:Integer,3},
     coordinates::AbstractVector{<:AbstractVector{<:Real}},
+    permutations::Union{<:AbstractVector{<:AbstractVector{<:Union{Nothing, Integer}}}, Nothing},
     directed::Bool,
     edge_weighted::Bool,
     vertex_labeled::Bool,
@@ -72,6 +76,7 @@ function NLCELattice(
         adj_matrix,
         adj_matrix_weights,
         coordinates,
+        permutations,
         directed,
         edge_weighted,
         vertex_labeled,
@@ -87,12 +92,18 @@ function NLCELattice(
     primitive_vectors::AbstractVector{<:AbstractVector{<:Real}},
     neighborhood::AbstractVector{<:Real},
     max_order::Integer;
+    symmetries::Union{Nothing, <:AbstractVector} = Nothing,
     basis_colors::AbstractVector{<:Integer} = repeat([1], length(basis)),
 )
 
-    max_order_padded = max_order
     coordinates, colors, centers =
-        generate_coordinates(basis, primitive_vectors, max_order_padded, basis_colors)
+        generate_coordinates(basis, primitive_vectors, max_order, basis_colors)
+
+    permutations = Nothing
+
+    if symmetries != Nothing
+        permutations = find_permutations(coordinates, symmetries)
+    end
 
     number_vertices = length(coordinates)
     adj_matrix = zeros(Int, number_vertices, number_vertices)
@@ -130,6 +141,7 @@ function NLCELattice(
         adj_matrix,
         adj_matrix_weights,
         coordinates,
+        permutations,
         false,
         (length(neighborhood) > 1),
         (length(unique(basis_colors)) > 1),
@@ -156,4 +168,7 @@ begin #Required functions for the pipeline
 
     get_coordinates(lattice::NLCELattice, vertices::Union{Integer,AbstractArray}) =
         lattice.coordinates[vertices]
+
+    all_coordinates(lattice::NLCELattice) = lattice.coordinates
+    permutations(lattice::NLCELattice) = lattice.permutations
 end

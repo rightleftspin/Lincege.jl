@@ -77,3 +77,8 @@ sih = [inv * x for x in c2]
 sid = [inv * x for x in c2p]
 
 pyrochlore_symmetries = [ident, c2... , c2p... , c3... , c4... , inv, s4... , s6... , sih... , sid...]
+
+
+#for elem in pyrochlore_symmetries
+#    elem[abs.(elem) .< 1e-12] .= 0
+#end
