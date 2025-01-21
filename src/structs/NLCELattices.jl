@@ -19,7 +19,7 @@ struct NLCELattice{D,W,L} <: AbstractNLCELattice
     adj_matrix::AbstractMatrix{<:Integer}
     adj_matrix_weights::AbstractArray{<:Integer,3}
     coordinates::AbstractVector{<:AbstractVector{<:Real}}
-    permutations::Union{<:AbstractVector{<:AbstractVector{<:Union{Nothing, Integer}}}, Nothing}
+    permutations::Union{<:AbstractVector, Nothing}
 
     function NLCELattice(
         center::AbstractVector{<:Integer},
@@ -28,7 +28,7 @@ struct NLCELattice{D,W,L} <: AbstractNLCELattice
         adj_matrix::AbstractMatrix{<:Integer},
         adj_matrix_weights::AbstractArray{<:Integer,3},
         coordinates::AbstractVector{<:AbstractVector{<:Real}},
-        permutations::Union{<:AbstractVector{<:AbstractVector{<:Union{Nothing, Integer}}}, Nothing},
+        permutations::Union{<:AbstractVector, Nothing},
         directed::Bool,
         edge_weighted::Bool,
         vertex_labeled::Bool,
@@ -63,7 +63,7 @@ function NLCELattice(
     adj_matrix::AbstractMatrix{<:Integer},
     adj_matrix_weights::AbstractArray{<:Integer,3},
     coordinates::AbstractVector{<:AbstractVector{<:Real}},
-    permutations::Union{<:AbstractVector{<:AbstractVector{<:Union{Nothing, Integer}}}, Nothing},
+    permutations::Union{<:AbstractVector, Nothing},
     directed::Bool,
     edge_weighted::Bool,
     vertex_labeled::Bool,
@@ -92,17 +92,17 @@ function NLCELattice(
     primitive_vectors::AbstractVector{<:AbstractVector{<:Real}},
     neighborhood::AbstractVector{<:Real},
     max_order::Integer;
-    symmetries::Union{Nothing, <:AbstractVector} = Nothing,
+    symmetries::Union{Nothing, <:AbstractVector} = nothing,
     basis_colors::AbstractVector{<:Integer} = repeat([1], length(basis)),
 )
 
-    coordinates, colors, centers =
+    coordinates, sublattice_coords, colors, centers =
         generate_coordinates(basis, primitive_vectors, max_order, basis_colors)
 
-    permutations = Nothing
+    permutations = nothing
 
-    if symmetries != Nothing
-        shifts = [site ./ 2 for site in eachcol(generate_primitive_lattice(primitive_vectors, fld(max_order, 2)))]
+    if symmetries != nothing
+        shifts = [site ./ 2 for site in eachcol(generate_primitive_lattice(primitive_vectors, fld(max_order, 2))[1])]
         permutations = find_permutations(coordinates, symmetries, shifts)
     end
 
@@ -136,12 +136,24 @@ function NLCELattice(
         end
     end
 
+    #NLCELattice(
+    #    centers,
+    #    colors,
+    #    adj_matrix,
+    #    adj_matrix_weights,
+    #    coordinates,
+    #    permutations,
+    #    false,
+    #    (length(neighborhood) > 1),
+    #    (length(unique(basis_colors)) > 1),
+    #)
+
     NLCELattice(
         centers,
         colors,
         adj_matrix,
         adj_matrix_weights,
-        coordinates,
+        sublattice_coords,
         permutations,
         false,
         (length(neighborhood) > 1),

@@ -15,24 +15,21 @@ function generate_coordinates(
     max_order::Integer,
     basis_colors::AbstractVector{<:Integer},
 )
-    primitive_lattice = generate_primitive_lattice(primitive_vectors, max_order)
-    coordinates, centers = add_basis(basis, primitive_lattice)
+    primitive_lattice, cartesian_lattice = generate_primitive_lattice(primitive_vectors, max_order)
+    coordinates, sublattice_points, centers = add_basis(basis, primitive_lattice, cartesian_lattice)
     colors = repeat(basis_colors, size(primitive_lattice)[2])
     
     sorted_coord_perm = sortperm(coordinates)
     
-    (coordinates[sorted_coord_perm], colors[sorted_coord_perm], findfirst.(isapprox.(centers), (coordinates[sorted_coord_perm], )))
+    (coordinates[sorted_coord_perm], sublattice_points[sorted_coord_perm], colors[sorted_coord_perm], findfirst.(isapprox.(centers), (coordinates[sorted_coord_perm], )))
 end
 
 """
 Generates the lattice by populating the basis around each site in the primitive lattice
 """
-function add_basis(basis, lattice)
+function add_basis(basis, lattice, cartesian_lattice)
 
-    #centered_basis = [elem - (sum(basis) / length(basis)) for elem in basis]
-    
-    #(collect(Iterators.flatten([[site + elem for elem in centered_basis] for site in eachcol(lattice)])), centered_basis)
-    (collect(Iterators.flatten([[site + elem for elem in basis] for site in eachcol(lattice)])), basis)
+    (collect(Iterators.flatten([[site + elem for elem in basis] for site in eachcol(lattice)])), collect(Iterators.flatten([[[site..., i] for i in 1:length(basis)] for site in eachcol(cartesian_lattice)])), basis)
 
 end
 
@@ -42,8 +39,9 @@ side length = 2 * maximum_order + 1 centered at the origin
 """
 function generate_primitive_lattice(primitive_vectors, max_order)
    
+    unrotated_coords = generate_cartesian_coordinates(length(primitive_vectors), max_order)
     # rotate and stretch standard cartesian cube coordinates into primitive lattice
-    stack(primitive_vectors) * generate_cartesian_coordinates(length(primitive_vectors), max_order)
+    (stack(primitive_vectors) * unrotated_coords, unrotated_coords)
 
 end
 
