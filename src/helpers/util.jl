@@ -177,7 +177,7 @@ function find_permutations(coordinates, group, shifts)
         )
     end
 
-    #println(length.(unique.(permutations)))
+    println(length.(unique.(permutations)))
     
     permutations
 end

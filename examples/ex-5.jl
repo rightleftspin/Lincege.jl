@@ -19,7 +19,7 @@ primitive_vec = [[0, 1 / 2, 1 / 2], [1 / 2, 0, 1 / 2], [1 / 2, 1 / 2, 0]]
 
 neighborhood = [sqrt(2) / 4]
 
-max_order = 3
+max_order = 6
 
 # Generating all the clusters using this information
 nlce_clusters, cluster_hashes, cluster_perms = coord_NLCE(NLCE.pyrochlore_symmetries, basis, primitive_vec, neighborhood, max_order)
