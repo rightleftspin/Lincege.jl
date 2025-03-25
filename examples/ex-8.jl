@@ -3,13 +3,13 @@ module ex8
 using NLCE
 using NautyGraphs
 
-basis = [[0, 0], [1, 0], [0, 1], [1, 1]]
+basis = [[0, 0], [1, 0], [0, 1.5], [1, 1.5]]
 
 colors = [1, 2, 2, 1]
 
-primitive_vec = [[2, 0], [0, 2]]
+primitive_vec = [[2, 0], [0, 3]]
 
-neighborhood = [1]
+neighborhood = [1, 1.5]
 
 max_order = 8
 
@@ -66,7 +66,7 @@ for (cluster, multiplicities) in nlce_clusters
             end
         else
         # Upwards
-        if site_diff != [0, 1]
+        if site_diff != [0, 1.5]
             println("error")
         end
             if site_labels[1] == 1

@@ -103,7 +103,8 @@ function isomorphic_pruning(cluster::AbstractNLCECluster)
     # Canonize and find the corresponding permutation 
     permutation, _ = canonize!(nauty_graph)
     
-    #add_orbits!(cluster, NautyGraphs.orbits(nauty_graph)) 
+    #add_orbits!(cluster, NautyGraphs.orbits(nauty_graph))
+    # TODO: Add orbits correctly eventually
     add_orbits!(cluster, vertices(cluster)) 
 
     # Return the nauty hash and the permutation for the cluster
