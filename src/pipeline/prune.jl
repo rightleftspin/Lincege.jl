@@ -29,10 +29,10 @@ Output:
       Hashmap relating the hash of the cluster to the cluster itself and
       the corresponding multiplicity of the cluster.
 """
-function prune(pruning::Function, clusters::AbstractVector{<:AbstractNLCECluster})
+function prune(pruning::Function, clusters::AbstractVector{<:AbstractCluster})
 
     # Initialize the empty output dictionary
-    cluster_mult = Dict{Integer,Tuple{<:AbstractNLCECluster,<:Real,<:AbstractDict}}()
+    cluster_mult = Dict{Integer,Tuple{<:AbstractCluster,<:Real,<:AbstractDict}}()
 
     # Add function for multiplicity
     add_mult_one = (cluster, mult, _) -> (cluster, mult + 1, Dict{Integer,Real}())
@@ -67,7 +67,7 @@ Inputs:
 Output:
       Array of clusters after filtering
 """
-function filtering(pruning::Function, clusters::AbstractVector{<:AbstractNLCECluster})
+function filtering(pruning::Function, clusters::AbstractVector{<:AbstractCluster})
 
     unique(cluster -> pruning(cluster)[1], clusters)
 

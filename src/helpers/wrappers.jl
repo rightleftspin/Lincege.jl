@@ -28,7 +28,7 @@ function simple_NLCE(
 )
 
     # Create the lattice
-    lattice = NLCELattice(basis, primitive_vectors, neighborhood, max_order)
+    lattice = Cluster(basis, primitive_vectors, neighborhood, max_order)
     # Generate clusters on the lattice
     generated_clusters = grow(lattice, max_order)
     # find all the isomorphic clusters
@@ -46,7 +46,7 @@ function simple_NLCE(
     subclusters = propogate(isomorphic_pruning, iso_clusters)
 
     # Initialize an empty output dictionary
-    output_dict = Dict{AbstractNLCECluster,Vector{<:Real}}()
+    output_dict = Dict{Cluster, Vector{<:Real}}()
 
     # Return the final sum for all clusters
     for order = 1:max_order

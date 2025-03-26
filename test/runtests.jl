@@ -16,29 +16,29 @@ using Base.Iterators
         "Primitive Vectors" => [[2, 0], [-1, sqrt(3)]],
     )
 
-    @testset "NLCELattice" begin
+    @testset "Cluster" begin
         # Here I will test a variety of lattices at nearest neighbor up till order 6
-        # to see if the NLCELattice struct works. Most issues usually present themselves
+        # to see if the Cluster struct works. Most issues usually present themselves
         # by order 5.
 
         neighborhood = [1]
         max_order = 6
 
-        square_nlce_lattice = NLCE.NLCELattice(
+        square_nlce_lattice = NLCE.Cluster(
             square_lattice["Basis"],
             square_lattice["Primitive Vectors"],
             neighborhood,
             max_order,
         )
 
-        triangular_nlce_lattice = NLCE.NLCELattice(
+        triangular_nlce_lattice = NLCE.Cluster(
             triangular_lattice["Basis"],
             triangular_lattice["Primitive Vectors"],
             neighborhood,
             max_order,
         )
 
-        kagome_nlce_lattice = NLCE.NLCELattice(
+        kagome_nlce_lattice = NLCE.Cluster(
             kagome_lattice["Basis"],
             kagome_lattice["Primitive Vectors"],
             neighborhood,
@@ -50,8 +50,8 @@ using Base.Iterators
         @test NLCE.nv(square_nlce_lattice) == number_verts
         @test NLCE.nv(triangular_nlce_lattice) == number_verts
 
-        @test NLCE.center(square_nlce_lattice) == [fld(number_verts, 2)]
-        @test NLCE.center(triangular_nlce_lattice) == [fld(number_verts, 2)]
+        @test NLCE.start(square_nlce_lattice) == [fld(number_verts, 2) + 1]
+        @test NLCE.start(triangular_nlce_lattice) == [fld(number_verts, 2) + 1]
 
         @test length(NLCE.neighbors(square_nlce_lattice, fld(number_verts, 2))) == 4
         @test length(NLCE.neighbors(triangular_nlce_lattice, fld(number_verts, 2))) == 6

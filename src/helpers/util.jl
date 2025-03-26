@@ -114,8 +114,10 @@ function adj_matrix_to_adj_list(adj_matrix::AbstractMatrix{<:Integer})
     for i = 1:number_vertices
         neighbors = []
         for j = 1:number_vertices
-            if adj_matrix[i, j] == 1
-                append!(neighbors, j)
+            if i != j
+                if adj_matrix[i, j] != 0
+                    append!(neighbors, j)
+                end
             end
         end
         push!(adj_list, neighbors)
@@ -136,8 +138,10 @@ function adj_matrix_to_edge_list(adj_matrix::AbstractMatrix{<:Integer})
 
     for i = 1:number_vertices
         for j = i:number_vertices
+            if i != j
             if adj_matrix[i, j] != 0
                 push!(edge_list, [i, j, adj_matrix[i, j]])
+            end
             end
         end
     end
@@ -146,6 +150,7 @@ function adj_matrix_to_edge_list(adj_matrix::AbstractMatrix{<:Integer})
 
 end
 
+# TODO: Fix this omg it is so slow
 """
 Finds a permutation representation of a given group of transformations
 on the given coordinates. 
@@ -182,100 +187,12 @@ function find_permutations(coordinates, group, shifts)
     permutations
 end
 
-function write_to_file_coordinates(
-    nlce_output::AbstractDict{AbstractNLCECluster,Vector{<:Real}},
-    cluster_hashes::AbstractDict{AbstractNLCECluster, Integer},
-    cluster_perms::AbstractDict{AbstractNLCECluster, Vector{<:Integer}},
-    filename::AbstractString,
-)
+"""
+Resummation functions that take in thermodynamic properties
+and return the resummed versions at various levels of correction.
 
-    nlce_file = open(filename, "w")
-
-    for (cluster, mults) in nlce_output
-        perm = cluster_perms[cluster]
-        write(nlce_file, "$(nv(cluster)):")
-        write(nlce_file, " $(cluster_hashes[cluster]):")
-        for edge in edge_list(cluster)
-            write(nlce_file, " $(join((findall(x -> x == edge[1], perm)[1], findall(x -> x == edge[2], perm)[1], edge[3]), ' '))")
-        end
-        write(nlce_file, ":")
-        for coord in all_coordinates(cluster)[perm]
-            write(nlce_file, " ($(join(coord, ',')))")
-        end
-        write(nlce_file, ": $(join(orbits(cluster)[perm], ' '))")
-        write(nlce_file, ": $(join(mults, ' '))\n")
-    end
-    close(nlce_file)
-end
-
-function write_to_file(
-    nlce_output::AbstractDict{AbstractNLCECluster,Vector{<:Real}},
-    filename::AbstractString,
-)
-
-    nlce_file = open(filename, "w")
-
-    for (cluster, mults) in nlce_output
-        write(nlce_file, "$(nv(cluster)):")
-        for edge in edge_list(cluster)
-            write(nlce_file, " $(join(edge, ' '))")
-        end
-        write(nlce_file, " : $(join(mults, ' '))\n")
-    end
-    close(nlce_file)
-end
-
-function write_to_file_colors(
-    nlce_output::AbstractDict{AbstractNLCECluster,Vector{<:Real}},
-    filename::AbstractString,
-    bond_info
-)
-
-    nlce_file = open(filename, "w")
-
-    for (cluster, mults) in nlce_output
-        write(nlce_file, "$(nv(cluster)):")
-        for edge in get(bond_info, cluster, 0)[1]
-            write(nlce_file, " $(join(edge, ' '))")
-        end
-        write(nlce_file, ": $(join(labels(cluster), ' ')):")
-        for edge in get(bond_info, cluster, 0)[2]
-            write(nlce_file, " $(join(edge, ' '))")
-        end
-        #for edge in edge_list(cluster)
-        #    write(nlce_file, " $(join(edge, ' '))")
-        #end
-        #write(nlce_file, ": $(join(labels(cluster), ' ')):")
-        #for coord in all_coordinates(cluster)
-        #    write(nlce_file, " ($(join(coord, ',')))")
-        #end
-        #write(nlce_file, ": $(join(orbits(cluster), ' '))")
-        write(nlce_file, ": $(join(mults, ' '))\n")
-    end
-    close(nlce_file)
-end
-
-function write_to_file_fortran(
-    nlce_output::AbstractDict{AbstractNLCECluster,Vector{<:Real}},
-    filename::AbstractString,
-    max_order::Integer,
-)
-
-    nlce_files = [open(filename * "_$(i).txt", "w") for i = 1:max_order]
-    sorted_clusters = sort(collect(keys(nlce_output)), by = nv)
-
-    for cluster in sorted_clusters
-        edges = edge_list(cluster)
-        write(nlce_files[nv(cluster)], "$(length(edges))\n")
-        for edge in edges
-            write(nlce_files[nv(cluster)], "$(join(edge, '\t'))\n")
-        end
-        write(nlce_files[nv(cluster)], "\n")
-    end
-
-    for cluster in sorted_clusters
-        write(nlce_files[nv(cluster)], "$(join(nlce_output[cluster], ' '))\n")
-    end
-
-    close.(nlce_files)
-end
+NOTE: Please make sure to use at least two resummation techniques as
+they will diverge at a further point than the bare NLCE summation.
+This divergence between the resummation should be treated as the new
+point to which the data is reasonable.
+"""

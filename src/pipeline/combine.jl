@@ -33,7 +33,7 @@ Output:
       zero for a cluster that is above the given order.
 """
 function nlce_summation(
-    clusters::AbstractDict{Integer,Tuple{<:AbstractNLCECluster,<:Real,<:AbstractDict}},
+    clusters::AbstractDict{Integer,Tuple{<:AbstractCluster,<:Real,<:AbstractDict}},
     order::Integer,
 )
     cluster_weights = Dict()
@@ -72,7 +72,7 @@ Output:
       the cluster specified in cluster_hash
 """
 function _weight(
-    clusters::AbstractDict{Integer,Tuple{<:AbstractNLCECluster,<:Real,<:AbstractDict}},
+    clusters::AbstractDict{Integer,Tuple{<:AbstractCluster,<:Real,<:AbstractDict}},
     cluster_hash::Integer,
 )
     weight_dictionary = Dict([cluster_hash => 1 // 1])
