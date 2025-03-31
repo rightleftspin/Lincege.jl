@@ -11,7 +11,7 @@ primitive_vec = [[2, 0], [0, 3]]
 
 neighborhood = [1, 1.5]
 
-max_order = 8
+max_order = 10
 
 nlce_clusters = NLCE.site_color_NLCE(basis, colors, primitive_vec, neighborhood, max_order)
 

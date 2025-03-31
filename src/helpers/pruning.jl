@@ -101,7 +101,7 @@ function isomorphic_pruning(cluster::AbstractNLCECluster)
     nauty_graph =
        NautyGraph(unweighted_adjacency_matrix, nauty_labels)
     # Canonize and find the corresponding permutation 
-    permutation, _ = canonize!(nauty_graph)
+    permutation = canonize!(nauty_graph)
     
     #add_orbits!(cluster, NautyGraphs.orbits(nauty_graph))
     # TODO: Add orbits correctly eventually
