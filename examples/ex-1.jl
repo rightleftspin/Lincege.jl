@@ -16,10 +16,17 @@ primitive_vec = [[1, 0], [0, 1]]
 neighborhood = [1]
 
 # Setting the maximum order
-max_order = 5
+max_order = 10
 
 # Generating all the clusters using this information
 nlce_clusters = simple_NLCE(basis, primitive_vec, neighborhood, max_order)
+
+cluster_mults = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+for (cluster, mults) in nlce_clusters
+    cluster_mults[NLCE.nv(cluster)] += mults[findfirst(!=(0), mults)]
+end
+
+println(cluster_mults)
 
 # Writing all the files to the corresponding folder, creating the folder
 # if it does not exist
@@ -28,7 +35,7 @@ mkpath(filepath)
 filename = filepath * "/square_nn"
 
 # Write all the files in the "fortran" format
-write_to_file_fortran(nlce_clusters, filename, max_order)
+write_to_file(nlce_clusters, filename)
 
 
 """

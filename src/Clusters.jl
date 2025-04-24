@@ -1,6 +1,10 @@
 
 abstract type AbstractCluster end
-
+# Thought: Change the default hasher on a cluster to be the translational
+# hash of the cluster. This means that you will not have to worry about
+# having to prune a list, you just need to add all the clusters to a set
+# of clusters during the grow step. This removes the need to filter
+# cluster all togehter, and you can just group clusters instead.
 
 """
 This is the cluster struct that powers the entire NLCE algorithm. It is designed to be very general so
@@ -11,7 +15,8 @@ struct Cluster{U, C, V, E} <: AbstractCluster
 
     "Coordinates in the cluster, all index integers are in reference to this vector of coordinates"
     coordinates::AbstractVector{<:AbstractVector{<:Real}}
-    "Start point of the cluster for growing subclusters, where elements of the vector point to specific coordinates in the vector of coordinates above"
+    "Start point of the cluster for growing subclusters, where elements of the vector point to specific coordinates in the vector of coordinates above
+    for clustered expansions, this will refer instead to sites in the coordinate bundles"
     start::AbstractVector{<:Integer}
     "Bonds between sites where index in the outer vector is site 1 and index in the inner vector is site 2"
     adj_list::AbstractVector{<:AbstractVector{<:Integer}}
@@ -23,7 +28,7 @@ struct Cluster{U, C, V, E} <: AbstractCluster
     "Underlying cluster for the given cluster, or nothing if it is the underlying lattice"
     underlying_cluster::Union{AbstractCluster, Nothing}
     "Vertices that are a part of the cluster in reference to an underlying lattice"
-    vertices::Union{AbstractVector{<:Integer}, Nothing}
+    underlying_vertices::Union{AbstractVector{<:Integer}, Nothing}
 
     # Below are the fields for the cluster expansion as opposed to the site expansion
     "Bundles of coordinates where each inner vector represents a single site in the super cluster in the case of a cluster expansion"
@@ -37,7 +42,7 @@ struct Cluster{U, C, V, E} <: AbstractCluster
         adj_list::AbstractVector{<:AbstractVector{<:Integer}},
         adj_matrices::AbstractArray{<:Integer,3},
         underlying_cluster::Union{AbstractCluster, Nothing},
-        vertices::Union{AbstractVector{<:Integer}, Nothing},
+        underlying_vertices::Union{AbstractVector{<:Integer}, Nothing},
         coordinate_bundles::Union{AbstractVector{<:AbstractVector{<:Integer}}, Nothing},
         super_adj_list::Union{AbstractVector{<:AbstractVector{<:Integer}}, Nothing},
         has_underlying_cluster::Bool,
@@ -63,7 +68,7 @@ struct Cluster{U, C, V, E} <: AbstractCluster
             adj_list,
             adj_matrices,
             underlying_cluster,
-            vertices,
+            underlying_vertices,
             coordinate_bundles,
             super_adj_list,
         )
@@ -71,12 +76,14 @@ struct Cluster{U, C, V, E} <: AbstractCluster
 end
 
 """
-Basic constructor for site expansion lattice with edge weights and vertex labels
+Basic constructor for either expansion lattice with edge weights and vertex labels
 """
 function Cluster(
     coordinates::AbstractVector{<:AbstractVector{<:Real}},
     start::AbstractVector{<:Integer},
     adj_matrices::AbstractArray{<:Integer,3},
+    coordinate_bundles::Union{AbstractVector{<:AbstractVector{<:Integer}}, Nothing},
+    super_adj_list::Union{AbstractVector{<:AbstractVector{<:Integer}}, Nothing},
     vertex_labeled::Bool,
     edge_labeled::Bool,
 )
@@ -88,20 +95,17 @@ function Cluster(
         adj_matrices,
         nothing,
         nothing,
-        nothing,
-        nothing,
+        coordinate_bundles,
+        super_adj_list,
         false,
-        false,
+        !isnothing(coordinate_bundles),
         vertex_labeled,
         edge_labeled,
     )
 end
 
-# Constructor for cluster expansion lattice with edge weights and vertex labels
-
-#TODO: Move the math heavy parts into util.jl
 """
-Constructor for site expansion lattice, takes in a basis, primitive primitive vectors
+Constructor for site expansion lattice, takes in a basis, primitive vectors
 and the maximum order and generates a cluster that represents the lattice.
 """
 function Cluster(
@@ -115,55 +119,99 @@ function Cluster(
     coordinates, sublattice_coords, colors, start_points =
         generate_coordinates(basis, primitive_vectors, max_order, basis_colors)
 
-    adj_matrices = zeros(Int, 2, length(coordinates), length(coordinates))
-    directions::Vector{Vector{Real}} = []
-
-    for (index_coord, coord) in enumerate(coordinates)
-        adj_matrices[1, index_coord, index_coord] = colors[index_coord]
-        for (index_distance, distance) in enumerate(neighborhood)
-            equal_distance = n -> sqrt(sum((coord - n[2]) .^ 2)) ≈ distance
-            # Find all neighbors equal to the current distance but after the last distance
-            for (index_neighbor, neighbor) in
-                filter(equal_distance, collect(enumerate(coordinates)))
-                direction = neighbor - coord
-                # Check the direction of the bond, ie, along which axis
-                if findfirst(≈(direction), directions) != nothing
-                    adj_matrices[1, index_coord, index_neighbor] = index_distance
-                    adj_matrices[2, index_coord, index_neighbor] =
-                        findfirst(≈(direction), directions)
-                else
-                    append!(directions, [direction])
-                    adj_matrices[1, index_coord, index_neighbor] = index_distance
-                    adj_matrices[2, index_coord, index_neighbor] =
-                        findfirst(≈(direction), directions)
-                end
-            end
-        end
-    end
+    adj_matrices = create_adj_matrices(coordinates, colors, neighborhood)
 
     Cluster(
         sublattice_coords,
         start_points,
         adj_matrices,
+        nothing,
+        nothing,
         (length(unique(basis_colors)) > 1),
         (length(neighborhood) > 1),
     )
 end
 
 """
-Takes the underlying cluster and returns a subcluster of it
+Constructor for cluster expansion lattice, generates a corresponding super lattice
+from the specified basis and primitive vectors, where each site in the basis is the
+corresponding cluster in the sub_basis.
+"""
+function Cluster(
+    sup_basis::AbstractVector{<:AbstractVector{<:Real}},
+    sub_basis::AbstractVector{<:AbstractVector{<:AbstractVector{<:Real}}},
+    sup_primitive_vectors::AbstractVector{<:AbstractVector{<:Real}},
+    sup_neighborhood::AbstractVector{<:Real},
+    sub_neighborhood::AbstractVector{<:Real},
+    max_order::Integer;
+    sub_basis_colors::AbstractVector{<:AbstractVector{<:Integer}} = [repeat([1], length(sub)) for sub in sub_basis],
+)
+
+    # Generate the super lattice, we will populate the sublattice later.
+    sup_coordinates, sup_sublattice_coords, _, start_points =
+        generate_coordinates(sup_basis, sup_primitive_vectors, max_order, repeat([1], length(sup_basis)))
+
+    super_adj_list = create_adj_list(sup_coordinates, sup_neighborhood)
+
+    sub_coords, sub_colors, coordinate_bundles = generate_sub_coordinates(sup_coordinates,
+                                                      sup_sublattice_coords,
+                                                      sub_basis,
+                                                      sub_basis_colors)
+
+    sub_adj_matrices = create_adj_matrices(sub_coords, sub_colors, sub_neighborhood)
+
+    Cluster(
+        sub_coords,
+        start_points,
+        sub_adj_matrices,
+        coordinate_bundles,
+        super_adj_list,
+        (length(unique(sub_basis_colors)) > 1),
+        (length(sub_neighborhood) > 1),
+    )
+end
+
+"""
+Takes the underlying cluster and returns a subcluster of it. This function is for
+the cluster expansion
+"""
+function Cluster(
+    underlying_cluster::Cluster{<:Any, true, V, E},
+    underlying_super_vertices::AbstractVector{<:Integer},
+    ) where {V, E}
+    underlying_vertices = all_vertices(underlying_cluster, underlying_super_vertices)
+    Cluster(
+        coordinates(underlying_cluster, underlying_vertices),
+        # This points to the cluster bundle, not the regular adjacency list!
+        Vector(1:length(underlying_super_vertices)),
+        adj_matrix_to_adj_list(weighted_adjacency_matrix(underlying_cluster)[underlying_vertices, underlying_vertices]),
+        adjacency_matrices(underlying_cluster)[:, underlying_vertices, underlying_vertices],
+        underlying_cluster,
+        underlying_vertices,
+        coordinate_bundle(underlying_cluster, underlying_super_vertices),
+        super_adj_list(underlying_cluster, underlying_super_vertices),
+        true,
+        true,
+        V,
+        E,
+    )
+end
+
+"""
+Takes the underlying cluster and returns a subcluster of it. This function is for
+the site expansion
 """
 function Cluster(
     underlying_cluster::Cluster{<:Any, false, V, E},
-    vertices::AbstractVector{<:Integer},
+    underlying_vertices::AbstractVector{<:Integer},
     ) where {V, E}
     Cluster(
-        coordinates(underlying_cluster, vertices),
-        Vector(1:length(vertices)),
-        adj_matrix_to_adj_list(weighted_adjacency_matrix(underlying_cluster)[vertices, vertices]),
-        adjacency_matrices(underlying_cluster)[:, vertices, vertices],
+        coordinates(underlying_cluster, underlying_vertices),
+        Vector(1:length(underlying_vertices)),
+        adj_matrix_to_adj_list(weighted_adjacency_matrix(underlying_cluster)[underlying_vertices, underlying_vertices]),
+        adjacency_matrices(underlying_cluster)[:, underlying_vertices, underlying_vertices],
         underlying_cluster,
-        vertices,
+        underlying_vertices,
         nothing,
         nothing,
         true,
@@ -178,9 +226,11 @@ begin # Standard Access functions
     coordinates(cluster::Cluster, vertices::Union{Integer, AbstractVector}) = cluster.coordinates[vertices]
     all_coordinates(cluster::Cluster) = cluster.coordinates
     start(cluster::Cluster) = cluster.start
+
     neighbors(cluster::Cluster{<:Any, false, <:Any, <:Any}, vertices::Union{Integer,AbstractVector}) = cluster.adj_list[vertices]
-    adjacency_list(cluster::Cluster{<:Any, false, <:Any, <:Any}) = neighbors(cluster, 1:nv(cluster))
-    edge_list(cluster::Cluster{<:Any, false, <:Any, <:Any}) = adj_matrix_to_edge_list(weighted_adjacency_matrix(cluster))
+    neighbors(cluster::Cluster{<:Any, true, <:Any, <:Any}, vertices::Union{Integer,AbstractVector}) = cluster.super_adj_list[vertices]
+
+    edge_list(cluster::Cluster) = adj_matrix_to_edge_list(weighted_adjacency_matrix(cluster))
     adjacency_matrices(cluster::Cluster) = cluster.adj_matrices
     weighted_adjacency_matrix(cluster::Cluster) = adjacency_matrices(cluster)[1, :, :] - diagm(labels(cluster))
     direction_adjacency_matrix(cluster::Cluster) = adjacency_matrices(cluster)[2, :, :]
@@ -188,11 +238,22 @@ begin # Standard Access functions
     labels(cluster::Cluster) = diag(adjacency_matrices(cluster)[1, :, :])
     underlying_cluster(cluster::Cluster{true, <:Any, <:Any, <:Any}) = cluster.underlying_cluster
     vertices(cluster::Cluster) = Vector(1:nv(cluster))
-    underlying_vertices(cluster::Cluster{true, <:Any, <:Any, <:Any}) = cluster.vertices
-    Base.show(io::IO, cluster::Cluster) = print(io, "Cluster with $(nv(cluster)) vertices\nCoordinates: $(all_coordinates(cluster))\nBonds: $(edge_list(cluster))")
+    underlying_vertices(cluster::Cluster{true, <:Any, <:Any, <:Any}) = cluster.underlying_vertices
+
+    all_vertices(cluster::Cluster{<:Any, true, <:Any, <:Any}, super_verts::Union{Integer, AbstractVector}) = unique(vcat(coordinate_bundle(cluster, super_verts)...))
+    coordinate_bundle(cluster::Cluster{<:Any, true, <:Any, <:Any}, super_verts::Union{Integer, AbstractVector}) = cluster.coordinate_bundles[super_verts]
+    super_adj_list(cluster::Cluster{<:Any, true, <:Any, <:Any}, super_verts::Union{Integer, AbstractVector}) = reindex_adj_list(cluster.super_adj_list, super_verts)
+
+    Base.show(io::IO, cluster::Cluster{<:Any, false, <:Any, <:Any}) = print(io, "Cluster with $(nv(cluster)) vertices and $(length(edge_list(cluster))) bonds")
+    Base.show(io::IO, cluster::Cluster{<:Any, true, <:Any, <:Any}) = print(io, "Cluster with $(nv(cluster)) vertices and $(length(edge_list(cluster))) bonds\nSuper lattice contains $(length(cluster.super_adj_list)) super vertices")
+
+    # Sets default hashing of a cluster to be the translationally invariant hash
+    Base.hash(cluster::Cluster, h::UInt) = hash(translational_pruning(cluster), h)
+    Base.isequal(cluster1::Cluster, cluster2::Cluster) = (translational_pruning(cluster1) == translational_pruning(cluster2))
 end
 
 begin # Hashing Functions
+
     """
     Takes a vertex colored cluster and finds the
     translationally invariant hash of it.
@@ -203,7 +264,7 @@ begin # Hashing Functions
     Output:
           Tuple of cluster hash and nothing
     """
-    function translational_pruning(cluster::Cluster{true, false, true, <:Any})
+    function translational_pruning(cluster::Cluster{true, <:Any, true, <:Any})
         perm = sortperm(all_coordinates(cluster))
         form = vec(
             sum(
@@ -225,7 +286,7 @@ begin # Hashing Functions
     Output:
           Tuple of cluster hash and nothing
     """
-    function translational_pruning(cluster::Cluster{true, false, false, <:Any})
+    function translational_pruning(cluster::Cluster{true, <:Any, false, <:Any})
         (hash(vec(
             sum(
                 weight -> 2^weight,
@@ -247,7 +308,7 @@ begin # Hashing Functions
     Output:
           Tuple of cluster hash and permutation from nauty
     """
-    function isomorphic_pruning(cluster::Cluster{true, false, <:Any, true})
+    function isomorphic_pruning(cluster::Cluster{true, <:Any, <:Any, true})
 
         # This is to get edge-labels to work
         nauty_labels = vcat(labels(cluster),
@@ -305,7 +366,7 @@ begin # Hashing Functions
     Output:
           Tuple of cluster hash and permutation from nauty
     """
-    function isomorphic_pruning(cluster::Cluster{true, false, <:Any, false})
+    function isomorphic_pruning(cluster::Cluster{true, <:Any, <:Any, false})
 
         nauty_graph =
             NautyGraph(weighted_adjacency_matrix(cluster), labels(cluster))
@@ -349,7 +410,7 @@ a lattice and the order that clusters should be generated till.
 Using this information, the algorithm recursively generates an array of
 clusters that are all subclusters of specified order of the lattice.
 """
-function grow(underlying_cluster::Cluster{<:Any, false, <:Any, <:Any}, max_order::Integer)
+function grow(underlying_cluster::Cluster, max_order::Integer)
     out_array::Vector{AbstractCluster} = Vector()
     guarding_set::Set{Int} = Set([])
 
@@ -402,7 +463,7 @@ Output:
       output is the out_array that gets added to.
 """
 function _grow_from_site(
-    lattice::Cluster{false, false, <:Any, <:Any},
+    lattice::Cluster{false, <:Any, <:Any, <:Any},
     max_order::Integer,
     subcluster_vertices::AbstractVector{V},
     current_neighbors::Set{V},
@@ -495,7 +556,7 @@ Output:
       output is the out_array that gets added to.
 """
 function _grow_from_site(
-    underlying_cluster::Cluster{true, false, <:Any, <:Any},
+    underlying_cluster::Cluster{true, <:Any, <:Any, <:Any},
     max_order,
     subcluster_vertices::AbstractVector{V},
     current_neighbors::AbstractSet{V},

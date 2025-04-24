@@ -16,21 +16,61 @@ function generate_coordinates(
     basis_colors::AbstractVector{<:Integer},
 )
     primitive_lattice, cartesian_lattice = generate_primitive_lattice(primitive_vectors, max_order)
-    coordinates, sublattice_points, centers = add_basis(basis, primitive_lattice, cartesian_lattice)
+    coordinates = add_basis_coords(basis, primitive_lattice)
+    sublattice_points = add_basis_sublattice(basis, cartesian_lattice)
     colors = repeat(basis_colors, size(primitive_lattice)[2])
     
     sorted_coord_perm = sortperm(coordinates)
     
-    (coordinates[sorted_coord_perm], sublattice_points[sorted_coord_perm], colors[sorted_coord_perm], findfirst.(isapprox.(centers), (coordinates[sorted_coord_perm], )))
+    (coordinates[sorted_coord_perm],
+     sublattice_points[sorted_coord_perm],
+     colors[sorted_coord_perm],
+     findfirst.(isapprox.(basis), (coordinates[sorted_coord_perm], ))
+    )
 end
 
 """
-Generates the lattice by populating the basis around each site in the primitive lattice
+Generates a clustered lattice based on the given superlattice coordinates
 """
-function add_basis(basis, lattice, cartesian_lattice)
+function generate_sub_coordinates(
+    sup_coordinates::AbstractVector{<:AbstractVector{<:Real}},
+    sup_sublattice_coordinates::AbstractVector{<:AbstractVector{<:Real}},
+    sub_basis::AbstractVector{<:AbstractVector{<:AbstractVector{<:Real}}},
+    sub_basis_colors::AbstractVector{<:AbstractVector{<:Integer}},
+)
 
-    (collect(Iterators.flatten([[site + elem for elem in basis] for site in eachcol(lattice)])), collect(Iterators.flatten([[[site..., i] for i in 1:length(basis)] for site in eachcol(cartesian_lattice)])), basis)
 
+    sub_coordinates::Vector{Vector{Real}} = []
+    sub_colors::Vector{Int64} = []
+    coordinate_bundles::Vector{Vector{Int64}} = []
+    count = 1
+    for (ind, coord) in enumerate(sup_sublattice_coordinates)
+        append!(sub_coordinates, [sup_coordinates[ind] + elem for elem in sub_basis[coord[end]]])
+        append!(sub_colors, sub_basis_colors[coord[end]])
+        push!(coordinate_bundles, collect(count:(count + length(sub_basis[coord[end]]) - 1)))
+        count += length(sub_basis[coord[end]])
+    end
+
+    (sub_coordinates,
+     sub_colors,
+     coordinate_bundles
+     )
+end
+
+"""
+Generates the lattice by populating the basis around each site in the primitive lattice,
+this adds it in terms of sublattice coordinates
+"""
+function add_basis_sublattice(basis, cartesian_lattice)
+     collect(Iterators.flatten([[[site..., i] for i in 1:length(basis)] for site in eachcol(cartesian_lattice)]))
+end
+
+"""
+Generates the lattice by populating the basis around each site in the primitive lattice,
+this adds it in terms of real space coordinates
+"""
+function add_basis_coords(basis, lattice)
+    collect(Iterators.flatten([[site + elem for elem in basis] for site in eachcol(lattice)]))
 end
 
 """
@@ -61,6 +101,65 @@ function generate_cartesian_coordinates(dimension, half_side_length)
     end
 
     coords
+end
+
+#TODO: This could be much more efficient if I just constructed the adj list
+#directly, do that eventually
+"""
+Creates just the adjacency list for a set of coordinates and neighborhoods
+"""
+function create_adj_list(coordinates, neighborhood)
+
+    adj_matrix = zeros(Int, length(coordinates), length(coordinates))
+
+    for (index_coord, coord) in enumerate(coordinates)
+        for (index_distance, distance) in enumerate(neighborhood)
+            equal_distance = n -> sqrt(sum((coord - n[2]) .^ 2)) ≈ distance
+            # Find all neighbors equal to the current distance but after the last distance
+            for (index_neighbor, neighbor) in
+                filter(equal_distance, collect(enumerate(coordinates)))
+                adj_matrix[index_coord, index_neighbor] = index_distance
+            end
+        end
+    end
+
+    adj_matrix_to_adj_list(adj_matrix)
+end
+
+"""
+Create the adjacency matrices given a set of coordinates, colors and neighborhood.
+This finds directions, and labels further nearest neighbor bonds in the
+corresponding adjacency matrix.
+"""
+function create_adj_matrices(coordinates, colors, neighborhood)
+
+    adj_matrices = zeros(Int, 2, length(coordinates), length(coordinates))
+    directions::Vector{Vector{Real}} = []
+
+    for (index_coord, coord) in enumerate(coordinates)
+        adj_matrices[1, index_coord, index_coord] = colors[index_coord]
+        for (index_distance, distance) in enumerate(neighborhood)
+            equal_distance = n -> sqrt(sum((coord - n[2]) .^ 2)) ≈ distance
+            # Find all neighbors equal to the current distance but after the last distance
+            for (index_neighbor, neighbor) in
+                filter(equal_distance, collect(enumerate(coordinates)))
+                direction = neighbor - coord
+                # Check the direction of the bond, ie, along which axis
+                if findfirst(≈(direction), directions) != nothing
+                    adj_matrices[1, index_coord, index_neighbor] = index_distance
+                    adj_matrices[2, index_coord, index_neighbor] =
+                        findfirst(≈(direction), directions)
+                else
+                    append!(directions, [direction])
+                    adj_matrices[1, index_coord, index_neighbor] = index_distance
+                    adj_matrices[2, index_coord, index_neighbor] =
+                        findfirst(≈(direction), directions)
+                end
+            end
+        end
+    end
+
+    adj_matrices
 end
 
 """
@@ -110,7 +209,6 @@ function adj_matrix_to_adj_list(adj_matrix::AbstractMatrix{<:Integer})
 
     adj_list::Vector{Vector{Int64}} = []
 
-
     for i = 1:number_vertices
         neighbors = []
         for j = 1:number_vertices
@@ -150,17 +248,9 @@ function adj_matrix_to_edge_list(adj_matrix::AbstractMatrix{<:Integer})
 
 end
 
-function reindex_adj_list(vertices::AbstractVector{<:Integer}, underlying_adj_list::AbstractVector{<:AbstractVector{<:Integer}})
-    sort_verts = sortperm(vertices)
-    sort_dict = Dict(zip(vertices[sort_verts], 1:length(vertices)))
-
-    new_adj_list::Vector{Vector{Int64}} = []
-    for vertex in vertices
-        neighbors = filter(in(vertices), underlying_adj_list[vertex])
-        push!(new_adj_list, getindex.(Ref(sort_dict), neighbors))
-    end
-
-    new_adj_list
+# TODO: This might need to be fixed? It seems right, I cant figure it out rn
+function reindex_adj_list(underlying_adj_list::AbstractVector{<:AbstractVector{<:Integer}}, verts::AbstractVector{<:Integer})
+    adj_matrix_to_adj_list(adj_list_to_adj_matrix(underlying_adj_list)[verts, verts])
 end
 
 # TODO: Fix this omg it is so slow
