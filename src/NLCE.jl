@@ -1,24 +1,34 @@
 module NLCE
 
+using LinearAlgebra
+using Distances
+using Rotations
 using NautyGraphs
-using StaticArrays
+using JSON3 
 
 # Add the relevant structs
-include("structs/NLCELattices.jl")
-include("structs/NLCEClusters.jl")
+include("Clusters.jl")
+include("Bundles.jl")
+
+# Add various methods for the structs
+include("bundle_methods.jl")
+include("cluster_methods.jl")
+include("grow.jl")
+include("hashing.jl")
 
 # Add the relevant helper functions
-include("helpers/pruning.jl")
-include("helpers/util.jl")
-include("helpers/wrappers.jl")
-include("helpers/symmetries.jl")
+include("util.jl")
+include("wrappers.jl")
 
-# Add the basic pipeline
-include("pipeline/grow.jl")
-include("pipeline/prune.jl")
-include("pipeline/propagate.jl")
-include("pipeline/combine.jl")
+# Add Ising Model Simulation
+include("ising.jl")
 
-export simple_NLCE, coord_NLCE, write_to_file, write_to_file_fortran
+export SiteExpansionBundle,
+    StrongClusterExpansionBundle,
+    WeakClusterExpansionBundle,
+    site_expansion_NLCE,
+    simple_NLCE,
+    write_to_file,
+    write_to_file_fortran
 
 end
