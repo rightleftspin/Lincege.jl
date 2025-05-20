@@ -8,8 +8,8 @@ using NLCE
 using JSON3
 using JLD
 
-order = 10
-clusters = JSON3.read(open("examples/outputs/ex-square/square_nn_$(order).json", "r"))
+order = 5
+clusters = JSON3.read(open("examples/outputs/ex-square-cluster/square_cluster_nn_$(order).json", "r"))
 num_sites, bond_lists, multiplicities = [], [], []
 
 for cluster in clusters
@@ -27,21 +27,22 @@ temperature = range(0, 10, length = 100)
 
 # returns observables in 3D array, (property, temperature, order)
 # In order, properties are (energy, entropy, specific heat, magnetization)
-obs = NLCE.ising_observables(
+obs = NLCE.observables(
+    NLCE.ising_model,
     num_sites,
     bond_lists,
     multiplicities,
     temperature,
     B,
     couplings,
-    4,
-    order - 4,
+    2,
+    order - 1
 )
 
 # Writing all the files to the corresponding folder, creating the folder
 # if it does not exist
 filepath = "examples/outputs/ex-ising"
 mkpath(filepath)
-filename = filepath * "/square_nn_obs_$(order).jld"
+filename = filepath * "/square_cluster_nn_obs_$(order).jld"
 
 save(filename, "temp", temperature, "obs", obs)

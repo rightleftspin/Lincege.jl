@@ -8,8 +8,8 @@ using NLCE
 using JSON3
 using JLD
 
-order = 10
-clusters = JSON3.read(open("examples/outputs/ex-square/square_nn_$(order).json", "r"))
+order = 4
+clusters = JSON3.read(open("examples/outputs/ex-square-cluster/square_cluster_nn_$(order).json", "r"))
 num_sites, bond_lists, multiplicities = [], [], []
 
 for cluster in clusters
@@ -37,14 +37,14 @@ obs = NLCE.observables(
     temperature,
     B,
     couplings,
-    5,
-    7,
+    fld(order, 2),
+    order - 2,
 )
 
 # Writing all the files to the corresponding folder, creating the folder
 # if it does not exist
 filepath = "examples/outputs/ex-heisenberg"
 mkpath(filepath)
-filename = filepath * "/square_nn_heisenberg_obs_$(order).jld"
+filename = filepath * "/square_cluster_nn_heisenberg_obs_$(order).jld"
 
 save(filename, "temp", temperature, "obs", obs)

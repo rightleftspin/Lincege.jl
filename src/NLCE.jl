@@ -27,6 +27,7 @@ export SiteExpansionBundle,
     StrongClusterExpansionBundle,
     WeakClusterExpansionBundle,
     site_expansion_NLCE,
+    weak_cluster_expansion_NLCE,
     simple_NLCE,
     write_to_file,
     write_to_file_fortran
