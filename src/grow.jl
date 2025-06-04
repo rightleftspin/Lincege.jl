@@ -35,27 +35,41 @@ begin # Growing functions to get subclusters from a cluster
         Base.hash(subgraph::Subgraph, h::UInt) = hash(subgraph.vertices, h)
         Base.isequal(g1::Subgraph, g2::Subgraph) = (g1.vertices == g2.vertices)
 
-        function dfs_kernel!(dfs_lock::ReentrantLock, next::Stack{Subgraph}, cluster::Cluster, parents::AbstractSet{Subgraph}, max_order::Integer)
+
+        struct Consensus
+                is_done::AbstractVector
+                thread_id::Int
+        end
+
+        all_threads_done(c::Consensus) = (sum(c.is_done) == 0)
+        thread_empty!(c::Consensus) = (c.is_done[c.thread_id] = 0)
+        thread_working!(c::Consensus) = (c.is_done[c.thread_id] = 1)
+
+
+        function dfs_kernel!(dfs_lock::ReentrantLock, next::Stack{Subgraph}, cluster::Cluster, parents::AbstractSet{Subgraph}, max_order::Integer, c::Consensus)
 
                 while true
 
-                        subgraph = nothing
-                        for i in 1:3
-                                lock(dfs_lock)
-                                if !isempty(next)
-                                        subgraph = pop!(next)
-                                        unlock(dfs_lock)
-                                        break
-                                end
+                        lock(dfs_lock)
+                        if all_threads_done(c)
                                 unlock(dfs_lock)
-                                if i == 3
-                                        println("Finished")
-                                        return
-                                end
-                                sleep(0.005)
+                                break
                         end
 
+                        if isempty(next)
+                                println("thread $(c.thread_id) empty")
+                                thread_empty!(c)
+                                println("$(c.is_done) state")
+                                unlock(dfs_lock)
+                                sleep(0.1)
+                                continue
+                        end
 
+                        thread_working!(c)
+                        subgraph = pop!(next)
+                        println("thread $(c.thread_id) working")
+
+                        unlock(dfs_lock)
                         if length(subgraph) < max_order
                                 filtered_subgraphs = filter(!in(parents), neighbor_subgraphs(subgraph, cluster))
                                 lock(dfs_lock)
@@ -65,14 +79,6 @@ begin # Growing functions to get subclusters from a cluster
                                 end
                                 unlock(dfs_lock)
 
-                                #for lower_subgraph in neighbor_subgraphs(subgraph, cluster)
-                                #        lock(dfs_lock)
-                                #        if !(lower_subgraph in parents)
-                                #                push!(parents, lower_subgraph)
-                                #                push!(next, lower_subgraph)
-                                #        end
-                                #        unlock(dfs_lock)
-                                #end
                         end
                 end
                 println("Finished")
@@ -85,9 +91,11 @@ begin # Growing functions to get subclusters from a cluster
 
                 dfs_lock = ReentrantLock()
 
+                con_array = ones(Int, Threads.nthreads())
+
                 Threads.@threads for i in 1:Threads.nthreads()
-                        println(i)
-                        dfs_kernel!(dfs_lock, next, cluster, parents, max_order)
+                        c = Consensus(view(con_array, :), Threads.threadid())
+                        dfs_kernel!(dfs_lock, next, cluster, parents, max_order, c)
                 end
 
                 parents
