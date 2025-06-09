@@ -765,7 +765,7 @@ of writing to disk, but the standard will be JSON files
 """
 
 function write_to_file(
-        nlce_output::AbstractDict{<:Cluster,Vector{<:Real}},
+        nlce_output,
         bundle::AbstractBundle,
         filename::AbstractString,
 )
@@ -775,7 +775,7 @@ function write_to_file(
                 cluster_dict["NLCE Order"] = nsv(cluster)
                 cluster_dict["Number of Sites"] = nv(cluster)
                 cluster_dict["Site Labels"] = all_vertex_labels(cluster)
-                # TODO: cluster_dict["coordinates"] = get_coordinates(bundle, cluster)
+                cluster_dict["Coordinates"] = eachrow(get_coordinates(bundle, cluster))
                 cluster_dict["Weighted Bonds"] = weighted_edge_list(cluster)
                 cluster_dict["Multiplicities"] = mults
 
