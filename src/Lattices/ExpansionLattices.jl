@@ -1,13 +1,11 @@
-
-struct RealSpaceLattice{C<:AbstractMatrix,S<:AbstractMatrix{<:Integer}}
-        coordinates::C
-        sublattice_coordinates::S
-end
-
-struct ExpansionLattice{T<:AbstractVector{<:AbstractVector{<:Integer}},M<:AbstractMatrix{<:Integer}}
+struct ExpansionLattice{T<:AbstractVector{<:AbstractSet{<:Integer}},M<:AbstractMatrix{<:Integer}}
         adjacency_list::T
         connections::T
         expansion_lattice_graph::ExpansionLatticeGraph{M}
+end
+
+function ExpansionLattice(nlce_tiling::Tiling, max_order::Int)
+
 end
 
 neighbors(lattice::ExpansionLattice, vertex::Integer) = lattice.adjacency_list[vertex]

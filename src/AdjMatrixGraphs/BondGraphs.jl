@@ -1,8 +1,21 @@
-abstract type AbstractAdjMatrixGraph end
-
 struct BondGraph{W<:AbstractVector,M<:AbstractMatrix{<:Integer}} <: AbstractAdjMatrixGraph
         weight_info::W
         adj_matrix::M
+end
+
+
+# TODO: Figure out how to incorporate neighbor_fn
+function BondGraph(real_space_lattice::RealSpaceLattice, tiling::Tiling)
+        
+        dist_matrix = pairwise_distance(real_space_lattice)
+        adj_matrix = zeros(Int, size(dist_matrix))
+
+        @inbounds adj_matrix[diagind(adj_matrix)] = labels(real_space_lattice)
+        for (i, neighbor) in enumerate(real_space_neighbors(tiling))
+                @inbounds adj_matrix[findall(isapprox(neighbor), dist_matrix)] .= i
+        end
+
+        BondGraph(neighbors, adj_matrix)
 end
 
 """
@@ -96,60 +109,3 @@ function isomorphic_hash(sg::BondGraph, real_space_vertices::AbstractVector, mas
         
         unweighted_iso_hash(g)
 end
-
-
-"""
-Stores adj_matrix in 2^dir form, and labels for each site along the diagonal
-note that the labels have to start from numbers higher than the largest
-direction number
-"""
-struct DirectionGraph{W<:AbstractVector,M<:AbstractMatrix{<:Integer}} <: AbstractAdjMatrixGraph
-        weight_info::W
-        adj_matrix::M
-end
-
-"""
-Takes a cluster and finds the translationally invariant hash of it. This assumes that each
-site in the fundamental tiling unit is colored differently. In this way, the coloring of
-the translational units supersedes the labeling of each site.
-
-Please note that this function requires all the real_space_vertices to be sorted in dimensional order,
-ie. x, y, z, ...
-"""
-function translational_hash(g::DirectionGraph, real_space_vertices::AbstractVector, mask::BitMatrix)
-
-        new_adj_matrix = g.adj_matrix[real_space_vertices, real_space_vertices]
-        new_adj_matrix[mask] .= 0
-
-        hash(sum(new_adj_matrix, dims=2))
-end
-
-struct DistanceGraph{W<:AbstractVector,M<:AbstractMatrix{<:Integer}} <: AbstractAdjMatrixGraph
-        weight_info::W
-        adj_matrix::M
-end
-
-distance_hash(g::DistanceGraph, real_space_vertices::AbstractVector) = hash(sum(g.adj_matrix[real_space_vertices, real_space_vertices], dims=2))
-
-struct ExpansionLatticeGraph{M<:AbstractMatrix{<:Integer}} <: AbstractAdjMatrixGraph
-        adj_matrix::M
-end
-
-function get_mask(g::ExpansionLatticeGraph, expansion_vertices::AbstractVector, real_space_vertices::AbstractVector)
-        any.(in(expansion_vertices), adj_matrix(g)[real_space_vertices, real_space_vertices])
-end
-
-nv(g::AbstractAdjMatrixGraph) = size(g.adj_matrix, 1)
-nw(g::AbstractAdjMatrixGraph) = length(g.weight_info)
-
-labels(g::AbstractAdjMatrixGraph) = diag(g.adj_matrix)
-adj_matrix(g::AbstractAdjMatrixGraph) = tril(g.adj_matrix, -1) + tril(g.adj_matrix, 1)
-
-edge_list(g::AbstractAdjMatrixGraph) = adj_matrix_to_edge_list(adj_matrix(g))
-
-
-Base.show(io::IO, g::AbstractAdjMatrixGraph) = print(
-        io,
-        "Graph with $(nv(g)) vertices, $(length(edge_list(g))) bonds, and $(nw(g)) unique weights",
-)
-

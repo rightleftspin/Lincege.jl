@@ -7,22 +7,28 @@ using StaticArrays
 using NautyGraphs
 using JSON3
 
-# Add the relevant structs
-include("Clusters.jl")
-include("Bundles.jl")
+# Add Adjacency Matrix Graphs
+include("AdjMatrixGraphs/AdjMatrixGraphs.jl")
+include("AdjMatrixGraphs/BondGraphs.jl")
+include("AdjMatrixGraphs/DirectionGraphs.jl")
+include("AdjMatrixGraphs/DistanceGraphs.jl")
+include("AdjMatrixGraphs/ExpansionLatticeGraphs.jl")
 
-# Add various methods for the structs
-include("bundle_methods.jl")
-include("cluster_methods.jl")
-include("grow.jl")
-include("hashing.jl")
+# Add Clusters
+include("Clusters/Clusters.jl")
+include("Clusters/BondClusters.jl")
+include("Clusters/DirectionClusters.jl")
+include("Clusters/DistanceClusters.jl")
 
-# Add the relevant helper functions
-include("util.jl")
-include("wrappers.jl")
+# Add Lattices
+include("Lattices/RealSpaceLattices.jl")
+include("Lattices/ExpansionLattices.jl")
 
-# Add Ising Model Simulation
-include("ising.jl")
+# Include Cluster Tree Traversals
+include("Traversal/dfs.jl")
+include("Traversal/vsimple.jl")
+
+#
 
 export SiteExpansionBundle,
         StrongClusterExpansionBundle,
