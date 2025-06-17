@@ -1,22 +1,35 @@
-# NLCE.jl
-Julia implementation of the Numerical Linked Cluster Expansion method for generic infinite or finite lattices.
+# LINCEGE
 
-To use this repository while under development use the following commands:
+Put Badges here
 
-This section only needs to be run the first time you clone the repository
+LINCEGE.jl is a Julia implementation of Numerical Linked Cluster Expansions
+(NLCEs) for generic finite or infinite lattices. Utilizing LINCEGE.jl, you can
+easily generate clusters and reduced lattice constants for any lattice in order
+to perform NLCE.
 
-julia --project=.
+## Examples
 
-using Pkg
+### Square Lattice Site Expansion
 
-Pkg.instantiate()
+### Square Lattice Square Expansion
 
-exit()
+## Try out LINCEGE.jl
 
-From here on out, you can just run 
+Follow the documented tutorials for LINCEGE.jl below.
 
-julia --project=. examples/ex-1.jl
+[`Stable`](https://LINCEGE.github.io/LINCEGE.jl/stable/): Documentation for the
+latest version of the code
 
-or any other file in the repository.
+## Contact and Citation
 
-TODO: Shift the NLCE pipeline to be pure algorithms for future conversion to rust.
+To contact the authors of this package, please email either Pranav Seetharaman
+at [pjseetha@uwaterloo.ca](mailto:pjseetha@uwaterloo.ca) or Professor Ehsan
+Khatami at [ehsan.khatami@sjsu.edu](mailto:ehsan.khatami@sjsu.edu).
+
+If LINCEGE.jl helped you in your research, please cite us using the following
+citation:
+
+```bibtex
+```
+
+Funded by the U.S. Department of Energy: Grant Number DE-SC0022311
