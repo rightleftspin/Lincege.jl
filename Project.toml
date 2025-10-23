@@ -1,13 +1,13 @@
-name = "NLCE"
-uuid = "05a42466-2424-421a-a839-b20fe9622506"
-authors = ["Pranav <pranav@myrdd.info>"]
-version = "0.1.0"
+name = "LINCEGE"
+uuid = "f7bb31c1-1dce-4f9f-a981-827e9ac9009b"
+authors = ["Pranav Seetharaman <pranav@myrdd.info> and contributors"]
+version = "1.0.0-DEV"
 
-[deps]
-BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
-DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
-Distances = "b4f34e82-e78d-54a5-968a-f98e89d6e8f7"
-JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
-LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
-NautyGraphs = "7509a0a4-015a-4167-b44b-0799a1a2605e"
-StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+[compat]
+julia = "1.6.7"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
