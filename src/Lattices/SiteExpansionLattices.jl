@@ -1,0 +1,2 @@
+struct SiteExpansionLattice <:AbstractLattice
+end
