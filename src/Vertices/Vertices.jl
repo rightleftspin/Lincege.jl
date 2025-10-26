@@ -18,6 +18,7 @@ Base.length(vs::AbstractVertices) = length(vertices(vs))
 
 Base.isequal(vs1::AbstractVertices, vs2::AbstractVertices) = vs1 == vs2
 Base.:(==)(vs1::AbstractVertices, vs2::AbstractVertices) = (collect(vs1) == collect(vs2))
+Base.hash(vs::AbstractVertices, h::UInt) = hash(collect(sort(vs)), h)
 Base.contains(vs::AbstractVertices, v) = v in vs
 Base.haskey(vs::AbstractVertices, v) = v in vs
 
