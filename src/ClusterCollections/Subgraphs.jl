@@ -55,6 +55,47 @@ function Subgraphs(cluster::AbstractCluster, lattice::AbstractSiteExpansionLatti
     visited
 end
 
+function Subgraphs(cluster::AbstractCluster, lattice::AbstractClusterExpansionLattice)
+    if eltype(cluster) == LatticeVertices
+        return Subgraphs()
+    end
+
+    max_order = length(cluster) - 1
+    roots = Subgraphs(vertices(cluster), cluster, lattice)
+    visited = Subgraphs()
+
+    function try_mark(subgraph::Subgraph)
+        already = subgraph in visited
+        if !already
+            visited[ghash(subgraph)] = subgraph
+        end
+
+        if length(subgraph) == max_order
+            return false
+        end
+        !already
+    end
+
+    function dfs(subgraph::Subgraph)
+        if !try_mark(subgraph)
+            return
+        end
+
+        nbrs = neighbor_subgraphs(subgraph, lattice)
+        for ssg in nbrs
+            dfs(ssg)
+        end
+    end
+
+    for (ghash, sg) in roots
+        dfs(sg)
+    end
+
+    # Add Logic for single site subgraphs
+
+    visited
+end
+
 _clusters(cs::Subgraphs) = cs.clusters
 Base.length(cs::Subgraphs) = length(_clusters(cs))
 Base.iterate(cs::Subgraphs) = iterate(_clusters(cs))

@@ -60,8 +60,9 @@ end
 
 vertices(cluster::Subgraph) = cluster.vertices
 ghash(cluster::Subgraph) = cluster.ghash
+lattice_constant(cluster::Subgraph) = 1
+
 parent_hash(cluster::Subgraph) = cluster.parent_hash
 parent_hash_type(cluster::Subgraph{V,H,PH}) where {V,H,PH} = PH
 parent_vertices(cluster::Subgraph) = cluster.parent_vertices
 neighbors(cluster::Subgraph) = cluster.neighbors
-lattice_constant(cluster::Subgraph) = 1

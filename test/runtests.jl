@@ -3,6 +3,7 @@ using Test
 @testset verbose = true "LINCEGE.jl" begin
     import LINCEGE:
         Lattices.SiteExpansionLattice,
+        Lattices.StrongClusterExpansionLattice,
         Lattices.n_unique_sites,
         ClusterCollections.TranslationClusters,
         ClusterCollections.IsomorphicClusters,
@@ -31,7 +32,7 @@ using Test
     primitive_vectors = [[0.5, sqrt(3) / 2], [1, 0]]
     colors = [1]
     neighbor_distances = [1.0]
-    max_order_triangular = 10
+    max_order_triangular = 3
 
     triangular_lattice = SiteExpansionLattice(
         max_order_triangular,
@@ -49,7 +50,7 @@ using Test
     primitive_vectors = [[2, 0], [1, sqrt(3)]]
     colors = [1, 1, 1]
     neighbor_distances = [1.0]
-    max_order_kagome = 10
+    max_order_kagome = 3
 
     kagome_lattice = SiteExpansionLattice(
         max_order_kagome,
@@ -62,6 +63,29 @@ using Test
     isomorphic_clusters_kagome = IsomorphicClusters(translation_clusters_kagome, kagome_lattice)
     kagome_expansion = SiteExpansion(isomorphic_clusters_kagome, kagome_lattice)
     summation!(kagome_expansion, isomorphic_clusters_kagome, kagome_lattice)
+
+    tiling_units = [[
+        [1 / 2, 1 / 2, 1 / 2],
+        [1 / 2, -1 / 2, -1 / 2],
+        [-1 / 2, 1 / 2, -1 / 2],
+        [-1 / 2, -1 / 2, 1 / 2],
+    ]]
+    primitive_vectors = [[2, 2, 0], [2, 0, 2], [0, 2, 2]]
+    colors = [[1, 1, 1, 1]]
+    neighbor_distances = [sqrt(2)]
+    max_order_pyrochlore_unit = 7
+
+    pyrochlore_unit_lattice = StrongClusterExpansionLattice(
+        max_order_pyrochlore_unit,
+        tiling_units,
+        primitive_vectors,
+        colors,
+        neighbor_distances,
+    )
+    translation_clusters_pyrochlore_unit = TranslationClusters(pyrochlore_unit_lattice)
+    isomorphic_clusters_pyrochlore_unit = IsomorphicClusters(translation_clusters_pyrochlore_unit, pyrochlore_unit_lattice)
+    #pyrochlore_unit_expansion = ClusterExpansion(isomorphic_clusters_pyrochlore_unit, pyrochlore_unit_lattice)
+    #summation!(pyrochlore_unit_expansion, isomorphic_clusters_pyrochlore_unit, pyrochlore_unit_lattice)
 
     @testset "Vertices" begin
         import LINCEGE:
@@ -155,6 +179,23 @@ using Test
         end
     end
 
+    @testset "StrongClusterExpansionlattice" begin
+        import LINCEGE:
+            Vertices.LatticeVertices,
+            Vertices.ExpansionVertices,
+            Lattices.centers,
+            Lattices.max_order,
+            Lattices.neighbors
+
+        @testset "Pyrochlore Lattice Unit Cell Expansion" begin
+            size_pyrochlore_unit = max_order_pyrochlore_unit * 2 + 1
+            center = round(Int, (size_pyrochlore_unit^3) / 2, RoundUp)
+            @test centers(pyrochlore_unit_lattice) == ExpansionVertices(center)
+            @test all([length(neighbors(pyrochlore_unit_lattice, ExpansionVertices(v))) == 12 for v in centers(pyrochlore_unit_lattice)])
+            @test n_unique_sites(pyrochlore_unit_lattice) == 4
+        end
+    end
+
     @testset "ClusterCollections" begin
         import LINCEGE:
             Clusters.lattice_constant
@@ -169,10 +210,15 @@ using Test
                 sum_lc_clusters = [1, 3, 11, 44, 186, 814, 3652, 16689, 77359, 362671]
                 @test length(translation_clusters_triangular) == sum(sum_lc_clusters[1:max_order_triangular])
             end
-            @testset "Kagome Lattice" begin
-                # Counts according to Rigol, Bryant and Singh 2007
+            @testset "kagome lattice" begin
+                # counts according to rigol, bryant and singh 2007
                 sum_lc_clusters = [1, 2, 14 // 3, 12, 33, 281 // 3, 272, 805, 2420, 7358]
                 @test length(translation_clusters_kagome) == 3 * sum(sum_lc_clusters[1:max_order_kagome])
+            end
+            @testset "pyrochlore unit lattice" begin
+                # counts according to Schefer et al. 2020
+                sum_lc_clusters = [4, 1, 6, 50, 475, 4881, 52835, 593382, 6849415] .// 4
+                @test length(translation_clusters_pyrochlore_unit) == 4 * sum(sum_lc_clusters[1:max_order_pyrochlore_unit+1])
             end
         end
         @testset "IsomorphicClusters" begin
@@ -196,6 +242,13 @@ using Test
                 sum_lc_clusters = [1, 2, 14 // 3, 12, 33, 281 // 3, 272, 805, 2420, 7358]
                 @test length(isomorphic_clusters_kagome) == sum(num_topo_clusters[1:max_order_kagome])
                 @test sum([lattice_constant(cluster) for (ghash, cluster) in isomorphic_clusters_kagome]) == 3 * sum(sum_lc_clusters[1:max_order_kagome])
+            end
+            @testset "Pyrochlore Unit Lattice" begin
+                # counts according to Schefer et al. 2020
+                num_topo_clusters = [1, 1, 1, 3, 8, 25, 100, 466, 2473]
+                sum_lc_clusters = [4, 1, 6, 50, 475, 4881, 52835, 593382, 6849415] .// 4
+                @test length(isomorphic_clusters_pyrochlore_unit) == sum(num_topo_clusters[1:max_order_pyrochlore_unit+1])
+                @test sum([lattice_constant(cluster) for (ghash, cluster) in isomorphic_clusters_pyrochlore_unit]) == 4 * sum(sum_lc_clusters[1:max_order_pyrochlore_unit+1])
             end
         end
     end

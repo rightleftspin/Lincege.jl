@@ -13,6 +13,21 @@ function adj_mat_to_adj_list(adj_matrix::AbstractMatrix{<:Int})
     adj_list
 end
 
+function adj_mat_to_adj_list_exp(adj_matrix::AbstractMatrix{<:Int})
+    n_coords = size(adj_matrix, 1)
+    adj_list = Vector{ExpansionVertices}(undef, n_coords)
+    for i in 1:n_coords
+        neighbors = ExpansionVertices()
+        for j in 1:n_coords
+            if adj_matrix[i, j] > 0
+                neighbors = union(neighbors, ExpansionVertices(j))
+            end
+        end
+        adj_list[i] = neighbors
+    end
+    adj_list
+end
+
 function pairwise_distance_mat_to_adj_mat(pw_dist::AbstractMatrix{<:Real}, distances::AbstractVector{<:Real})
     n_coords, _ = size(pw_dist)
     index_matrix = Matrix{Int}(undef, size(pw_dist))

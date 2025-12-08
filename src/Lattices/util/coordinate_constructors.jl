@@ -81,18 +81,31 @@ function add_real_space_coords(
     n_coords = Int(size(expansion_coordinates, 1) // length(tiling_units))
     cs = []
     scs = []
+    coord_counter = 0
+    connections = LatticeVertices[]
+
     for (i, tiling_unit) in enumerate(tiling_units)
         center = find_center(tiling_unit)
         start_idx = (i - 1) * n_coords + 1
         end_idx = i * n_coords
         n_basis_elems = size(tiling_unit, 1)
-        push!(cs, add_basis_coords(tiling_unit, expansion_coordinates[start_idx:end_idx, :] .- center))
-        push!(scs, [add_basis_sublattice(tiling_unit, sublattice_coordinates[start_idx:end_idx, :]) repeat(1:n_coords, n_basis_elems)])
+
+        coords = add_basis_coords(tiling_unit, expansion_coordinates[start_idx:end_idx, :] .- center)
+        push!(cs, coords)
+
+        sublattice_coords = add_basis_sublattice(tiling_unit, sublattice_coordinates[start_idx:end_idx, :])
+        push!(scs, sublattice_coords)
+
+        for vs in eachrow(reshape(coord_counter+1:size(coords, 1)+coord_counter, (:, n_basis_elems)))
+            push!(connections, LatticeVertices(vs))
+        end
+
+        coord_counter += size(coords, 1)
     end
 
-    println(vcat(scs))
-
-    (vcat(cs...), vcat(scs...))
+    # Note that this returns coordinates that are copies of each other for a weak cluster expansion lattice a uniqueness filter will need to be used
+    # later for this case.
+    (vcat(cs...), vcat(scs...), connections)
 end
 
 "Find the center of a set of coordinates"
@@ -119,6 +132,21 @@ function find_coordinate_indices(coordinates::AbstractMatrix{<:Real}, target_coo
         index = findfirst(row -> row == target, eachrow(coordinates))
         if index != nothing
             indices = union(indices, LatticeVertices(index))
+        else
+            error("Target coordinate not found in the list of coordinates")
+        end
+    end
+
+    indices
+end
+
+function find_coordinate_indices_exp(coordinates::AbstractMatrix{<:Real}, target_coords::AbstractMatrix{<:Real})
+    indices = ExpansionVertices()
+
+    for target in eachrow(target_coords)
+        index = findfirst(row -> row == target, eachrow(coordinates))
+        if index != nothing
+            indices = union(indices, ExpansionVertices(index))
         else
             error("Target coordinate not found in the list of coordinates")
         end

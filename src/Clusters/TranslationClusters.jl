@@ -62,5 +62,6 @@ end
 
 vertices(cluster::TranslationCluster) = cluster.vertices
 ghash(cluster::TranslationCluster) = cluster.ghash
-neighbors(cluster::TranslationCluster) = cluster.neighbors
 lattice_constant(cluster::TranslationCluster) = 1
+
+neighbors(cluster::TranslationCluster) = cluster.neighbors

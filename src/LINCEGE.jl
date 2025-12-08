@@ -13,13 +13,13 @@ using JSON3
 # Basic not-implemented functionality, taken from Graphs.jl
 include("NI.jl")
 
-# All the nessecary code for constructing a Cluster Expansion
+# All the nessecary code for constructing an Expansion
 include("Vertices/Vertices.jl")
 include("Lattices/Lattices.jl")
 include("GraphHashes/GraphHashes.jl")
 include("Clusters/Clusters.jl")
 include("ClusterCollections/Clusters.jl")
-include("ClusterExpansions/ClusterExpansions.jl")
+include("Expansions/Expansions.jl")
 
 # Extra Physics Related Code, generally slow and not needed for basic Cluster Expansion construction
 include("Physics/Physics.jl")

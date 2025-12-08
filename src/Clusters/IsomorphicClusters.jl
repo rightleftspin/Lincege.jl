@@ -12,8 +12,9 @@ end
 
 vertices(cluster::IsomorphicCluster) = cluster.vertices
 ghash(cluster::IsomorphicCluster) = cluster.ghash
-permutations(cluster::IsomorphicCluster) = cluster.permutations
 lattice_constant(cluster::IsomorphicCluster) = length(permutations(cluster))
+
+permutations(cluster::IsomorphicCluster) = cluster.permutations
 function merge!(cluster1::IsomorphicCluster, cluster2::IsomorphicCluster)
     append!(cluster1.permutations, permutations(cluster2))
     cluster1

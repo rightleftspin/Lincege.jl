@@ -16,7 +16,7 @@ function IsomorphicHash(vs::AbstractVertices, lattice::AbstractLattice; initial_
         )
     end
 
-    if initial_ghash != nothing
+    if !isnothing(initial_ghash)
         return (IsomorphicHash(h), IsomorphicPermutation(initial_ghash, p))
     end
 

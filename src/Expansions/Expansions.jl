@@ -44,7 +44,6 @@ function Base.show(io::IO, ce::AbstractExpansion)
     end
 end
 
-# Try enumerating such that all the clusters are stored in a vector and not in a dictionary format
 function summation!(ce::AbstractExpansion, clusters::AbstractClusters, lattice::AbstractSiteExpansionLattice)
     @info "Starting summation for orders 1 through $(max_order(lattice))."
     for (order, clusters_order) in enumerate(get_orders(clusters, lattice))
