@@ -23,12 +23,12 @@ function _summation!(e::AbstractExpansion, cs::AbstractClusters, max_order::Int)
             update_lattice_constant!(e, cluster_id, order, updated_lattice_constant)
 
             subgraphs = Deque{}()
-            push!(subgraphs, (cluster_id, 0))
+            pushfirst!(subgraphs, (cluster_id, 0))
             while !(length(subgraphs) == 0)
                 current_cluster_id, current_depth = pop!(subgraphs)
                 for subcluster_id in get_subclusters(cs, current_cluster_id)
                     update_lattice_constant!(e, subcluster_id, order, ((-1)^(current_depth + 1)) * updated_lattice_constant)
-                    subgraphs.append((subcluster_id, current_depth + 1))
+                    pushfirst!(subgraphs, (subcluster_id, current_depth + 1))
                 end
             end
         end
