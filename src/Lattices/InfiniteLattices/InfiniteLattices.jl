@@ -1,11 +1,6 @@
-module Lattices
-
-abstract type AbstractInfiniteLattice end
+abstract type AbstractInfiniteLattice <: AbstractLattice end
 
 num_unique_sites(lattice::AbstractInfiniteLattice) = _NI("n_unique_sites")
 
-include("SiteExpansionLattice.jl")
-
-export AbstractInfiniteLattice,
-    num_unique_sites
-end
+include("util.jl")
+include("SiteExpansionLattices.jl")

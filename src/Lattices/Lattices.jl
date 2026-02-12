@@ -5,12 +5,20 @@ using StaticArrays
 
 import LINCEGE:
     _NI,
-    Vertices.AbstractVertices
+    Vertices.AbstractVertices,
+    Vertices.ExpansionVertices,
+    UnitCells.UnitCell,
+    UnitCells.dimension,
+    UnitCells.basis_size,
+    UnitCells.shift_unit_cell,
+    UnitCells.find_possible_neighbors
 
 abstract type AbstractLattice end
 
 centers(lattice::AbstractLattice) = _NI("centers")
 max_order(lattice::AbstractLattice) = _NI("max_order")
 neighbors(lattice::AbstractLattice, vs::AbstractVertices) = _NI("neighbors")
+
+include("InfiniteLattices/InfiniteLattices.jl")
 
 end

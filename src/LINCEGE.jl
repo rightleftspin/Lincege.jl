@@ -15,6 +15,7 @@ include("NI.jl")
 
 # All the nessecary code for constructing an Expansion
 include("Vertices/Vertices.jl")
+include("UnitCells/UnitCells.jl")
 include("Lattices/Lattices.jl")
 include("Clusters/Clusters.jl")
 include("Expansions/Expansions.jl")
