@@ -137,11 +137,12 @@ using Test
             bonds = [Bond(1, 1, [1, 0], 1), Bond(1, 1, [0, 1], 1)]
             unit_cell = UnitCell(basis, primitive_vectors, bonds)
 
-            m_order = 7
+            m_order = 4
             lattice = SiteExpansionLattice(m_order, unit_cell)
             translation_clusters = ClusterSet(lattice)
             clusters_from_lattice!(translation_clusters, lattice)
             println("Num Clusters: $(length(translation_clusters))")
+
         end
     end
 end

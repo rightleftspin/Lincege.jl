@@ -18,7 +18,7 @@ include("Vertices/Vertices.jl")
 include("UnitCells/UnitCells.jl")
 include("Lattices/Lattices.jl")
 include("Clusters/Clusters.jl")
-#include("Expansions/Expansions.jl")
+include("Expansions/Expansions.jl")
 
 # Extra Physics Related Code, generally slow and not needed for basic Cluster Expansion construction
 #include("Physics/Physics.jl")

@@ -16,6 +16,7 @@ Base.iterate(cs::ClusterSet) = iterate(cs.clusters)
 Base.iterate(cs::ClusterSet, state) = iterate(cs.clusters, state)
 Base.push!(cs::ClusterSet{C,H}, c::C) where {C<:AbstractCluster,H} = push!(cs.clusters, c)
 Base.pop!(cs::ClusterSet{C,H}, c::C) where {C<:AbstractCluster,H} = pop!(cs.clusters, c)
+Base.sort(cs::ClusterSet) = sort(collect(cs.clusters), by=length)
 
 function ghash(cs::ClusterSet{C,H}, c::C) where {C<:AbstractCluster,H}
     ghash(cs.hasher, c.evs)
