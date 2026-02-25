@@ -1,14 +1,14 @@
 struct SiteExpansion <: AbstractExpansion
     index_dictionary::AbstractDict{UInt,Int}
     subgraphs::AbstractVector{<:AbstractVector{Int}}
-    weights::AbstractMatrix{Rational}
+    weights::AbstractMatrix{Rational{Int}}
     order_ids::AbstractDict{Int,<:AbstractVector{Int}}
 end
 
 function SiteExpansion(clusters::AbstractClusterSet, lattice::SiteExpansionLattice, max_order::Int)
     index_dictionary = Dict{UInt,Int}()
     subgraphs = Vector{Vector{Int}}()
-    weights = zeros(Rational, length(clusters), max_order)
+    weights = zeros(Rational{Int}, length(clusters), max_order)
     order_ids = Dict{Int,Vector{Int}}()
     for (i, cluster) in enumerate(sort(clusters))
         if haskey(order_ids, length(cluster))

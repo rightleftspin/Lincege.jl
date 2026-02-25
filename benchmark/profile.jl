@@ -1,33 +1,57 @@
 using Profile
+using InteractiveUtils
 
 import LINCEGE:
+    UnitCells.UnitCell,
+    UnitCells.Bond,
     Lattices.SiteExpansionLattice,
-    ClusterCollections.TranslationClusters,
-    ClusterCollections.IsomorphicClusters,
-    ClusterExpansions.SiteExpansion,
-    ClusterExpansions.summation!
+    Clusters.ClusterSet,
+    Clusters.IsomorphicClusterSet,
+    Clusters.clusters_from_lattice!,
+    Clusters.clusters_from_clusters!,
+    Expansions.SiteExpansion,
+    Expansions.faster_summation!,
+    Expansions.slow_summation!
 
 basis = [[0.0, 0.0]]
-primitive_vectors = [[1, 0], [0, 1]]
-colors = [1]
-neighbor_distances = [1.0]
-max_order_square = 8
+primitive_vectors = [[1.0, 0.0], [0.0, 1.0]]
+bonds = [Bond(1, 1, [1, 0], 1), Bond(1, 1, [0, 1], 1)]
+unit_cell = UnitCell(basis, primitive_vectors, bonds)
 
-square_lattice = SiteExpansionLattice(
-    max_order_square,
-    basis,
-    primitive_vectors,
-    colors,
-    neighbor_distances,
-)
-translation_clusters_square = TranslationClusters(square_lattice)
-isomorphic_clusters_square = IsomorphicClusters(translation_clusters_square, square_lattice)
-square_expansion = SiteExpansion(isomorphic_clusters_square, square_lattice)
+m_order = 9
+lattice = SiteExpansionLattice(m_order, unit_cell)
 
-@time summation!(square_expansion, isomorphic_clusters_square, square_lattice)
-#println(square_expansion)
-@time summation!(square_expansion, isomorphic_clusters_square, square_lattice)
-@time summation!(square_expansion, isomorphic_clusters_square, square_lattice)
+translation_clusters = ClusterSet(lattice)
+clusters_from_lattice!(translation_clusters, lattice)
 
-@profile summation!(square_expansion, isomorphic_clusters_square, square_lattice)
+iso_clusters = IsomorphicClusterSet(lattice)
+clusters_from_clusters!(iso_clusters, translation_clusters)
+
+println("Summation Started")
+expansion = SiteExpansion(iso_clusters, lattice, m_order)
+@time faster_summation!(expansion, m_order)
+expansion = SiteExpansion(iso_clusters, lattice, m_order)
+@time faster_summation!(expansion, m_order)
+expansion = SiteExpansion(iso_clusters, lattice, m_order)
+@time faster_summation!(expansion, m_order)
+println(expansion.weights)
+
+println("Slow Summation Started")
+expansion = SiteExpansion(iso_clusters, lattice, m_order)
+@time slow_summation!(expansion, m_order)
+expansion = SiteExpansion(iso_clusters, lattice, m_order)
+@time slow_summation!(expansion, m_order)
+expansion = SiteExpansion(iso_clusters, lattice, m_order)
+@time slow_summation!(expansion, m_order)
+println(expansion.weights)
+
+expansion = SiteExpansion(iso_clusters, lattice, m_order)
+@profile faster_summation!(expansion, m_order)
 Profile.print()
+
+expansion = SiteExpansion(iso_clusters, lattice, m_order)
+@profile slow_summation!(expansion, m_order)
+Profile.print()
+
+expansion = SiteExpansion(iso_clusters, lattice, m_order)
+@code_warntype slow_summation!(expansion, m_order)

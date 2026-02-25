@@ -133,7 +133,8 @@ using Test
             Clusters.clusters_from_lattice!,
             Clusters.clusters_from_clusters!,
             Expansions.SiteExpansion,
-            Expansions.summation!
+            Expansions.summation!,
+            Expansions.slow_summation!
 
         @testset "Translation Clusters Square" begin
             basis = [[0.0, 0.0]]
@@ -150,6 +151,24 @@ using Test
             iso_clusters = IsomorphicClusterSet(lattice)
             clusters_from_clusters!(iso_clusters, translation_clusters)
             println("Num Iso Clusters: $(length(iso_clusters))")
+
+            expansion = SiteExpansion(iso_clusters, lattice, m_order)
+            println("Summation Started")
+            t1 = time()
+            summation!(expansion, m_order)
+            elapsed_time = time() - t1
+            println("Elapsed time: ", elapsed_time, " seconds")
+            println("Summation Complete")
+            println(expansion.weights)
+
+            expansion = SiteExpansion(iso_clusters, lattice, m_order)
+            println("Slow Summation Started")
+            t1 = time()
+            slow_summation!(expansion, m_order)
+            elapsed_time = time() - t1
+            println("Elapsed time: ", elapsed_time, " seconds")
+            println("Summation Complete")
+            println(expansion.weights)
 
             expansion = SiteExpansion(iso_clusters, lattice, m_order)
             println("Summation Started")
