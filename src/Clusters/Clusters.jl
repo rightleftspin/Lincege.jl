@@ -16,6 +16,7 @@ import LINCEGE:
         Lattices.AbstractInfiniteLattice,
         Hashers.AbstractHasher,
         Hashers.TranslationHasher,
+        Hashers.SymmetricHasher,
         Hashers.IsomorphicHasher,
         Hashers.ghash
 

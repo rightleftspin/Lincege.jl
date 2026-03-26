@@ -20,6 +20,7 @@ import LINCEGE:
         Lattices.n_unique_sites,
         Lattices.bond_matrix,
         Clusters.TranslationClusterSet,
+        Clusters.SymmetricClusterSet,
         Clusters.IsomorphicClusterSet,
         Clusters.clusters_from_lattice!,
         Clusters.clusters_from_clusters!,
@@ -34,6 +35,7 @@ import LINCEGE:
 square_basis = [[0.0, 0.0]]
 square_pvecs = [[1.0, 0.0], [0.0, 1.0]]
 square_bonds = [Bond(1, 1, [1, 0], 1), Bond(1, 1, [0, 1], 1)]
+square_symmetries::Vector{Matrix{Float64}} = [[1 0; 0 1], [0 1; -1 0], [-1 0; 0 -1], [0 -1; 1 0], [0 1; 1 0], [0 -1; -1 0], [1 0; 0 -1], [-1 0; 0 1]]
 square_uc = UnitCell(square_basis, square_pvecs, square_bonds, [1])
 
 kagome_basis = [[0.0, 0.0], [1.0, 0.0], [0.5, sqrt(3) / 2]]
@@ -194,6 +196,17 @@ cube_uc = UnitCell([[0.0, 0.0, 0.0]], cube_pvecs, cube_bonds, [1])
                         @test length(filter(c -> length(c) == 1, collect(clusters))) == 1
                         # Order-2 clusters: horizontal and vertical bonds are distinct under translation
                         @test length(filter(c -> length(c) == 2, collect(clusters))) == 2
+                end
+
+                @testset "Symmetric clustering (Square)" begin
+                        lattice = SiteExpansionLattice(8, square_uc)
+                        trans_clusters = TranslationClusterSet(lattice)
+                        clusters_from_lattice!(trans_clusters, lattice)
+
+                        sym_clusters = SymmetricClusterSet(lattice, square_symmetries)
+                        clusters_from_clusters!(sym_clusters, trans_clusters)
+
+                        @test length(sym_clusters) == 533
                 end
 
                 @testset "Isomorphic clustering (Square)" begin

@@ -17,6 +17,13 @@ function IsomorphicClusterSet(lattice::AbstractLattice)
         )
 end
 
+function SymmetricClusterSet(lattice::AbstractLattice, symmetries::Vector{Matrix{Float64}})
+        ClusterSet{Cluster,SymmetricHasher}(
+                Set{Cluster}(),
+                SymmetricHasher(lattice, symmetries)
+        )
+end
+
 Base.length(cs::ClusterSet) = length(cs.clusters)
 Base.in(c::C, cs::ClusterSet{C,H}) where {C<:AbstractCluster,H} = c in cs.clusters
 Base.iterate(cs::ClusterSet) = iterate(cs.clusters)
