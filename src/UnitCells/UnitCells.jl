@@ -12,5 +12,6 @@ shift_unit_cell(unit_cell::AbstractUnitCell, shift_vectors::AbstractMatrix{<:Int
 image_unit_cell(unit_cell::AbstractUnitCell) = _NI("image_unit_cell")
 
 include("UnitCell.jl")
+include("ExpansionUnitCell.jl")
 
 end

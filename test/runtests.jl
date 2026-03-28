@@ -127,13 +127,15 @@ cube_uc = UnitCell([[0.0, 0.0, 0.0]], cube_pvecs, cube_bonds, [1])
         # -------------------------------------------------------------------
         @testset verbose = true "UnitCells" begin
 
-                @testset "Structure" begin
+                @testset "Site Expansion Structure" begin
                         @test basis_size(square_uc) == 1
                         @test dimension(square_uc) == 2
                         @test shift_unit_cell(square_uc, [1, 0, 1]) == [1.0, 0.0]
                         @test shift_unit_cell(square_uc, [2, -2, 1]) == [2.0, -2.0]
                         @test shift_unit_cell(square_uc, [1 2 3; 0 -2 1; 1 1 1]) == [1.0 2.0 3.0; 0.0 -2.0 1.0]
                 end
+
+                @testset "Cluster Expansion Structure" begin end
 
                 @testset "Visualization" begin
                         @test image_unit_cell(square_uc) isa Plots.Plot{Plots.GRBackend}
@@ -170,12 +172,10 @@ cube_uc = UnitCell([[0.0, 0.0, 0.0]], cube_pvecs, cube_bonds, [1])
 
                 end
 
-                @testset "Bond type correctness" begin
-                        # Square lattice: only bond type 1
+                @testset "Bond Type Correctness" begin
                         sq_lat = SiteExpansionLattice(2, square_uc)
                         @test sort(unique(filter(!=(0), bond_matrix(sq_lat)))) == [1]
 
-                        # Shastry-Sutherland: three distinct bond types
                         ss_lat = SiteExpansionLattice(2, ss_uc)
                         @test sort(unique(filter(!=(0), bond_matrix(ss_lat)))) == [1, 2, 3]
                 end
@@ -190,9 +190,7 @@ cube_uc = UnitCell([[0.0, 0.0, 0.0]], cube_pvecs, cube_bonds, [1])
                         clusters = TranslationClusterSet(lattice)
                         clusters_from_lattice!(clusters, lattice)
 
-                        # Order-1 clusters: one per center site
                         @test length(filter(c -> length(c) == 1, collect(clusters))) == 1
-                        # Order-2 clusters: horizontal and vertical bonds are distinct under translation
                         @test length(filter(c -> length(c) == 2, collect(clusters))) == 2
                 end
 
@@ -215,7 +213,6 @@ cube_uc = UnitCell([[0.0, 0.0, 0.0]], cube_pvecs, cube_bonds, [1])
                         iso_clusters = IsomorphicClusterSet(lattice)
                         clusters_from_clusters!(iso_clusters, trans_clusters)
 
-                        # Horizontal and vertical bonds are isomorphic → merge to 1 cluster type
                         order2 = filter(c -> length(c) == 2, collect(iso_clusters))
                         @test length(order2) == 1
                         @test order2[1].lc > 1
@@ -273,7 +270,6 @@ cube_uc = UnitCell([[0.0, 0.0, 0.0]], cube_pvecs, cube_bonds, [1])
                                 @test length(data) == length(iso_clusters)
 
                                 for entry in data
-                                        # Required fields present
                                         @test haskey(entry, :cluster_id)
                                         @test haskey(entry, :n_sites)
                                         @test haskey(entry, :coordinates)
@@ -282,12 +278,10 @@ cube_uc = UnitCell([[0.0, 0.0, 0.0]], cube_pvecs, cube_bonds, [1])
                                         @test haskey(entry, :weights)
                                 end
 
-                                # Order-1 cluster: single site, no bonds
                                 order1 = filter(e -> e[:n_sites] == 1, collect(data))
                                 @test length(order1) == 1
                                 @test length(order1[1][:bonds]) == 0
 
-                                # Order-2 cluster: two sites, one bond of type 1
                                 order2 = filter(e -> e[:n_sites] == 2, collect(data))
                                 @test length(order2) == 1
                                 @test length(order2[1][:bonds]) == 1
