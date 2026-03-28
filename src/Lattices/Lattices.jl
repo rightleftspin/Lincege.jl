@@ -8,6 +8,7 @@ import LINCEGE:
         Vertices.ExpansionVertices,
         Vertices.LatticeVertices,
         UnitCells.UnitCell,
+        UnitCells.ExpansionUnitCell,
         UnitCells.dimension,
         UnitCells.basis_size,
         UnitCells.shift_unit_cell,
