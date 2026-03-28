@@ -1,6 +1,6 @@
 module UnitCells
 import LINCEGE:
-    _NI
+        _NI
 
 abstract type AbstractUnitCell end
 

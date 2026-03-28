@@ -32,6 +32,8 @@ end
 
 Base.getindex(vec::Vector, vs::AbstractVertices) = vec[collect(vs)]
 Base.getindex(mat::Matrix, vs1::AbstractVertices, vs2::AbstractVertices) = mat[collect(vs1), collect(vs2)]
+Base.getindex(mat::Matrix, ::Colon, vs::AbstractVertices) = mat[:, collect(vs)]
+Base.getindex(mat::Matrix, vs::AbstractVertices, ::Colon) = mat[collect(vs), :]
 
 Base.iterate(vs::AbstractVertices) = iterate(vertices(vs))
 Base.iterate(vs::AbstractVertices, state) = iterate(vertices(vs), state)

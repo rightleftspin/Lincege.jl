@@ -50,14 +50,14 @@ function write_to_json(e::SiteExpansion, lattice::SiteExpansionLattice, cs::Abst
 
         clusters_data = []
         for cluster in cs
-                n = length(cluster.evs)
+                n = length(cluster.vs)
                 cluster_id = e.index_dictionary[cluster.ghash]
 
-                coords = collect(eachcol(all_coords[:, collect(cluster.evs)]))
+                coords = collect(eachcol(all_coords[:, cluster.vs]))
 
-                colors = all_colors[cluster.evs]
+                colors = all_colors[cluster.vs]
 
-                bonds = adj_mat_to_edge_list(adj[cluster.evs, cluster.evs])
+                bonds = adj_mat_to_edge_list(adj[cluster.vs, cluster.vs])
 
                 push!(clusters_data, Dict(
                         "cluster_id" => cluster_id,

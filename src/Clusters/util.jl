@@ -1,8 +1,8 @@
 function add_cluster!(cs::AbstractClusterSet{C,H}, c::AbstractCluster) where {C,H}
-        new_cluster = C(c.evs, c.lc, ghash(cs, c))
+        new_cluster = C(c.vs, c.lc, ghash(cs, c))
         if new_cluster in cs
                 old_cluster = pop!(cs, new_cluster)
-                push!(cs, C(c.evs, c.lc + old_cluster.lc, old_cluster.ghash))
+                push!(cs, C(c.vs, c.lc + old_cluster.lc, old_cluster.ghash))
         else
                 push!(cs, new_cluster)
         end
@@ -17,7 +17,8 @@ end
 
 function clusters_from_lattice!(clusters::AbstractClusterSet{C,H}, lattice::AbstractInfiniteLattice; spawn_depth::Int=3) where {C<:AbstractCluster,H}
         max_depth = max_order(lattice)
-        roots = [C(ExpansionVertices(center), clusters, lattice) for center in centers(lattice)]
+        ctrs = centers(lattice)
+        roots = [C(typeof(ctrs)(center), clusters, lattice) for center in ctrs]
         vlock = ReentrantLock()
 
         function try_mark(cluster::AbstractCluster)
@@ -41,14 +42,14 @@ function clusters_from_lattice!(clusters::AbstractClusterSet{C,H}, lattice::Abst
                 end
 
                 if depth < spawn_depth
-                        for ev in neighbors(lattice, cluster.evs)
-                                dfs(C(union(cluster.evs, ExpansionVertices(ev)), clusters, lattice), depth + 1)
+                        for v in neighbors(lattice, cluster.vs)
+                                dfs(C(union(cluster.vs, typeof(ctrs)(v)), clusters, lattice), depth + 1)
                         end
                 else
                         tasks = Task[]
                         first = true
-                        for ev in neighbors(lattice, cluster.evs)
-                                neighbor_cluster = C(union(cluster.evs, ExpansionVertices(ev)), clusters, lattice)
+                        for v in neighbors(lattice, cluster.vs)
+                                neighbor_cluster = C(union(cluster.vs, typeof(ctrs)(v)), clusters, lattice)
 
                                 if first
                                         dfs(neighbor_cluster, depth + 1)

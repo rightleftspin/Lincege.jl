@@ -45,11 +45,11 @@ function generate_lattice_data(coordinates::Matrix{Int}, unit_cell::UnitCell)
                 end
         end
 
-        neighbor_list = [ExpansionVertices{Int}(bs) for bs in neighbor_sets]
+        neighbor_list = [LatticeVertices{Int}(bs) for bs in neighbor_sets]
         return adj_matrix, neighbor_list
 end
 
 function find_centers(coordinates::AbstractMatrix{Int})
         center_indices = findall(col -> all(x -> x == 0, col[1:end-1]), eachcol(coordinates))
-        ExpansionVertices(center_indices)
+        LatticeVertices(center_indices)
 end

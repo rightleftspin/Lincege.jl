@@ -29,4 +29,3 @@ basis_size(unit_cell::UnitCell) = size(unit_cell.basis, 2)
 dimension(unit_cell::UnitCell) = size(unit_cell.primitive_vectors, 2)
 shift_unit_cell(unit_cell::UnitCell, shift_vector::AbstractVector{Int}) = unit_cell.primitive_vectors * shift_vector[1:end-1] + unit_cell.basis[:, shift_vector[end]]
 shift_unit_cell(unit_cell::UnitCell, shift_vectors::AbstractMatrix{Int}) = stack(v -> shift_unit_cell(unit_cell, v), eachcol(shift_vectors))
-find_possible_neighbors(unit_cell::UnitCell, coordinate::AbstractVector{Int}) = [neighbor_site(bond, coordinate) for bond in unit_cell.bonds if bond.site1 == coordinate[end]]

@@ -5,16 +5,16 @@ using JSON3
 import LINCEGE:
         _NI,
         Vertices.ExpansionVertices,
+        Vertices.LatticeVertices,
         Lattices.AbstractLattice,
         Lattices.SiteExpansionLattice,
-        Lattices.StrongClusterExpansionLattice,
+        Lattices.AbstractClusterExpansionLattice,
         Lattices.neighbors,
         Lattices.bond_matrix,
         Lattices.get_coordinates,
         Lattices.get_site_colors,
         Clusters.AbstractCluster,
         Clusters.AbstractClusterSet,
-        Clusters.get_single_site_subgraphs,
         Clusters.ghash
 
 abstract type AbstractExpansion end
@@ -48,6 +48,6 @@ end
 
 include("util.jl")
 include("SiteExpansions.jl")
-include("StrongClusterExpansions.jl")
+include("ClusterExpansions.jl")
 
 end

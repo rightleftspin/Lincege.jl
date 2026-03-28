@@ -10,7 +10,6 @@ import LINCEGE:
         UnitCells.dimension,
         UnitCells.basis_size,
         UnitCells.shift_unit_cell,
-        UnitCells.find_possible_neighbors,
         UnitCells.image_unit_cell,
         Lattices.AbstractLattice,
         Lattices.SiteExpansionLattice,
@@ -134,7 +133,6 @@ cube_uc = UnitCell([[0.0, 0.0, 0.0]], cube_pvecs, cube_bonds, [1])
                         @test shift_unit_cell(square_uc, [1, 0, 1]) == [1.0, 0.0]
                         @test shift_unit_cell(square_uc, [2, -2, 1]) == [2.0, -2.0]
                         @test shift_unit_cell(square_uc, [1 2 3; 0 -2 1; 1 1 1]) == [1.0 2.0 3.0; 0.0 -2.0 1.0]
-                        @test find_possible_neighbors(square_uc, [0, 0, 1]) == [[1, 0, 1], [0, 1, 1]]
                 end
 
                 @testset "Visualization" begin
@@ -167,7 +165,7 @@ cube_uc = UnitCell([[0.0, 0.0, 0.0]], cube_pvecs, cube_bonds, [1])
                                 @test centers(lattice) == ExpansionVertices([13, 38, 63])
                                 @test max_order(lattice) == UInt8(2)
                                 @test n_unique_sites(lattice) == 3
-                                @test neighbors(lattice, ExpansionVertices([38])) == ExpansionVertices([13, 59, 14, 63])
+                                @test neighbors(lattice, LatticeVertices([38])) == LatticeVertices([13, 59, 14, 63])
                         end
 
                 end

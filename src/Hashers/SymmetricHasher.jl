@@ -4,7 +4,7 @@ struct SymmetricHasher <: AbstractHasher
         connections::Union{<:AbstractConnections,Nothing}
 end
 
-function SymmetricHasher(lattice::SiteExpansionLattice, lattice_symmetries::Vector{Matrix{Float64}})
+function SymmetricHasher(lattice::AbstractInfiniteLattice, lattice_symmetries::Vector{Matrix{Float64}})
         trans_hasher = TranslationHasher(lattice)
         all_coords = get_coordinates(lattice)
         permutations = get_permutations(all_coords, lattice_symmetries)
@@ -17,17 +17,18 @@ function SymmetricHasher(lattice::SiteExpansionLattice, lattice_symmetries::Vect
 
 end
 
-
-function ghash(h::SymmetricHasher, evs::ExpansionVertices)
-        h = if isnothing(h.connections)
-                all_hashes = Set()
-                for perm in h.permutations
-                        push!(all_hashes, ghash(h.trans_hasher, ExpansionVertices(perm[evs])))
-                end
-                h = hash(all_hashes)
-        else
-                _NI("symmetric ghash for cluster expansions")
+function ghash(h::SymmetricHasher, lvs::LatticeVertices)
+        all_hashes = Set()
+        for perm in h.permutations
+                push!(all_hashes, ghash(h.trans_hasher, LatticeVertices(perm[lvs])))
         end
+        hash(all_hashes)
+end
 
-        h
+function ghash(h::SymmetricHasher, lvs::ExpansionVertices)
+        all_hashes = Set()
+        for perm in h.permutations
+                push!(all_hashes, ghash(h.trans_hasher, LatticeVertices(perm[lvs])))
+        end
+        hash(all_hashes)
 end
