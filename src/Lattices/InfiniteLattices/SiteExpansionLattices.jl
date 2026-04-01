@@ -15,7 +15,8 @@ function SiteExpansionLattice(max_order::Int, unit_cell::UnitCell)
         @assert max_order > 0 "max_order must be a positive integer"
 
         coordinates = generate_coordinates(max_order, basis_size(unit_cell), dimension(unit_cell))
-        adj_matrix, neighbor_list = generate_lattice_data(coordinates, unit_cell)
+        adj_matrix = generate_adj_matrix(coordinates, unit_cell)
+        neighbor_list = generate_neighbor_list(coordinates, unit_cell)
 
         return SiteExpansionLattice(UInt8(max_order), unit_cell, coordinates, adj_matrix, neighbor_list)
 end

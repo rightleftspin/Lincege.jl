@@ -18,7 +18,7 @@ neighbor_site(bond::Bond, coordinate::AbstractVector{Int}) = [coordinate[1:end-1
 
 Unit cell containing the given information, generally to be used for a site expansion
 """
-struct UnitCell
+struct UnitCell <: AbstractUnitCell
         basis::Matrix{Float64}
         primitive_vectors::Matrix{Float64}
         site_colors::Vector{Int}
@@ -35,7 +35,6 @@ function UnitCell(basis::AbstractVector{<:AbstractVector{Float64}}, primitive_ve
         UnitCell(hcat(basis...), hcat(primitive_vectors...), site_colors, bonds)
 end
 
-function image_unit_cell end
 
 basis_size(unit_cell::UnitCell) = size(unit_cell.basis, 2)
 dimension(unit_cell::UnitCell) = size(unit_cell.primitive_vectors, 2)

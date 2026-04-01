@@ -39,6 +39,8 @@ function SymmetricClusterSet(lattice::AbstractLattice, symmetries::Vector{Matrix
         )
 end
 
+SymmetricClusterSet(lattice::AbstractLattice, lattice_type::Symbol) = SymmetricClusterSet(lattice, all_lattice_symmetries[lattice_type])
+
 Base.length(cs::ClusterSet) = length(cs.clusters)
 Base.in(c::C, cs::ClusterSet{C,H}) where {C<:AbstractCluster,H} = c in cs.clusters
 Base.iterate(cs::ClusterSet) = iterate(cs.clusters)

@@ -13,7 +13,6 @@ import LINCEGE: basis_size, dimension, shift_unit_cell,
 square_basis = [[0.0, 0.0]]
 square_pvecs = [[1.0, 0.0], [0.0, 1.0]]
 square_bonds = [Bond(1, 1, [1, 0], 1), Bond(1, 1, [0, 1], 1)]
-square_symmetries::Vector{Matrix{Float64}} = [[1 0; 0 1], [0 1; -1 0], [-1 0; 0 -1], [0 -1; 1 0], [0 1; 1 0], [0 -1; -1 0], [1 0; 0 -1], [-1 0; 0 1]]
 square_uc = UnitCell(square_basis, square_pvecs, square_bonds, [1])
 
 # Kagome Lattice Site Expansion
@@ -73,13 +72,14 @@ pyro_exp_uc_lbonds = [
         ExpansionBond([1, 2], [1, 4], [1, 0, -1], 1),
         ExpansionBond([1, 3], [1, 4], [1, -1, 0], 1),
 ]
-
 pyro_exp_uc_ebonds = [
         Bond(1, 1, [1, 0, 0], 1),
         Bond(1, 1, [0, 1, 0], 1),
         Bond(1, 1, [0, 0, 1], 1),
+        Bond(1, 1, [0, 1, -1], 1),
+        Bond(1, 1, [1, 0, -1], 1),
+        Bond(1, 1, [1, -1, 0], 1),
 ]
-
 pyro_exp_uc_uc = ExpansionUnitCell(
         pyro_exp_uc_basis,
         pyro_exp_uc_pvecs,

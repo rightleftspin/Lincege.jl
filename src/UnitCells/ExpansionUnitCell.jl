@@ -7,7 +7,7 @@ end
 
 neighbor_site(bond::ExpansionBond, coordinate::AbstractVector{Int}) = [coordinate[1:end-2] + bond.direction; bond.site2[1]; bond.site2[2]]
 
-struct ExpansionUnitCell
+struct ExpansionUnitCell <: AbstractUnitCell
         basis::Vector{Matrix{Float64}}
         primitive_vectors::Matrix{Float64}
         site_colors::Vector{Vector{Int}}

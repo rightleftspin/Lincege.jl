@@ -28,6 +28,20 @@
                 @test isapprox(expansion.weights, [1.0 -4 6.0; 0.0 2 -10.0; 0.0 0.0 0.6666666666666666; 0.0 0.0 4.0])
         end
 
+        @testset "Pyrochlore Lattice Unit Cell pipeline" begin
+                m_order = 3
+                lattice = StrongClusterExpansionLattice(m_order, pyro_exp_uc_uc)
+                trans_clusters = TranslationClusterSet(lattice)
+                clusters_from_lattice!(trans_clusters, lattice)
+                iso_clusters = IsomorphicClusterSet(lattice)
+                clusters_from_clusters!(iso_clusters, trans_clusters)
+
+                expansion = Expansion(iso_clusters, lattice, m_order)
+                summation!(expansion, m_order)
+                @test isapprox(expansion.weights, [0.0 0.25 -3.0 16.5; 0.0 0.0 1.5 -27.0; 0.0 0.0 0.0 10.5; 0.0 0.0 0.0 1.0; 0.0 0.0 0.0 1.0; 1.0 -1.0 0.0 0.0])
+
+        end
+
         @testset "write_to_json" begin
                 m_order = 2
                 lattice = SiteExpansionLattice(m_order, square_uc)

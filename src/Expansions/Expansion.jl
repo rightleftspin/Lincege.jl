@@ -41,7 +41,7 @@ end
 
 function Expansion(clusters::AbstractClusterSet, lattice::AbstractClusterExpansionLattice, max_order::Int)
         index_dictionary = Dict{UInt,Int}()
-        subgraphs = Vector{Vector{Int}}()
+        subgraphs = fill(Vector{Int}(), length(clusters))
         order_ids = Dict{Int,Vector{Int}}(1 => [])
         weights = zeros(Float64, length(clusters), max_order + 1)
 
@@ -52,7 +52,8 @@ function Expansion(clusters::AbstractClusterSet, lattice::AbstractClusterExpansi
                 weights[i, length(cluster)+1] = cluster.lc
                 temp_subgraphs = Int[]
 
-                for lv in connections(lattice)[cluster.evs]
+                for lv in connections(lattice)[cluster.vs]
+                        lv = LatticeVertices(lv)
                         gh = ghash(clusters, lv)
 
                         if !haskey(index_dictionary, gh)
@@ -61,6 +62,7 @@ function Expansion(clusters::AbstractClusterSet, lattice::AbstractClusterExpansi
                                 weights = vcat(weights, zeros(1, max_order + 1))
                                 weights[ind, 1] = 1 / n_site_colors(lattice)
                                 push!(order_ids[1], ind)
+                                push!(subgraphs, Int[])
                         end
 
                         push!(temp_subgraphs, index_dictionary[gh])
@@ -69,7 +71,7 @@ function Expansion(clusters::AbstractClusterSet, lattice::AbstractClusterExpansi
                 for subgraph_evs in get_subgraphs(cluster, lattice)
                         push!(temp_subgraphs, index_dictionary[ghash(clusters, subgraph_evs)])
                 end
-                push!(subgraphs, temp_subgraphs)
+                subgraphs[i] = temp_subgraphs
         end
 
         Expansion(index_dictionary, subgraphs, weights, order_ids, 1)
