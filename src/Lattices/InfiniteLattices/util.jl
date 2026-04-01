@@ -1,16 +1,7 @@
 function generate_cartesian_coordinates(dimension::Int, half_side_length::Int)
         # Forces the lattice to have a strict center point
-        diameter = 2 * half_side_length + 1
-        # Total number of coordinates for the entire lattice
-        max_coords = diameter^dimension
-        coords = repeat(0:(max_coords-1), 1, dimension)'
-
-        for dim = 0:(dimension-1)
-                coords[dim+1, :] =
-                        div.(coords[dim+1, :], diameter^dim) .% diameter .- half_side_length
-        end
-
-        coords
+        r = -half_side_length:half_side_length
+        hcat(vec(collect.(Iterators.product(fill(r, dimension)...)))...)
 end
 
 function generate_coordinates(max_order::Int, num_basis_elements::Int, dimension::Int)

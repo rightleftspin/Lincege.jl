@@ -8,6 +8,9 @@ using LinearAlgebra
 using NautyGraphs
 using JSON3
 
+# Some limited utility functions for the rest of the algorithm
+include("util.jl")
+
 # Basic not-implemented functionality, taken from Graphs.jl
 include("NI.jl")
 

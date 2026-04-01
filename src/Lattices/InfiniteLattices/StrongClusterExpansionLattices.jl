@@ -1,9 +1,15 @@
 struct StrongClusterExpansionLattice <: AbstractClusterExpansionLattice
         max_order::UInt8
+
         expansion_unit_cell::ExpansionUnitCell
-        lattice_coordinates::Vector{Matrix{Int}}
-        adj_matrix::Matrix{Int}
+        centers::ExpansionVertices
         neighbor_list::Vector{ExpansionVertices{Int}}
+
+        lattice_coordinates::Matrix{Int}
+        translation_labels::Vector{Int}
+        site_colors::Vector{Int}
+        adj_matrix::Matrix{Int}
+
         connections::StrongClusterConnections
 end
 
@@ -13,21 +19,23 @@ function StrongClusterExpansionLattice(max_order::Int, expansion_unit_cell::Expa
         return StrongClusterExpansionLattice(
                 UInt8(max_order),
                 expansion_unit_cell,
-                expansion_coordinates,
-                lattice_coordinates,
-                adj_matrix,
+                centers,
                 neighbor_list,
-                StrongClusterConnections(connections_vec)
+                lattice_coordinates,
+                translation_labels,
+                site_colors,
+                adj_matrix,
+                StrongClusterConnections(connections)
         )
 end
 
-centers(lattice::StrongClusterExpansionLattice) = ExpansionVertices(find_centers(lattice.expansion_coordinates))
+centers(lattice::StrongClusterExpansionLattice) = lattice.centers
 max_order(lattice::StrongClusterExpansionLattice) = lattice.max_order
-n_unique_sites(lattice::StrongClusterExpansionLattice) = sum(basis_size.(lattice.lattice_unit_cells))
-n_site_colors(lattice::StrongClusterExpansionLattice) = length(unique(vcat([uc.site_colors for uc in lattice.lattice_unit_cells]...)))
+n_unique_sites(lattice::StrongClusterExpansionLattice) = length(unique(Iterators.flatten(lattice.expansion_unit_cell.translation_labels)))
+n_site_colors(lattice::StrongClusterExpansionLattice) = length(unique(Iterators.flatten(lattice.expansion_unit_cell.site_colors)))
 neighbors(lattice::StrongClusterExpansionLattice, vs::ExpansionVertices) = union(ExpansionVertices(), lattice.neighbor_list[vs])
-get_coordinates(lattice::StrongClusterExpansionLattice) = hcat([shift_unit_cell(uc, cs) for (uc, cs) in zip(lattice.lattice_unit_cells, lattice.lattice_coordinates)]...)
-get_labels(lattice::StrongClusterExpansionLattice) = vcat([cs[end, :] for cs in lattice.lattice_coordinates]...)
-get_site_colors(lattice::StrongClusterExpansionLattice) = vcat([uc.site_colors[cs[end, :]] for (uc, cs) in zip(lattice.lattice_unit_cells, lattice.lattice_coordinates)]...)
-bond_matrix(lattice::StrongClusterExpansionLattice) = lattice.adj_matrix
+get_coordinates(lattice::StrongClusterExpansionLattice) = shift_unit_cell(lattice.expansion_unit_cell, lattice.lattice_coordinates)
+get_labels(lattice::StrongClusterExpansionLattice) = lattice.translation_labels
+get_site_colors(lattice::StrongClusterExpansionLattice) = lattice.site_colors
 connections(lattice::StrongClusterExpansionLattice) = lattice.connections
+bond_matrix(lattice::StrongClusterExpansionLattice) = lattice.adj_matrix

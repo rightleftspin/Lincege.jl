@@ -6,7 +6,7 @@ end
 """
     TranslationClusterSet(lattice)
 
-# TODO: describe what a TranslationClusterSet represents
+ClusterSet constructor that initializes a ClusterSet with a hasher that preserves translational invariance
 """
 function TranslationClusterSet(lattice::AbstractInfiniteLattice)
         ClusterSet{Cluster,TranslationHasher}(
@@ -18,7 +18,7 @@ end
 """
     IsomorphicClusterSet(lattice)
 
-# TODO: describe what an IsomorphicClusterSet represents
+ClusterSet constructor that initializes a ClusterSet with a hasher that preserves invariance under graph isomorphisms
 """
 function IsomorphicClusterSet(lattice::AbstractLattice)
         ClusterSet{Cluster,IsomorphicHasher}(
@@ -27,6 +27,11 @@ function IsomorphicClusterSet(lattice::AbstractLattice)
         )
 end
 
+"""
+    SymmetricClusterSet(lattice, symmetries)
+
+ClusterSet constructor that initializes a ClusterSet with a hasher that preserves invariance under the given point group symmetries of the lattice.
+"""
 function SymmetricClusterSet(lattice::AbstractLattice, symmetries::Vector{Matrix{Float64}})
         ClusterSet{Cluster,SymmetricHasher}(
                 Set{Cluster}(),

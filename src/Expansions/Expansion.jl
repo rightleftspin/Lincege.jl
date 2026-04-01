@@ -1,7 +1,7 @@
 """
     Expansion(clusters, lattice, max_order)
 
-# TODO: describe what an Expansion represents
+Arbitrary expansion of clusters in the NLCE sense, contains the weights necessary to perform the NLCE summation.
 """
 struct Expansion <: AbstractExpansion
         index_dictionary::Dict{UInt,Int}
@@ -11,20 +11,24 @@ struct Expansion <: AbstractExpansion
         order_offset::Int
 end
 
+function _index_clusters!(index_dictionary, order_ids, weights, clusters, order_offset)
+        for (i, cluster) in enumerate(sort(clusters))
+                order = length(cluster) + order_offset
+                push!(get!(order_ids, order, Int[]), i)
+                index_dictionary[cluster.ghash] = i
+                weights[i, order] = cluster.lc
+        end
+end
+
 function Expansion(clusters::AbstractClusterSet, lattice::SiteExpansionLattice, max_order::Int)
         index_dictionary = Dict{UInt,Int}()
         subgraphs = Vector{Vector{Int}}()
         weights = zeros(Float64, length(clusters), max_order)
         order_ids = Dict{Int,Vector{Int}}()
 
+        _index_clusters!(index_dictionary, order_ids, weights, clusters, 0)
+
         for (i, cluster) in enumerate(sort(clusters))
-                if haskey(order_ids, length(cluster))
-                        push!(order_ids[length(cluster)], i)
-                else
-                        order_ids[length(cluster)] = [i]
-                end
-                index_dictionary[cluster.ghash] = i
-                weights[i, length(cluster)] = cluster.lc
                 temp_subgraphs = Int[]
                 for subgraph_evs in get_subgraphs(cluster, lattice)
                         push!(temp_subgraphs, index_dictionary[ghash(clusters, subgraph_evs)])
@@ -41,12 +45,9 @@ function Expansion(clusters::AbstractClusterSet, lattice::AbstractClusterExpansi
         order_ids = Dict{Int,Vector{Int}}(1 => [])
         weights = zeros(Float64, length(clusters), max_order + 1)
 
+        _index_clusters!(index_dictionary, order_ids, weights, clusters, 1)
+
         for (i, cluster) in enumerate(sort(clusters))
-                if haskey(order_ids, length(cluster) + 1)
-                        push!(order_ids[length(cluster)+1], i)
-                else
-                        order_ids[length(cluster)+1] = [i]
-                end
                 index_dictionary[cluster.ghash] = i
                 weights[i, length(cluster)+1] = cluster.lc
                 temp_subgraphs = Int[]
@@ -84,7 +85,7 @@ order_offset(e::Expansion) = e.order_offset
 """
     write_to_json(expansion, lattice, clusters, filepath)
 
-# TODO: describe what write_to_json does
+Writes an expansion to JSON, currently only works for SiteExpansionLattices
 """
 function write_to_json(e::Expansion, lattice::SiteExpansionLattice, cs::AbstractClusterSet, filepath::String)
         all_coords = get_coordinates(lattice)

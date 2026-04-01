@@ -5,19 +5,15 @@ struct IsomorphicHasher <: AbstractHasher
         is_weighted::Bool
 end
 
-function IsomorphicHasher(lattice::AbstractInfiniteLattice)
+function IsomorphicHasher(lattice::AbstractInfiniteLattice, connections::Union{<:AbstractConnections,Nothing})
         hashing_matrix = bond_matrix(lattice)
         labels = get_site_colors(lattice)
         is_weighted = length(unique(hashing_matrix)) > 2
-        IsomorphicHasher(hashing_matrix, nothing, labels, is_weighted)
+        IsomorphicHasher(hashing_matrix, connections, labels, is_weighted)
 end
 
-function IsomorphicHasher(lattice::AbstractClusterExpansionLattice)
-        hashing_matrix = bond_matrix(lattice)
-        labels = get_site_colors(lattice)
-        is_weighted = length(unique(hashing_matrix)) > 2
-        IsomorphicHasher(hashing_matrix, connections(lattice), labels, is_weighted)
-end
+IsomorphicHasher(lattice::AbstractInfiniteLattice) = IsomorphicHasher(lattice, nothing)
+IsomorphicHasher(lattice::AbstractClusterExpansionLattice) = IsomorphicHasher(lattice, connections(lattice))
 
 function ghash(hasher::IsomorphicHasher, evs::ExpansionVertices)
         lvs = union(LatticeVertices(), hasher.connections[evs])

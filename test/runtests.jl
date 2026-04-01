@@ -47,10 +47,46 @@ cube_pvecs = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
 cube_bonds = [Bond(1, 1, [1, 0, 0], 1), Bond(1, 1, [0, 1, 0], 1), Bond(1, 1, [0, 0, 1], 1)]
 cube_uc = UnitCell([[0.0, 0.0, 0.0]], cube_pvecs, cube_bonds, [1])
 
+# Pyrochlore Lattice Unit Cell Expansion 
+pyro_exp_uc_basis = [
+        [
+                [1 / 2, 1 / 2, 1 / 2],
+                [1 / 2, -1 / 2, -1 / 2],
+                [-1 / 2, 1 / 2, -1 / 2],
+                [-1 / 2, -1 / 2, 1 / 2],
+        ],
+]
+pyro_exp_uc_pvecs = [[2.0, 2.0, 0.0], [2.0, 0.0, 2.0], [0.0, 2.0, 2.0]]
+pyro_exp_uc_lbonds = [
+        # Inside a Unit Cell
+        ExpansionBond([1, 1], [1, 2], [0, 0, 0], 1),
+        ExpansionBond([1, 1], [1, 3], [0, 0, 0], 1),
+        ExpansionBond([1, 1], [1, 4], [0, 0, 0], 1),
+        ExpansionBond([1, 2], [1, 3], [0, 0, 0], 1),
+        ExpansionBond([1, 2], [1, 4], [0, 0, 0], 1),
+        ExpansionBond([1, 3], [1, 4], [0, 0, 0], 1),
+        # Between Unit Cells
+        ExpansionBond([1, 1], [1, 2], [0, 0, 1], 1),
+        ExpansionBond([1, 1], [1, 3], [0, 1, 0], 1),
+        ExpansionBond([1, 1], [1, 4], [1, 0, 0], 1),
+        ExpansionBond([1, 2], [1, 3], [0, 1, -1], 1),
+        ExpansionBond([1, 2], [1, 4], [1, 0, -1], 1),
+        ExpansionBond([1, 3], [1, 4], [1, -1, 0], 1),
+]
 
+pyro_exp_uc_ebonds = [
+        Bond(1, 1, [1, 0, 0], 1),
+        Bond(1, 1, [0, 1, 0], 1),
+        Bond(1, 1, [0, 0, 1], 1),
+]
 
-
-# ---------------------------------------------------------------------------
+pyro_exp_uc_uc = ExpansionUnitCell(
+        pyro_exp_uc_basis,
+        pyro_exp_uc_pvecs,
+        pyro_exp_uc_lbonds,
+        pyro_exp_uc_ebonds,
+        [[1, 1, 1, 1]]
+)
 
 @testset verbose = true "LINCEGE.jl" begin
         include("test_vertices.jl")

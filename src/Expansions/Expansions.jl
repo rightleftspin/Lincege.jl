@@ -10,7 +10,7 @@ order_offset(e::AbstractExpansion) = _NI("order_offset")
 """
     summation!(expansion, max_order)
 
-# TODO: describe what summation! does
+Performs the recursive NLCE summation up till the max_order and populates the given expansion with the resultant weights
 """
 summation!(e::AbstractExpansion, max_order::Int) = _summation!(e, max_order + order_offset(e))
 

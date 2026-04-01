@@ -11,6 +11,7 @@ struct ExpansionUnitCell
         basis::Vector{Matrix{Float64}}
         primitive_vectors::Matrix{Float64}
         site_colors::Vector{Vector{Int}}
+        translation_labels::Vector{Vector{Int}}
         bonds::Vector{ExpansionBond}
         expansion_bonds::Vector{Bond}
 end
@@ -20,7 +21,11 @@ function ExpansionUnitCell(basis::AbstractVector{<:AbstractVector{<:AbstractVect
         @assert length(site_colors) == length(basis) "Number of site colors must match number of expansion basis elements"
         @assert all(length.(primitive_vectors) .== length(primitive_vectors)) "Primitive vectors must form a square matrix"
 
-        ExpansionUnitCell([hcat(b...) for b in basis], hcat(primitive_vectors...), site_colors, bonds, expansion_bonds)
+        exp_basis = [hcat(b...) for b in basis]
+        prim_vecs = hcat(primitive_vectors...)
+        translation_labels = label_tiling_units(exp_basis, prim_vecs)
+
+        ExpansionUnitCell(exp_basis, prim_vecs, site_colors, translation_labels, bonds, expansion_bonds)
 end
 
 basis_size(unit_cell::ExpansionUnitCell) = size.(unit_cell.basis, 2)

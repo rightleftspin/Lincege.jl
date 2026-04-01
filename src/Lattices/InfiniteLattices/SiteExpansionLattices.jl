@@ -1,7 +1,7 @@
 """
     SiteExpansionLattice(max_order, unit_cell)
 
-# TODO: describe what a SiteExpansionLattice represents
+An infinite lattice that contains the information necessary to perform the site expansion utilizing the given unit_cell
 """
 struct SiteExpansionLattice <: AbstractInfiniteLattice
         max_order::UInt8

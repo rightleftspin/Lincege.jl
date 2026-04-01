@@ -7,5 +7,6 @@ shift_unit_cell(unit_cell::AbstractUnitCell, shift_vector::AbstractVector{<:Int}
 shift_unit_cell(unit_cell::AbstractUnitCell, shift_vectors::AbstractMatrix{<:Int}) = _NI("shift_unit_cell")
 image_unit_cell(unit_cell::AbstractUnitCell) = _NI("image_unit_cell")
 
+include("util.jl")
 include("UnitCell.jl")
 include("ExpansionUnitCell.jl")
