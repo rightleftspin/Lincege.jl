@@ -42,6 +42,19 @@
 
         end
 
+        @testset "Square Lattice Cluster pipeline" begin
+                m_order = 3
+                lattice = WeakClusterExpansionLattice(m_order, square_cluster_uc)
+                trans_clusters = TranslationClusterSet(lattice)
+                clusters_from_lattice!(trans_clusters, lattice)
+                iso_clusters = IsomorphicClusterSet(lattice)
+                clusters_from_clusters!(iso_clusters, trans_clusters)
+
+                expansion = Expansion(iso_clusters, lattice, m_order)
+                summation!(expansion, m_order)
+                @test isapprox(expansion.weights, [0.0 0.5 -2.0 3.0; 0.0 0.0 1.0 -6.0; 0.0 0.0 0.0 2.0; 0.0 0.0 0.0 1.0; 1.0 -2.0 1.0 0.0])
+        end
+
         @testset "write_to_json" begin
                 m_order = 2
                 lattice = SiteExpansionLattice(m_order, square_uc)

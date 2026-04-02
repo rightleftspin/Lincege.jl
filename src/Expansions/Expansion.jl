@@ -39,7 +39,7 @@ function Expansion(clusters::AbstractClusterSet, lattice::SiteExpansionLattice, 
         Expansion(index_dictionary, subgraphs, weights, order_ids, 0)
 end
 
-function Expansion(clusters::AbstractClusterSet, lattice::AbstractClusterExpansionLattice, max_order::Int)
+function Expansion(clusters::AbstractClusterSet, lattice::StrongClusterExpansionLattice, max_order::Int)
         index_dictionary = Dict{UInt,Int}()
         subgraphs = fill(Vector{Int}(), length(clusters))
         order_ids = Dict{Int,Vector{Int}}(1 => [])
@@ -53,6 +53,45 @@ function Expansion(clusters::AbstractClusterSet, lattice::AbstractClusterExpansi
                 temp_subgraphs = Int[]
 
                 for lv in connections(lattice)[cluster.vs]
+                        lv = LatticeVertices(lv)
+                        gh = ghash(clusters, lv)
+
+                        if !haskey(index_dictionary, gh)
+                                ind = size(weights, 1) + 1
+                                index_dictionary[gh] = ind
+                                weights = vcat(weights, zeros(1, max_order + 1))
+                                weights[ind, 1] = 1 / n_site_colors(lattice)
+                                push!(order_ids[1], ind)
+                                push!(subgraphs, Int[])
+                        end
+
+                        push!(temp_subgraphs, index_dictionary[gh])
+                end
+
+                for subgraph_evs in get_subgraphs(cluster, lattice)
+                        push!(temp_subgraphs, index_dictionary[ghash(clusters, subgraph_evs)])
+                end
+                subgraphs[i] = temp_subgraphs
+        end
+
+        Expansion(index_dictionary, subgraphs, weights, order_ids, 1)
+end
+
+function Expansion(clusters::AbstractClusterSet, lattice::WeakClusterExpansionLattice, max_order::Int)
+        index_dictionary = Dict{UInt,Int}()
+        subgraphs = fill(Vector{Int}(), length(clusters))
+        order_ids = Dict{Int,Vector{Int}}(1 => [])
+        weights = zeros(Float64, length(clusters), max_order + 1)
+
+        _index_clusters!(index_dictionary, order_ids, weights, clusters, 1)
+
+        for (i, cluster) in enumerate(sort(clusters))
+                index_dictionary[cluster.ghash] = i
+                weights[i, length(cluster)+1] = cluster.lc
+                temp_subgraphs = Int[]
+
+                lvs, mask = connections(lattice)[cluster.vs]
+                for lv in lvs
                         lv = LatticeVertices(lv)
                         gh = ghash(clusters, lv)
 
@@ -121,7 +160,7 @@ function write_to_json(e::Expansion, lattice::SiteExpansionLattice, cs::Abstract
         end
 end
 
-function write_to_json(e::Expansion, lattice::AbstractClusterExpansionLattice, cs::AbstractClusterSet, filepath::String)
+function write_to_json(e::Expansion, lattice::StrongClusterExpansionLattice, cs::AbstractClusterSet, filepath::String)
         all_coords = get_coordinates(lattice)
         all_colors = get_site_colors(lattice)
         adj = bond_matrix(lattice)
@@ -136,6 +175,59 @@ function write_to_json(e::Expansion, lattice::AbstractClusterExpansionLattice, c
                 coords = collect(eachcol(all_coords[:, lvs]))
                 colors = all_colors[lvs]
                 bonds = adj_mat_to_edge_list(adj[lvs, lvs])
+
+                push!(clusters_data, Dict(
+                        "cluster_id" => cluster_id,
+                        "nlce_order" => n,
+                        "n_sites" => length(lvs),
+                        "coordinates" => coords,
+                        "site_colors" => colors,
+                        "bonds" => bonds,
+                        "weights" => vec(e.weights[cluster_id, :])
+                ))
+
+                for lv in lvs
+                        lv = LatticeVertices(lv)
+                        gh = ghash(cs, lv)
+
+                        if !(gh in single_sites)
+                                push!(single_sites, gh)
+                                id = e.index_dictionary[gh]
+                                push!(clusters_data, Dict(
+                                        "cluster_id" => id,
+                                        "nlce_order" => 1,
+                                        "n_sites" => 1,
+                                        "coordinates" => all_coords[:, lv],
+                                        "site_colors" => all_colors[lv],
+                                        "bonds" => [],
+                                        "weights" => vec(e.weights[id, :])
+                                ))
+                        end
+                end
+        end
+
+        open(filepath, "w") do io
+                JSON3.pretty(io, clusters_data)
+        end
+end
+
+function write_to_json(e::Expansion, lattice::WeakClusterExpansionLattice, cs::AbstractClusterSet, filepath::String)
+        all_coords = get_coordinates(lattice)
+        all_colors = get_site_colors(lattice)
+        adj = bond_matrix(lattice)
+        single_sites = []
+
+        clusters_data = []
+        for cluster in cs
+                n = length(cluster.vs) + 1
+                lvs, mask = connections(lattice)[cluster.vs]
+                cluster_id = e.index_dictionary[cluster.ghash]
+
+                coords = collect(eachcol(all_coords[:, lvs]))
+                colors = all_colors[lvs]
+                hm = adj[lvs, lvs]
+                hm[mask] .= 0
+                bonds = adj_mat_to_edge_list(hm)
 
                 push!(clusters_data, Dict(
                         "cluster_id" => cluster_id,
