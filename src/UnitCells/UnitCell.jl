@@ -1,7 +1,7 @@
 """
     Bond(site1, site2, direction, bond_type)
 
-# TODO: describe what a Bond represents
+Bond of given type between two sites along the given direction, in primitive lattice vector notation
 """
 struct Bond
         site1::Int
@@ -12,13 +12,12 @@ end
 
 neighbor_site(bond::Bond, coordinate::AbstractVector{Int}) = [coordinate[1:end-1] + bond.direction; bond.site2]
 
-# coordinates are written [x1 x2 x3 ...; y1 y2 y3 ...; z1 z2 z3 ...]
 """
     UnitCell(basis, primitive_vectors, bonds, site_colors)
 
-# TODO: describe what a UnitCell represents
+Unit cell containing the given information, generally to be used for a site expansion. Coordinates are written [x1 x2 x3 ...; y1 y2 y3 ...; z1 z2 z3 ...;].
 """
-struct UnitCell
+struct UnitCell <: AbstractUnitCell
         basis::Matrix{Float64}
         primitive_vectors::Matrix{Float64}
         site_colors::Vector{Int}
@@ -35,7 +34,6 @@ function UnitCell(basis::AbstractVector{<:AbstractVector{Float64}}, primitive_ve
         UnitCell(hcat(basis...), hcat(primitive_vectors...), site_colors, bonds)
 end
 
-function image_unit_cell end
 
 basis_size(unit_cell::UnitCell) = size(unit_cell.basis, 2)
 dimension(unit_cell::UnitCell) = size(unit_cell.primitive_vectors, 2)

@@ -11,7 +11,7 @@ end
 """
     clusters_from_clusters!(new_clusters, old_clusters)
 
-# TODO: describe what clusters_from_clusters! does
+Populates new_clusters from the clusters inside old_clusters using the hasher inside the new_clusters ClusterSet
 """
 function clusters_from_clusters!(new_clusters::AbstractClusterSet{C,H}, old_clusters::AbstractClusterSet) where {C<:AbstractCluster,H}
         for old_cluster in old_clusters
@@ -23,7 +23,7 @@ end
 """
     clusters_from_lattice!(clusters, lattice; spawn_depth=3)
 
-# TODO: describe what clusters_from_lattice! does
+Generates all clusters from an infinite lattice up till the given max_order, populates clusters with all the corresponding clusters reduced by the hashing function
 """
 function clusters_from_lattice!(clusters::AbstractClusterSet{C,H}, lattice::AbstractInfiniteLattice; spawn_depth::Int=3) where {C<:AbstractCluster,H}
         max_depth = max_order(lattice)
@@ -62,6 +62,8 @@ function clusters_from_lattice!(clusters::AbstractClusterSet{C,H}, lattice::Abst
                                 neighbor_cluster = C(union(cluster.vs, typeof(ctrs)(v)), clusters, lattice)
 
                                 if first
+                                        # Run the first neighbor inline to avoid unnecessary task allocation,
+                                        # then spawn the remaining neighbors concurrently.
                                         dfs(neighbor_cluster, depth + 1)
                                         first = false
                                 else
