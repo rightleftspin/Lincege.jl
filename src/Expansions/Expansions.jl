@@ -28,23 +28,38 @@ Performs the recursive NLCE summation up till the max_order and populates the gi
 """
 summation!(e::AbstractExpansion, max_order::Int) = _summation!(e, max_order + order_offset(e))
 
+#function _summation!(e::AbstractExpansion, max_order::Int)
+#        stack = Vector{Tuple{Int,Float64}}()
+#        per_cluster = zeros(Float64, length(e))
+#        for order in 1:max_order
+#                for cluster_id in order_ids(e, order)
+#                        updated_lattice_constant = e[cluster_id, order]
+#                        push!(stack, (cluster_id, -updated_lattice_constant))
+#                        while !isempty(stack)
+#                                current_cluster_id, contribution = pop!(stack)
+#                                for subcluster_id in get_subclusters(e, current_cluster_id)
+#                                        @inbounds per_cluster[subcluster_id] += contribution
+#                                        push!(stack, (subcluster_id, -contribution))
+#                                end
+#                        end
+#                end
+#                add_array!(e, order, per_cluster)
+#                fill!(per_cluster, zero(Float64))
+#        end
+#        e
+#end
+
 function _summation!(e::AbstractExpansion, max_order::Int)
-        stack = Vector{Tuple{Int,Float64}}()
-        per_cluster = zeros(Float64, length(e))
+        cluster_weights = zeros(Float64, length(e), length(e))
         for order in 1:max_order
                 for cluster_id in order_ids(e, order)
-                        updated_lattice_constant = e[cluster_id, order]
-                        push!(stack, (cluster_id, -updated_lattice_constant))
-                        while !isempty(stack)
-                                current_cluster_id, contribution = pop!(stack)
-                                for subcluster_id in get_subclusters(e, current_cluster_id)
-                                        @inbounds per_cluster[subcluster_id] += contribution
-                                        push!(stack, (subcluster_id, -contribution))
-                                end
+                        for subcluster_id in get_subclusters(e, cluster_id)
+                                @views cluster_weights[cluster_id, :] .-= cluster_weights[subcluster_id, :]
                         end
+
+                        add_array!(e, order, e[cluster_id, order] * cluster_weights[cluster_id, :])
+                        cluster_weights[cluster_id, cluster_id] = 1
                 end
-                add_array!(e, order, per_cluster)
-                fill!(per_cluster, zero(Float64))
         end
         e
 end
