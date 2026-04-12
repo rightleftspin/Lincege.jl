@@ -26,14 +26,17 @@ abstract type AbstractExpansion end
 
 Base.getindex(e::AbstractExpansion, cluster_hash::UInt) = _NI("getindex")
 each_order(e::AbstractExpansion, max_order::Int) = _NI("each_order")
+order_offset(e::AbstractExpansion) = _NI("order_offset")
 
 """
     summation!(expansion, max_order)
 
 Performs the recursive NLCE summation up till the max_order and populates the given expansion with the resultant weights
 """
-function summation!(e::AbstractExpansion, max_order::Int)
-        for cluster_hashes in each_order(e, max_order)
+summation!(e::AbstractExpansion, max_order::Int) = _summation!(e, max_order, order_offset(e))
+
+function _summation!(e::AbstractExpansion, max_order::Int, order_offset::Int)
+        for cluster_hashes in each_order(e, max_order + order_offset)
                 for cluster_hash in cluster_hashes
                         cluster = e[cluster_hash]
                         for subcluster_hash in subgraphs(cluster)

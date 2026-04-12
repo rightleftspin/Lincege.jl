@@ -3,7 +3,7 @@ using Plots
 using JSON3
 using Lincege
 import Lincege: basis_size, dimension, shift_unit_cell,
-        centers, max_order, n_unique_sites, neighbors, bond_matrix
+        centers, max_order, n_unique_sites, neighbors, bond_matrix, weights
 
 # ---------------------------------------------------------------------------
 # Shared unit cell definitions reused across multiple testsets

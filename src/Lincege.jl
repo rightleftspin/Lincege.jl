@@ -16,7 +16,7 @@ module Lincege
 using Base.Threads
 using LinearAlgebra
 using NautyGraphs
-using JSON3
+using JSON
 
 # Some limited utility functions for the rest of the algorithm
 include("util.jl")

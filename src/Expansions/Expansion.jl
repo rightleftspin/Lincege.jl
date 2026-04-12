@@ -6,6 +6,7 @@ Arbitrary expansion of clusters in the NLCE sense, contains the weights necessar
 struct Expansion <: AbstractExpansion
         expansion_clusters::Dict{UInt,ExpansionCluster}
         order_ids::Vector{Vector{UInt}}
+        order_offset::Int
 end
 
 function Expansion(clusters::AbstractClusterSet, lattice::SiteExpansionLattice)
@@ -17,7 +18,7 @@ function Expansion(clusters::AbstractClusterSet, lattice::SiteExpansionLattice)
                 expansion_clusters[cluster.ghash] = ExpansionCluster(cluster, clusters, lattice)
         end
 
-        Expansion(expansion_clusters, order_ids)
+        Expansion(expansion_clusters, order_ids, 0)
 end
 
 function Expansion(clusters::AbstractClusterSet, lattice::AbstractClusterExpansionLattice)
@@ -44,11 +45,12 @@ function Expansion(clusters::AbstractClusterSet, lattice::AbstractClusterExpansi
                 expansion_clusters[cluster.ghash] = ExpansionCluster(cluster, clusters, lattice)
         end
 
-        Expansion(expansion_clusters, order_ids)
+        Expansion(expansion_clusters, order_ids, 1)
 end
 
 Base.getindex(e::Expansion, cluster_hash::UInt) = e.expansion_clusters[cluster_hash]
 each_order(e::Expansion, max_order::Int) = e.order_ids[1:max_order]
+order_offset(e::Expansion) = e.order_offset
 
 function weights(e::Expansion, order::Int)
         cluster_hashes = e.order_ids[order]

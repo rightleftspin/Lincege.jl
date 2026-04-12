@@ -8,10 +8,13 @@
                 iso_clusters = IsomorphicClusterSet(lattice)
                 clusters_from_clusters!(iso_clusters, trans_clusters)
 
-                expansion = Expansion(iso_clusters, lattice, m_order)
+                expansion = Expansion(iso_clusters, lattice)
                 summation!(expansion, m_order)
 
-                @test expansion.weights == [1.0 -4.0 6.0; 0.0 2.0 -12.0; 0.0 0.0 6.0]
+                @test Set(values(weights(expansion, 1))) == Set((1.0))
+                @test Set(values(weights(expansion, 2))) == Set((-4.0, 2.0))
+                @test Set(values(weights(expansion, 3))) == Set((6.0, -12.0, 6.0))
+
         end
 
         @testset "Kagome Lattice pipeline" begin
@@ -22,10 +25,12 @@
                 iso_clusters = IsomorphicClusterSet(lattice)
                 clusters_from_clusters!(iso_clusters, trans_clusters)
 
-                expansion = Expansion(iso_clusters, lattice, m_order)
+                expansion = Expansion(iso_clusters, lattice)
                 summation!(expansion, m_order)
 
-                @test isapprox(expansion.weights, [1.0 -4 6.0; 0.0 2 -10.0; 0.0 0.0 0.6666666666666666; 0.0 0.0 4.0])
+                @test Set([round(v, digits=6) for v in values(weights(expansion, 1))]) == Set((1.0))
+                @test Set([round(v, digits=6) for v in values(weights(expansion, 2))]) == Set((-4.0, 2.0))
+                @test Set([round(v, digits=6) for v in values(weights(expansion, 3))]) == Set((6.0, -10.0, round(2 / 3, digits=6), 4.0))
         end
 
         @testset "Pyrochlore Lattice Unit Cell pipeline" begin
@@ -36,10 +41,13 @@
                 iso_clusters = IsomorphicClusterSet(lattice)
                 clusters_from_clusters!(iso_clusters, trans_clusters)
 
-                expansion = Expansion(iso_clusters, lattice, m_order)
+                expansion = Expansion(iso_clusters, lattice)
                 summation!(expansion, m_order)
-                @test isapprox(expansion.weights, [0.0 0.25 -3.0 16.5; 0.0 0.0 1.5 -27.0; 0.0 0.0 0.0 10.5; 0.0 0.0 0.0 1.0; 0.0 0.0 0.0 1.0; 1.0 -1.0 0.0 0.0])
 
+                @test Set([round(v, digits=6) for v in values(weights(expansion, 1))]) == Set((1.0))
+                @test Set([round(v, digits=6) for v in values(weights(expansion, 2))]) == Set((0.25, -1.0))
+                @test Set([round(v, digits=6) for v in values(weights(expansion, 3))]) == Set((-3.0, 1.5, 0.0))
+                @test Set([round(v, digits=6) for v in values(weights(expansion, 4))]) == Set((16.5, -27.0, 10.5, 1.0, 1.0, 0.0))
         end
 
         @testset "Square Lattice Cluster pipeline" begin
@@ -50,9 +58,13 @@
                 iso_clusters = IsomorphicClusterSet(lattice)
                 clusters_from_clusters!(iso_clusters, trans_clusters)
 
-                expansion = Expansion(iso_clusters, lattice, m_order)
+                expansion = Expansion(iso_clusters, lattice)
                 summation!(expansion, m_order)
-                @test isapprox(expansion.weights, [0.0 0.5 -2.0 3.0; 0.0 0.0 1.0 -6.0; 0.0 0.0 0.0 2.0; 0.0 0.0 0.0 1.0; 1.0 -2.0 1.0 0.0])
+
+                @test Set([round(v, digits=6) for v in values(weights(expansion, 1))]) == Set((1.0))
+                @test Set([round(v, digits=6) for v in values(weights(expansion, 2))]) == Set((0.5, -2.0))
+                @test Set([round(v, digits=6) for v in values(weights(expansion, 3))]) == Set((-2.0, 1.0, 1.0))
+                @test Set([round(v, digits=6) for v in values(weights(expansion, 4))]) == Set((3.0, -6.0, 2.0, 1.0, 0.0))
         end
 
         @testset "write_to_json" begin
@@ -62,7 +74,7 @@
                 clusters_from_lattice!(trans_clusters, lattice)
                 iso_clusters = IsomorphicClusterSet(lattice)
                 clusters_from_clusters!(iso_clusters, trans_clusters)
-                expansion = Expansion(iso_clusters, lattice, m_order)
+                expansion = Expansion(iso_clusters, lattice)
                 summation!(expansion, m_order)
 
                 mktempdir() do dir

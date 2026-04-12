@@ -1,10 +1,10 @@
 name = "Lincege"
 uuid = "f7bb31c1-1dce-4f9f-a981-827e9ac9009b"
-authors = ["Pranav Seetharaman <pranav@myrdd.info> and contributors"]
 version = "1.0.0"
+authors = ["Pranav Seetharaman <pranav@myrdd.info> and contributors"]
 
 [deps]
-JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
+JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 NautyGraphs = "7509a0a4-015a-4167-b44b-0799a1a2605e"
 
@@ -17,7 +17,7 @@ LincegePlotsExt = ["Plots", "ColorSchemes"]
 
 [compat]
 ColorSchemes = "3.31.0"
-JSON3 = "1.14.3"
+JSON = "1.5.0"
 LinearAlgebra = "1.11"
 NautyGraphs = "0.6.3"
 Plots = "1.41.6"
