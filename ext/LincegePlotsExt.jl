@@ -102,7 +102,7 @@ function _image_unit_cell_2d(unit_cell::UnitCell)
                 firstLine = false
         end
 
-        display(unitCellPlot)
+        #display(unitCellPlot)
         return unitCellPlot
 end
 
@@ -193,8 +193,85 @@ function _image_unit_cell_3d(unit_cell::UnitCell)
                         markerstrokewidth=2, markersize=4)
         end
 
-        display(unitCellPlot)
+        #display(unitCellPlot)
         return unitCellPlot
 end
 
+function Lincege.image_lattice(unit_cell::UnitCell)
+        dim = Lincege.dimension(unit_cell)
+        try
+                if dim == 2
+                        return _image_lattice_2d(unit_cell)
+                elseif dim == 3
+                        gr()
+                        return _image_lattice_3d(unit_cell)
+                else
+                        error("Only 2D and 3D unit cells can be visualized. Got dimension: $dim")
+                end
+        catch e
+                @warn "Visualization failed: $e"
+                return 1
+        end
+end
+
+function _image_lattice_2d(unit_cell::UnitCell)
+        sitesInfo = []
+
+        pv1 = unit_cell.primitive_vectors[:, 1]
+        pv2 = unit_cell.primitive_vectors[:, 2]
+        basis_1 = unit_cell.basis[:, 1]
+        xLim = basis_1[1]+pv1[1]*2
+        latticePlot = plot(legend=:best)
+        for x in -6:6
+                for y in -6:6
+                        deltaX = pv1[1]*x + pv2[1]*y
+                        deltaY = pv1[2]*x+pv2[2]*y
+                        for i in 1:Lincege.basis_size(unit_cell)
+                                basis_pos = unit_cell.basis[:, i]
+                                push!(sitesInfo, [basis_pos[1]+deltaX, basis_pos[2]+deltaY, unit_cell.site_colors[i]])
+                        end
+        for bond in unit_cell.bonds
+                prX = bond.direction[1]
+                prY = bond.direction[2]
+
+                basis1 = unit_cell.basis[:, bond.site1]
+                basis2 = unit_cell.basis[:, bond.site2]
+
+                site1X = basis1[1] + deltaX
+                site1Y = basis1[2] + deltaY
+                site2X = basis2[1] + prX * pv1[1] + prY * pv2[1] + deltaX
+                site2Y = basis2[2] + prX * pv1[2] + prY * pv2[2] + deltaY
+
+                my_palette = colorschemes[:seaborn_bright]
+                plot!(latticePlot, [site1X, site2X], [site1Y, site2Y],
+                        label="", color=my_palette[bond.bond_type], lw=2, dpi=500)
+        end
+end
+end
+
+        xPositions = getindex.(sitesInfo, 1)
+        yPositions = getindex.(sitesInfo, 2)
+        colors = getindex.(sitesInfo, 3)
+        paletteAtoms = colorschemes[:Accent_8]
+
+        for c in unique(colors)
+                mask = colors .== c
+                colorIndex = Int(c)
+                plot!(latticePlot, xPositions[mask], yPositions[mask],
+                        seriestype=:scatter,
+                        aspect_ratio=1,
+                        color=paletteAtoms[(colorIndex)],
+                        label="Type $colorIndex",
+                        markerstrokewidth=2,
+                        markersize=6,
+                        xlims=(-xLim,xLim),
+                        ylims=(-xLim,xLim),
+                        dpi=500)
+        end
+
+        #display(latticePlot)
+        return latticePlot
+end
+function _image_lattice_3d(unit_cell::UnitCell)
+end
 end
