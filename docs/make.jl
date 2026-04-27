@@ -1,14 +1,14 @@
-using LiNCEGE
+using Lincege
 using Documenter
 
-DocMeta.setdocmeta!(LiNCEGE, :DocTestSetup, :(using LiNCEGE); recursive=true)
+DocMeta.setdocmeta!(Lincege, :DocTestSetup, :(using Lincege); recursive=true)
 
 makedocs(;
-        modules=[LiNCEGE],
+        modules=[Lincege],
         authors="Pranav Seetharaman <pranav@myrdd.info> and contributors",
-        sitename="LiNCEGE.jl",
+        sitename="Lincege.jl",
         format=Documenter.HTML(;
-                canonical="https://rightleftspin.github.io/LiNCEGE.jl",
+                canonical="https://rightleftspin.github.io/Lincege.jl",
                 edit_link="main",
                 assets=String[],
         ),
@@ -24,6 +24,6 @@ makedocs(;
 )
 
 deploydocs(;
-        repo="github.com/rightleftspin/LiNCEGE.jl",
+        repo="github.com/rightleftspin/Lincege.jl",
         devbranch="main",
 )

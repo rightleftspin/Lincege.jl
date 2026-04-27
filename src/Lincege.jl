@@ -8,10 +8,10 @@ The general pipeline is:
 4. Call `summation!` to populate the NLCE weights.
 5. Export results with `write_to_json`.
 
-See the [online documentation](https://rightleftspin.github.io/LiNCEGE.jl) for worked
+See the [online documentation](https://rightleftspin.github.io/Lincege.jl) for worked
 examples on the square lattice, Kagome lattice, and Pyrochlore unit cell.
 """
-module LiNCEGE
+module Lincege
 
 using Base.Threads
 using LinearAlgebra
