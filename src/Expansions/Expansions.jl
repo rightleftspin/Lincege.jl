@@ -9,6 +9,7 @@ Subtypes must implement:
 """
 abstract type AbstractExpansionCluster end
 
+lattice_constant(c::AbstractExpansionCluster) = _NI("lattice_constant")
 subgraphs(c::AbstractExpansionCluster) = _NI("subgraphs")
 subtract_subcluster!(c::AbstractExpansionCluster, sc::AbstractExpansionCluster) = _NI("subtract_subcluster!")
 
@@ -50,3 +51,59 @@ end
 include("ExpansionCluster.jl")
 include("Expansion.jl")
 include("util.jl")
+
+const latex_table_column_labels = Dict{Any,String}(
+        TranslationHasher => "No. of connected clusters",
+        IsomorphicHasher => "No. of isomorphic clusters",
+        SymmetricHasher => "No. of symmetric clusters",
+)
+
+_cs_column_label(cs::ClusterSet{C,H}) where {C,H} =
+        get(latex_table_column_labels, H, "")
+
+function _expansion_table_data(e::Expansion, cs::Vector{<:AbstractClusterSet}, max_order::Int)
+        off = order_offset(e)
+        table_rows = Vector{Vector{Any}}()
+        for order in (1-off):max_order
+                idx = order + off
+                row = []
+                push!(row, order)
+                for c in cs
+                        push!(row, length(c))
+                end
+                push!(row, sum(id -> e.expansion_clusters[id].lattice_constant, e.order_ids[idx]))
+                push!(row, sum(id -> length(e.expansion_clusters[id].subgraphs), e.order_ids[idx]))
+                push!(table_rows, row)
+        end
+        data = permutedims(reduce(hcat, table_rows))
+        cs_labels = [_cs_column_label(c) for c in cs]
+        return data, cs_labels
+end
+
+function print_latex_table(io::IO, e::Expansion, cs::Vector{<:AbstractClusterSet}, max_order::Int)
+        data, cs_labels = _expansion_table_data(e, cs, max_order)
+        cs_headers = [LatexCell(l) for l in cs_labels]
+        column_labels = [vcat(["Order"], cs_headers, [LatexCell("\$\\sum L(c)\$"), LatexCell("\$\\sum |\\text{subgraphs}|\$")])]
+        pretty_table_latex_backend(io, data; column_labels=column_labels)
+end
+
+function print_html_table(io::IO, e::Expansion, cs::Vector{<:AbstractClusterSet}, max_order::Int)
+        data, cs_labels = _expansion_table_data(e, cs, max_order)
+        column_labels = [vcat(["Order"], cs_labels, ["∑ L(c)", "∑ |subgraphs|"])]
+        pretty_table_html_backend(io, data; column_labels=column_labels)
+end
+
+function print_ascii_table(io::IO, e::Expansion, cs::Vector{<:AbstractClusterSet}, max_order::Int)
+        data, cs_labels = _expansion_table_data(e, cs, max_order)
+        column_labels = [vcat(["Order"], cs_labels, ["∑ L(c)", "∑ |subgraphs|"])]
+        pretty_table(io, data; column_labels=column_labels)
+end
+
+print_latex_table(e::Expansion, cs::Vector{<:AbstractClusterSet}, max_order::Int) =
+        print_latex_table(stdout, e, cs, max_order)
+
+print_html_table(e::Expansion, cs::Vector{<:AbstractClusterSet}, max_order::Int) =
+        print_html_table(stdout, e, cs, max_order)
+
+print_ascii_table(e::Expansion, cs::Vector{<:AbstractClusterSet}, max_order::Int) =
+        print_ascii_table(stdout, e, cs, max_order)

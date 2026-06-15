@@ -28,6 +28,9 @@ clusters_from_lattice!(trans_clusters, lattice)
 
 iso_clusters = IsomorphicClusterSet(lattice)
 clusters_from_clusters!(iso_clusters, trans_clusters)
+
+sym_clusters = SymmetricClusterSet(lattice, :Square)
+clusters_from_clusters!(sym_clusters, trans_clusters)
 ```
 
 ## Computing the expansion
@@ -35,6 +38,32 @@ clusters_from_clusters!(iso_clusters, trans_clusters)
 ```@example square
 expansion = Expansion(iso_clusters, lattice)
 summation!(expansion, m_order)
+```
+
+## Printing Tables
+
+There are three ways to print the standard tables one sees in papers regarding
+NLCE.
+
+`print_latex_table` outputs LaTeX source ready to paste into a paper:
+
+```@example square
+print_latex_table(expansion, [trans_clusters, iso_clusters, sym_clusters], m_order)
+```
+
+`print_html_table` renders the table in the browser:
+
+```@example square
+using Markdown
+io = IOBuffer()
+Lincege.print_html_table(io, expansion, [trans_clusters, iso_clusters, sym_clusters], m_order)
+Markdown.HTML(String(take!(io)))
+```
+
+`print_ascii_table` prints a plain-text table:
+
+```@example square
+print_ascii_table(expansion, [trans_clusters, iso_clusters, sym_clusters], m_order)
 ```
 
 ## Writing to JSON

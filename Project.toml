@@ -7,6 +7,7 @@ authors = ["Pranav Seetharaman <pranav@myrdd.info> and contributors"]
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 NautyGraphs = "7509a0a4-015a-4167-b44b-0799a1a2605e"
+PrettyTables = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
 
 [weakdeps]
 ColorSchemes = "35d6a980-a343-548e-a6ea-1d62b119f2f4"
@@ -21,6 +22,7 @@ JSON = "1.5.0"
 LinearAlgebra = "1.11"
 NautyGraphs = "0.6.3"
 Plots = "1.41.6"
+PrettyTables = "3.3.2"
 julia = "1.11"
 
 [extras]

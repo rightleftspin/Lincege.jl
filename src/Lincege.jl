@@ -17,6 +17,7 @@ using Base.Threads
 using LinearAlgebra
 using NautyGraphs
 using JSON
+using PrettyTables
 
 # Some limited utility functions for the rest of the algorithm
 include("util.jl")
@@ -37,7 +38,9 @@ export AbstractVertices, LatticeVertices, ExpansionVertices,
         SiteExpansionLattice, StrongClusterExpansionLattice, WeakClusterExpansionLattice,
         TranslationClusterSet, IsomorphicClusterSet, SymmetricClusterSet,
         clusters_from_lattice!, clusters_from_clusters!,
-        Expansion, summation!, write_to_json
+        Expansion, summation!, write_to_json,
+        print_latex_table, print_html_table, print_ascii_table,
+        TranslationHasher, IsomorphicHasher, SymmetricHasher, latex_table_column_labels
 
 # Extra Physics Related Code, generally slow and not needed for basic Cluster Expansion construction
 #include("Physics/Physics.jl")
