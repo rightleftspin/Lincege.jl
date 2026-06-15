@@ -16,9 +16,10 @@ function find_labels(pw_dir::AbstractArray{<:Real,3}, primitive_vectors::Abstrac
                 for j in i:n_coords
                         direction = pw_dir[i, j, :]
                         int_coeffs = prim_vector_math \ direction
-                        if all(isapprox.(int_coeffs, round.(int_coeffs)))
-                                labels[i] = min(labels[i], labels[j])
-                                labels[j] = min(labels[i], labels[j])
+                        if all(x -> isapprox(x, round(x)), int_coeffs)
+                                m = min(labels[i], labels[j])
+                                labels[i] = m
+                                labels[j] = m
                         end
 
                 end

@@ -85,9 +85,9 @@ function write_to_json(e::Expansion, lattice::AbstractLattice, filepath::String)
         all_coords = get_coordinates(lattice)
         all_colors = get_site_colors(lattice)
         adj = bond_matrix(lattice)
-        all_weights = [weights(e, i) for i in ordr_offset(e):length(e.order_ids)]
+        all_weights = [weights(e, i) for i in 1:length(e.order_ids)]
 
-        clusters_data = []
+        clusters_data = Vector{Dict{String,Any}}()
 
         for (order_idx, cluster_hashes) in enumerate(e.order_ids)
                 for cluster_hash in cluster_hashes
@@ -98,7 +98,7 @@ function write_to_json(e::Expansion, lattice::AbstractLattice, filepath::String)
                         coords = [collect(col) for col in eachcol(all_coords[:, vs])]
                         colors = collect(all_colors[vs])
                         bonds = [[b[1], b[2], b[3]] for b in adj_mat_to_edge_list(adj[vs, vs])]
-                        wts = [d[cluster_hash] for d in all_weights]
+                        wts = [get(d, cluster_hash, 0.0) for d in all_weights]
 
                         push!(clusters_data, Dict(
                                 "cluster_hash" => string(cluster_hash),
@@ -116,3 +116,41 @@ function write_to_json(e::Expansion, lattice::AbstractLattice, filepath::String)
                 JSON.print(io, clusters_data, 2)
         end
 end
+
+function _expansion_table_data(e::Expansion, cs::Vector{<:AbstractClusterSet}, max_order::Int)
+        off = order_offset(e)
+        table_rows = Vector{Vector{Any}}()
+        all_weights = [weights(e, i) for i in 1:length(e.order_ids)]
+
+        for order in (1-off):max_order
+                idx = order + off
+                row = Vector{Any}()
+                push!(row, order)
+                if order != 0
+                        for c in cs
+                                push!(row, count(x -> length(x) == order, c))
+                        end
+                else
+                        for _ in cs
+                                push!(row, 1)
+                        end
+
+                end
+
+                lc_sum = 0
+                sg_sum = 0
+                for id in e.order_ids[idx]
+                        lc_sum += e.expansion_clusters[id].lattice_constant
+                        sg_sum += length(e.expansion_clusters[id].subgraphs)
+                end
+                push!(row, lc_sum)
+                push!(row, sg_sum)
+                push!(row, sum(p -> p.second, all_weights[idx]))
+
+                push!(table_rows, row)
+        end
+        data = permutedims(reduce(hcat, table_rows))
+        cs_labels = [_cs_column_label(c) for c in cs]
+        return data, cs_labels
+end
+
