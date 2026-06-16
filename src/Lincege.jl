@@ -32,16 +32,35 @@ include("Lattices/Lattices.jl")
 include("Hashers/Hashers.jl")
 include("Clusters/Clusters.jl")
 include("Expansions/Expansions.jl")
+include("Importers/Importers.jl")
+include("Physics/Physics.jl")
 
-export AbstractVertices, LatticeVertices, ExpansionVertices,
-        Bond, UnitCell, ExpansionBond, ExpansionUnitCell, image_unit_cell,
-        SiteExpansionLattice, StrongClusterExpansionLattice, WeakClusterExpansionLattice,
-        TranslationClusterSet, IsomorphicClusterSet, SymmetricClusterSet,
-        clusters_from_lattice!, clusters_from_clusters!,
-        Expansion, summation!, write_to_json,
+# Vertices
+export AbstractVertices, LatticeVertices, ExpansionVertices
+
+# Unit Cells
+export Bond, UnitCell, ExpansionBond, ExpansionUnitCell, image_unit_cell
+
+# Lattices
+export SiteExpansionLattice, StrongClusterExpansionLattice, WeakClusterExpansionLattice
+
+# Hashers
+export TranslationHasher, IsomorphicHasher, SymmetricHasher
+
+# Clusters
+export TranslationClusterSet, IsomorphicClusterSet, SymmetricClusterSet,
+        clusters_from_lattice!, clusters_from_clusters!
+
+# Expansions
+export Expansion, summation!, write_to_json,
         print_latex_table, print_html_table, print_ascii_table,
-        TranslationHasher, IsomorphicHasher, SymmetricHasher, latex_table_column_labels
+        latex_table_column_labels
 
-# Extra Physics Related Code, generally slow and not needed for basic Cluster Expansion construction
-#include("Physics/Physics.jl")
+# Importers
+export ImportedCluster, import_from_json, import_from_json_by_order
+
+# Physics
+export AbstractPhysicsSolver, observables, eigenvalues, eigenvectors, cluster_weights,
+        IsingSolver,
+        NLCEResult, perform_nlce
 end
