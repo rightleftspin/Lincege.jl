@@ -71,3 +71,43 @@ print_ascii_table(expansion, [trans_clusters, iso_clusters, sym_clusters], m_ord
 ```julia
 write_to_json(expansion, lattice, iso_clusters, "square_lattice.json")
 ```
+
+## Ising Model Simulation
+
+```julia
+temperatures = collect(range(0.5, 5.0, length=200))
+
+clusters = import_from_json("square_lattice.json")
+solvers = [IsingSolver(c) for c in clusters]
+
+nlce_result = perform_nlce(solvers, temperatures)
+```
+
+## Plotting Results
+
+```julia
+using Plots
+
+T = nlce_result.temperatures
+n_orders = length(nlce_result.energy)
+
+energy_cumsum  = hcat([sum(nlce_result.energy[1:n]) for n in 1:n_orders]...)
+entropy_cumsum = hcat([sum(nlce_result.entropy[1:n]) for n in 1:n_orders]...)
+cv_cumsum      = hcat([sum(nlce_result.specific_heat[1:n]) for n in 1:n_orders]...)
+
+plot_range = max(1, n_orders - 2):n_orders
+labels = reshape(["Order $n" for n in plot_range], 1, :)
+
+p1 = plot(T, energy_cumsum[:, plot_range]; label=false, xlabel="T/J", title="Energy")
+p2 = plot(T, entropy_cumsum[:, plot_range]; label=labels, xlabel="T/J", title="Entropy", legend=:top)
+p3 = plot(T, cv_cumsum[:, plot_range]; label=false, xlabel="T/J", title="Specific Heat")
+
+plot(p1, p2, p3; layout=(1, 3), size=(900, 300))
+```
+
+The following plot shows convergence of the NLCE up to order 10 for the square
+lattice Ising model (J=1), note that the results plotted here are not directly
+evaluted from the code above, but rather a cached result from a different
+calculation:
+
+![Square Lattice NLCE](../assets/square_lattice_nlce.png)

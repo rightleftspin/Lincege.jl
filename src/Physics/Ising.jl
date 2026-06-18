@@ -17,7 +17,7 @@ function IsingSolver(cluster::ImportedCluster; J::Float64=1.0)
 
         for config in 0:(n_configs-1)
                 spins = [((config >> (k - 1)) & 1) == 1 ? 1.0 : -1.0 for k in 1:n]
-                E = sum((i, j, _) -> -J * spins[i] * spins[j], cluster.bonds)
+                E = sum(b -> -J * spins[b[1]] * spins[b[2]], cluster.bonds; init=0.0)
                 evs[config+1] = E
                 evecs[:, config+1] = spins
         end
