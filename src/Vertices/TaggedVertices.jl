@@ -6,6 +6,7 @@ vertices(vs::TaggedVertices) = vs.bitset
 
 Base.sort(vs::TaggedVertices) = vs
 Base.collect(vs::TaggedVertices) = collect(vs.bitset)
+Base.hash(vs::TaggedVertices, h::UInt) = hash(collect(vs), h)
 
 Base.intersect(vs1::T, vs2::T) where {T<:TaggedVertices} = T(intersect(vs1.bitset, vs2.bitset))
 Base.setdiff(vs1::T, vs2::T) where {T<:TaggedVertices} = T(setdiff(vs1.bitset, vs2.bitset))

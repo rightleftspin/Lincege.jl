@@ -1,12 +1,12 @@
 function get_subgraphs(c::AbstractCluster, lattice::AbstractLattice)
+        ctrs = c.vs
         if length(c) == 1
-                return Set()
+                return Set{typeof(ctrs)}()
         end
 
         max_depth = length(c) - 1
-        ctrs = c.vs
         roots = [typeof(ctrs)(center) for center in ctrs]
-        visited = Set()
+        visited = Set{typeof(ctrs)}()
 
         function try_mark(cluster)
                 already = cluster in visited
@@ -31,15 +31,15 @@ function get_subgraphs(c::AbstractCluster, lattice::AbstractLattice)
                 end
         end
 
-        for c in roots
-                dfs(c)
+        for root in roots
+                dfs(root)
         end
 
         visited
 end
 
 function adj_mat_to_edge_list(adj_matrix::AbstractMatrix{<:Real})
-        edge_list = []
+        edge_list = Tuple{Int,Int,Int}[]
 
         n = size(adj_matrix, 1)
         for i in 1:n
@@ -53,3 +53,4 @@ function adj_mat_to_edge_list(adj_matrix::AbstractMatrix{<:Real})
 
         edge_list
 end
+
