@@ -68,11 +68,11 @@
         end
 
         @testset "write_to_json" begin
-                expected_keys = ["bonds", "cluster_hash", "coordinates", "lattice_constant",
-                        "n_sites", "order", "site_colors", "subgraphs", "weights"]
+                expected_keys = ["bonds", "cluster_hash", "coordinates",
+                        "n_sites", "order", "site_colors", "weights"]
 
                 @testset "SiteExpansionLattice" begin
-                        m_order = 2
+                        m_order = 3
                         lattice = SiteExpansionLattice(m_order, square_uc)
                         trans_clusters = TranslationClusterSet(lattice)
                         clusters_from_lattice!(trans_clusters, lattice)
@@ -95,11 +95,19 @@
                                 order1 = filter(e -> e["n_sites"] == 1, data)
                                 @test length(order1) == 1
                                 @test length(order1[1]["bonds"]) == 0
+                                @test order1[1]["weights"] == [1, -4, 6]
 
                                 order2 = filter(e -> e["n_sites"] == 2, data)
                                 @test length(order2) == 1
                                 @test length(order2[1]["bonds"]) == 1
                                 @test order2[1]["bonds"][1][end] == 1
+                                @test order2[1]["weights"] == [0, 2, -12]
+
+                                order3 = filter(e -> e["n_sites"] == 3, data)
+                                @test length(order3) == 1
+                                @test length(order3[1]["bonds"]) == 2
+                                @test order3[1]["bonds"][1][end] == 1
+                                @test order3[1]["weights"] == [0, 0, 6]
                         end
                 end
 
@@ -127,6 +135,20 @@
                                 order1 = filter(e -> e["order"] == 1, data)
                                 @test !isempty(order1)
                                 @test all(e -> e["n_sites"] == 1, order1)
+                                @test length(order1[1]["bonds"]) == 0
+                                @test order1[1]["weights"] == [1, -1, 0]
+
+                                order2 = filter(e -> e["order"] == 2, data)
+                                @test length(order2) == 1
+                                @test length(order2[1]["bonds"]) == 6
+                                @test order2[1]["bonds"][1][end] == 1
+                                @test order2[1]["weights"] == [0, 0.25, -3.0]
+
+                                order3 = filter(e -> e["order"] == 3, data)
+                                @test length(order3) == 1
+                                @test length(order3[1]["bonds"]) == 13
+                                @test order3[1]["bonds"][1][end] == 1
+                                @test order3[1]["weights"] == [0, 0, 1.5]
                         end
                 end
 
@@ -154,6 +176,20 @@
                                 order1 = filter(e -> e["order"] == 1, data)
                                 @test !isempty(order1)
                                 @test all(e -> e["n_sites"] == 1, order1)
+                                @test length(order1[1]["bonds"]) == 0
+                                @test order1[1]["weights"] == [1, -2, 1]
+
+                                order2 = filter(e -> e["order"] == 2, data)
+                                @test length(order2) == 1
+                                @test length(order2[1]["bonds"]) == 4
+                                @test order2[1]["bonds"][1][end] == 1
+                                @test order2[1]["weights"] == [0, 0.5, -2]
+
+                                order3 = filter(e -> e["order"] == 3, data)
+                                @test length(order3) == 1
+                                @test length(order3[1]["bonds"]) == 8
+                                @test order3[1]["bonds"][1][end] == 1
+                                @test order3[1]["weights"] == [0, 0, 1]
                         end
                 end
         end

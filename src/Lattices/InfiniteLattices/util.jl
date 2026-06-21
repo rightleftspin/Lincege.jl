@@ -1,7 +1,8 @@
 function generate_cartesian_coordinates(dimension::Int, half_side_length::Int)
         # Forces the lattice to have a strict center point
         r = -half_side_length:half_side_length
-        hcat(vec(collect.(Iterators.product(fill(r, dimension)...)))...)
+        grid = Iterators.product(fill(r, dimension)...)
+        hcat([collect(t) for t in grid]...)
 end
 
 function generate_coordinates(max_order::Int, num_basis_elements::Int, dimension::Int)
@@ -26,14 +27,11 @@ function generate_coord_index(coordinates::Matrix{Float64})
         coord_index
 end
 
-function generate_adj_matrix(coordinates::AbstractMatrix{Int}, unit_cell::UnitCell)
-        coord_index = generate_coord_index(coordinates)
-        adj_matrix = zeros(Int, size(coordinates, 2), size(coordinates, 2))
+function _fill_adj_matrix!(adj_matrix, coordinates, coord_index, bonds, site_matcher)
         for (index, col) in enumerate(eachcol(coordinates))
-                for bond in unit_cell.bonds
-                        if bond.site1 == col[end]
-                                neighbor_coord = neighbor_site(bond, col)
-                                ni = get(coord_index, neighbor_coord, nothing)
+                for bond in bonds
+                        if site_matcher(bond, col)
+                                ni = get(coord_index, neighbor_site(bond, col), nothing)
                                 if ni !== nothing
                                         adj_matrix[index, ni] = bond.bond_type
                                         adj_matrix[ni, index] = bond.bond_type
@@ -41,26 +39,19 @@ function generate_adj_matrix(coordinates::AbstractMatrix{Int}, unit_cell::UnitCe
                         end
                 end
         end
+end
 
+function generate_adj_matrix(coordinates::AbstractMatrix{Int}, unit_cell::UnitCell)
+        coord_index = generate_coord_index(coordinates)
+        adj_matrix = zeros(Int, size(coordinates, 2), size(coordinates, 2))
+        _fill_adj_matrix!(adj_matrix, coordinates, coord_index, unit_cell.bonds, (bond, col) -> bond.site1 == col[end])
         adj_matrix
 end
 
 function generate_adj_matrix(coordinates::AbstractMatrix{Int}, unit_cell::ExpansionUnitCell)
         coord_index = generate_coord_index(coordinates)
         adj_matrix = zeros(Int, size(coordinates, 2), size(coordinates, 2))
-        for (index, col) in enumerate(eachcol(coordinates))
-                for bond in unit_cell.bonds
-                        if bond.site1 == col[end-1:end]
-                                neighbor_coord = neighbor_site(bond, col)
-                                ni = get(coord_index, neighbor_coord, nothing)
-                                if ni !== nothing
-                                        adj_matrix[index, ni] = bond.bond_type
-                                        adj_matrix[ni, index] = bond.bond_type
-                                end
-                        end
-                end
-        end
-
+        _fill_adj_matrix!(adj_matrix, coordinates, coord_index, unit_cell.bonds, (bond, col) -> bond.site1 == col[end-1:end])
         adj_matrix
 end
 
@@ -72,6 +63,7 @@ function generate_adj_matrix_weak(coordinates::AbstractMatrix{Int}, unit_cell::E
                 for bond in unit_cell.bonds
                         if bond.site1 == coord[end-1:end]
                                 trans_ind = get(coord_index, round.(shift_unit_cell(unit_cell, coord), digits=6), nothing)
+                                isnothing(trans_ind) && continue
                                 neighbor_coord = neighbor_site(bond, coord)
                                 ni = get(coord_index, round.(shift_unit_cell(unit_cell, neighbor_coord), digits=6), nothing)
                                 if ni !== nothing
@@ -126,8 +118,9 @@ find_centers(coordinates::AbstractMatrix{Int}) = findall(col -> all(==(0), col[1
 function generate_strong_connections(expansion_coordinates::AbstractMatrix{Int}, lattice_coordinates::AbstractMatrix{Int})
 
         connections_vec = fill(LatticeVertices{Int}(), size(expansion_coordinates, 2))
+        lattice_slice = @view lattice_coordinates[1:end-2, :]
         for (i, coord) in enumerate(eachcol(expansion_coordinates))
-                connection = findall(==(coord[1:end-1]), eachcol(lattice_coordinates[1:end-2, :]))
+                connection = findall(==(@view coord[1:end-1]), eachcol(lattice_slice))
                 connections_vec[i] = LatticeVertices(collect(connection))
         end
         connections_vec
@@ -162,10 +155,11 @@ function generate_weak_connections(expansion_coordinates::AbstractMatrix{Int}, l
         reduced_lattice_coordinates = lattice_coords[:, unique_inds]
         reverse_connections_vec = fill(ExpansionVertices{Int}(), size(reduced_lattice_coordinates, 2))
 
+        real_coord_index = Dict(round.(col, digits=6) => i for (i, col) in enumerate(eachcol(real_coords)))
         for (i, coord) in enumerate(eachcol(expansion_coordinates))
                 connection = Int[]
                 for lcoord in eachcol(lattice_coordinates(unit_cell, coord))
-                        con = findfirst(isapprox(lcoord), eachcol(real_coords))
+                        con = get(real_coord_index, round.(lcoord, digits=6), nothing)
                         if !isnothing(con)
                                 push!(connection, con)
                         end
@@ -177,12 +171,9 @@ function generate_weak_connections(expansion_coordinates::AbstractMatrix{Int}, l
         end
 
         masking_matrix = zeros(Int, size(reduced_lattice_coordinates, 2), size(reduced_lattice_coordinates, 2))
-        for (i, evs1) in enumerate(reverse_connections_vec)
-                for (j, evs2) in enumerate(reverse_connections_vec)
-                        shared_evs = intersect(evs1, evs2)
-                        if length(shared_evs) == 1
-                                masking_matrix[i, j] = collect(shared_evs)[1]
-                        end
+        for (ev_idx, lvs) in enumerate(connections_vec)
+                for lv1 in lvs, lv2 in lvs
+                        lv1 != lv2 && (masking_matrix[lv1, lv2] = ev_idx)
                 end
         end
 

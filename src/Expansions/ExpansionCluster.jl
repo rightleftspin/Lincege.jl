@@ -59,6 +59,7 @@ function ExpansionCluster(lv::Int, single_site_hash::UInt, n_single_site_cluster
         ExpansionCluster(LatticeVertices(lv), lc, UInt[], Dict{UInt,Float64}(single_site_hash => 1.0))
 end
 
+lattice_constant(cluster::ExpansionCluster) = cluster.lattice_constant
 subgraphs(cluster::ExpansionCluster) = cluster.subgraphs
 function subtract_subcluster!(cluster::ExpansionCluster, subcluster::ExpansionCluster)
         for (k, v) in subcluster.weights

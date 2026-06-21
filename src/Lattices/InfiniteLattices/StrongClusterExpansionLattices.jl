@@ -11,6 +11,7 @@ struct StrongClusterExpansionLattice <: AbstractClusterExpansionLattice
         adj_matrix::Matrix{Int}
 
         connections::StrongClusterConnections
+        n_unique::Int
 end
 
 function StrongClusterExpansionLattice(max_order::Int, expansion_unit_cell::ExpansionUnitCell)
@@ -20,7 +21,7 @@ function StrongClusterExpansionLattice(max_order::Int, expansion_unit_cell::Expa
         neighbor_list = generate_neighbor_list(expansion_coordinates, expansion_unit_cell)
         ctrs = ExpansionVertices(find_centers(expansion_coordinates))
 
-        lattice_coordinates = []
+        lattice_coordinates = Matrix{Int}[]
         for i in 1:length(basis_size(expansion_unit_cell))
                 coords = generate_coordinates(max_order, basis_size(expansion_unit_cell)[i], dimension(expansion_unit_cell))
                 push!(lattice_coordinates, vcat(coords[1:dimension(expansion_unit_cell), :], ones(Int, size(coords, 2))' * i, coords[end, :]'))
@@ -31,6 +32,7 @@ function StrongClusterExpansionLattice(max_order::Int, expansion_unit_cell::Expa
         site_colors = [expansion_unit_cell.site_colors[col[end-1]][col[end]] for col in eachcol(lattice_coordinates)]
 
         connections_vec = generate_strong_connections(expansion_coordinates, lattice_coordinates)
+        n_unique = length(unique(Iterators.flatten(expansion_unit_cell.translation_labels)))
         return StrongClusterExpansionLattice(
                 UInt8(max_order),
                 expansion_unit_cell,
@@ -40,13 +42,14 @@ function StrongClusterExpansionLattice(max_order::Int, expansion_unit_cell::Expa
                 translation_labels,
                 site_colors,
                 adj_matrix,
-                StrongClusterConnections(connections_vec)
+                StrongClusterConnections(connections_vec),
+                n_unique
         )
 end
 
 centers(lattice::StrongClusterExpansionLattice) = lattice.centers
 max_order(lattice::StrongClusterExpansionLattice) = lattice.max_order
-n_unique_sites(lattice::StrongClusterExpansionLattice) = length(unique(Iterators.flatten(lattice.expansion_unit_cell.translation_labels)))
+n_unique_sites(lattice::StrongClusterExpansionLattice) = lattice.n_unique
 n_site_colors(lattice::StrongClusterExpansionLattice) = length(unique(Iterators.flatten(lattice.expansion_unit_cell.site_colors)))
 neighbors(lattice::StrongClusterExpansionLattice, vs::ExpansionVertices) = union(ExpansionVertices(), lattice.neighbor_list[vs])
 get_coordinates(lattice::StrongClusterExpansionLattice) = shift_unit_cell(lattice.expansion_unit_cell, lattice.lattice_coordinates)
