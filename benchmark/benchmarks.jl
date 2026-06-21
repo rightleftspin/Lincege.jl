@@ -7,7 +7,7 @@ basis_sq = [[0.0, 0.0]]
 pvecs_sq = [[1.0, 0.0], [0.0, 1.0]]
 bonds_sq = [Bond(1, 1, [1, 0], 1), Bond(1, 1, [0, 1], 1)]
 uc_sq = UnitCell(basis_sq, pvecs_sq, bonds_sq, [1])
-lattice_sq = SiteExpansionLattice(6, uc_sq)
+lattice_sq = SiteExpansionLattice(9, uc_sq)
 trans_sq = TranslationClusterSet(lattice_sq)
 clusters_from_lattice!(trans_sq, lattice_sq)
 iso_sq = IsomorphicClusterSet(lattice_sq)
@@ -22,10 +22,10 @@ SUITE["square"]["clusters_from_clusters"] = @benchmarkable begin
         iso = IsomorphicClusterSet($lattice_sq)
         clusters_from_clusters!(iso, $trans_sq)
 end
-SUITE["square"]["Expansion"] = @benchmarkable Expansion($iso_sq, $lattice_sq, 6)
+SUITE["square"]["Expansion"] = @benchmarkable Expansion($iso_sq, $lattice_sq)
 SUITE["square"]["summation"] = @benchmarkable begin
-        e = Expansion($iso_sq, $lattice_sq, 6)
-        summation!(e, 6)
+        e = Expansion($iso_sq, $lattice_sq)
+        summation!(e, 9)
 end
 
 basis_kag = [[0.0, 0.0], [1.0, 0.0], [0.5, sqrt(3) / 2]]
@@ -45,7 +45,7 @@ SUITE["kagome"]["clusters_from_lattice"] = @benchmarkable begin
         clusters_from_lattice!(cs, $lattice_kag)
 end
 SUITE["kagome"]["summation"] = @benchmarkable begin
-        e = Expansion($iso_kag, $lattice_kag, 4)
+        e = Expansion($iso_kag, $lattice_kag)
         summation!(e, 4)
 end
 
@@ -87,7 +87,7 @@ SUITE["pyrochlore"]["clusters_from_clusters"] = @benchmarkable begin
         clusters_from_clusters!(iso, $trans_pyro)
 end
 SUITE["pyrochlore"]["summation"] = @benchmarkable begin
-        e = Expansion($iso_pyro, $lattice_pyro, 3)
+        e = Expansion($iso_pyro, $lattice_pyro)
         summation!(e, 3)
 end
 
@@ -118,6 +118,6 @@ SUITE["square_cluster"]["clusters_from_clusters"] = @benchmarkable begin
         clusters_from_clusters!(iso, $trans_sq_cluster)
 end
 SUITE["square_cluster"]["summation"] = @benchmarkable begin
-        e = Expansion($iso_sq_cluster, $lattice_sq_cluster, 4)
+        e = Expansion($iso_sq_cluster, $lattice_sq_cluster)
         summation!(e, 4)
 end

@@ -5,7 +5,7 @@ function unique_direction_indices(pw_dir::AbstractArray{<:Real,3}, bond_matrix::
 
         for i in 1:n_coords, j in 1:n_coords
                 if i != j && bond_matrix[i, j] != 0
-                        dir = round.(pw_dir[i, j, :], digits=8)
+                        dir = round.(pw_dir[i, j, :], digits=6)
                         if !haskey(dir_to_index, dir)
                                 dir_to_index[dir] = length(dir_to_index) + 1
                         end

@@ -76,8 +76,8 @@ function clusters_from_lattice!(clusters::AbstractClusterSet{C,H}, lattice::Abst
                 end
         end
 
-        for c in roots
-                dfs(c, 0)
+        for root in roots
+                dfs(root, 0)
         end
 
         clusters

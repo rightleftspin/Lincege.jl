@@ -7,6 +7,12 @@ end
 function SymmetricHasher(lattice::AbstractInfiniteLattice, lattice_symmetries::Vector{Matrix{Float64}}, connections::Union{<:AbstractConnections,Nothing})
         trans_hasher = TranslationHasher(lattice)
         all_coords = get_coordinates(lattice)
+        # `get_permutations` may produce incomplete permutations (entries set to 0)
+        # when a symmetry maps a boundary site outside the finite lattice cube.
+        # For infinite-lattice use this is safe: clusters are grown from the center
+        # and never reach the corners, so no cluster site will land on a zero entry.
+        # For finite lattices the incomplete permutations must be filtered out before
+        # constructing this hasher, otherwise `perm[lvs]` below will index with 0.
         permutations = get_permutations(all_coords, lattice_symmetries)
 
         SymmetricHasher(
@@ -20,6 +26,7 @@ end
 SymmetricHasher(lattice::AbstractInfiniteLattice, lattice_symmetries::Vector{Matrix{Float64}}) = SymmetricHasher(lattice, lattice_symmetries, nothing)
 SymmetricHasher(lattice::AbstractClusterExpansionLattice, lattice_symmetries::Vector{Matrix{Float64}}) = SymmetricHasher(lattice, lattice_symmetries, connections(lattice))
 
+n_unique_sites(h::SymmetricHasher) = n_unique_sites(h.trans_hasher)
 function ghash(h::SymmetricHasher, lvs::LatticeVertices)
         all_hashes = Set()
         for perm in h.permutations
