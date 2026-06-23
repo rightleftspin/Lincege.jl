@@ -67,7 +67,7 @@ end
 function _wynn_eps!(memo::Dict{Tuple{Int,Int},Vector{Float64}}, ps::Vector{Vector{Float64}}, n_T::Int, k::Int, n::Int)
         haskey(memo, (k, n)) && return memo[(k, n)]
         val = if k == 0
-                n == 0 ? copy(ps[end]) : copy(ps[n])
+                n == 0 ? zeros(n_T) : copy(ps[n])
         elseif k == -1
                 zeros(n_T)
         else
