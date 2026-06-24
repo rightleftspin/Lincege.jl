@@ -37,3 +37,4 @@ end
 
 include("Ising.jl")
 include("NLCE.jl")
+include("Resummations.jl")
