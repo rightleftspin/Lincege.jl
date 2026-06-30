@@ -11,6 +11,16 @@ function generate_coordinates(max_order::Int, num_basis_elements::Int, dimension
         hcat([vcat(primitive_coordinates, repeat([i], size(primitive_coordinates, 2))') for i in 1:num_basis_elements]...)
 end
 
+function build_lattice_coordinates(max_order::Int, expansion_unit_cell::ExpansionUnitCell)
+        d = dimension(expansion_unit_cell)
+        blocks = Matrix{Int}[]
+        for i in 1:length(basis_size(expansion_unit_cell))
+                coords = generate_coordinates(max_order, basis_size(expansion_unit_cell)[i], d)
+                push!(blocks, vcat(coords[1:d, :], ones(Int, size(coords, 2))' * i, coords[end, :]'))
+        end
+        hcat(blocks...)
+end
+
 function generate_coord_index(coordinates::Matrix{Int})
         coord_index = Dict{Vector{Int},Int}()
         for (i, col) in enumerate(eachcol(coordinates))
@@ -60,10 +70,10 @@ function generate_adj_matrix_weak(coordinates::AbstractMatrix{Int}, unit_cell::E
         coord_index = generate_coord_index(real_coords)
         adj_matrix = zeros(Int, length(unique_inds), length(unique_inds))
         for coord in eachcol(coordinates)
+                trans_ind = get(coord_index, round.(shift_unit_cell(unit_cell, coord), digits=6), nothing)
+                isnothing(trans_ind) && continue
                 for bond in unit_cell.bonds
                         if bond.site1 == coord[end-1:end]
-                                trans_ind = get(coord_index, round.(shift_unit_cell(unit_cell, coord), digits=6), nothing)
-                                isnothing(trans_ind) && continue
                                 neighbor_coord = neighbor_site(bond, coord)
                                 ni = get(coord_index, round.(shift_unit_cell(unit_cell, neighbor_coord), digits=6), nothing)
                                 if ni !== nothing
@@ -77,16 +87,16 @@ function generate_adj_matrix_weak(coordinates::AbstractMatrix{Int}, unit_cell::E
         adj_matrix
 end
 
-function generate_neighbor_list(coordinates::AbstractMatrix{Int}, unit_cell::UnitCell)
+function _generate_neighbor_list(coordinates::AbstractMatrix{Int}, bonds, ::Type{V}) where {V<:AbstractVertices}
         coord_index = generate_coord_index(coordinates)
-        neighbor_list = fill(LatticeVertices{Int}(), size(coordinates, 2))
+        neighbor_list = fill(V(), size(coordinates, 2))
         for (index, col) in enumerate(eachcol(coordinates))
-                for bond in unit_cell.bonds
+                for bond in bonds
                         if bond.site1 == col[end]
                                 neighbor_index = get(coord_index, neighbor_site(bond, col), nothing)
                                 if neighbor_index !== nothing
-                                        neighbor_list[index] = union(neighbor_list[index], LatticeVertices(neighbor_index))
-                                        neighbor_list[neighbor_index] = union(neighbor_list[neighbor_index], LatticeVertices(index))
+                                        neighbor_list[index] = union(neighbor_list[index], V(neighbor_index))
+                                        neighbor_list[neighbor_index] = union(neighbor_list[neighbor_index], V(index))
                                 end
                         end
                 end
@@ -95,23 +105,10 @@ function generate_neighbor_list(coordinates::AbstractMatrix{Int}, unit_cell::Uni
         neighbor_list
 end
 
-function generate_neighbor_list(coordinates::AbstractMatrix{Int}, unit_cell::ExpansionUnitCell)
-        coord_index = generate_coord_index(coordinates)
-        neighbor_list = fill(ExpansionVertices{Int}(), size(coordinates, 2))
-        for (index, col) in enumerate(eachcol(coordinates))
-                for bond in unit_cell.expansion_bonds
-                        if bond.site1 == col[end]
-                                neighbor_index = get(coord_index, neighbor_site(bond, col), nothing)
-                                if neighbor_index !== nothing
-                                        neighbor_list[index] = union(neighbor_list[index], ExpansionVertices(neighbor_index))
-                                        neighbor_list[neighbor_index] = union(neighbor_list[neighbor_index], ExpansionVertices(index))
-                                end
-                        end
-                end
-        end
-
-        neighbor_list
-end
+generate_neighbor_list(coordinates::AbstractMatrix{Int}, unit_cell::UnitCell) =
+        _generate_neighbor_list(coordinates, unit_cell.bonds, LatticeVertices{Int})
+generate_neighbor_list(coordinates::AbstractMatrix{Int}, unit_cell::ExpansionUnitCell) =
+        _generate_neighbor_list(coordinates, unit_cell.expansion_bonds, ExpansionVertices{Int})
 
 find_centers(coordinates::AbstractMatrix{Int}) = findall(col -> all(==(0), col[1:end-1]), eachcol(coordinates))
 
@@ -171,8 +168,8 @@ function generate_weak_connections(expansion_coordinates::AbstractMatrix{Int}, l
         end
 
         masking_matrix = zeros(Int, size(reduced_lattice_coordinates, 2), size(reduced_lattice_coordinates, 2))
-        for (ev_idx, lvs) in enumerate(connections_vec)
-                for lv1 in lvs, lv2 in lvs
+        for (ev_idx, lattice_vertices) in enumerate(connections_vec)
+                for lv1 in lattice_vertices, lv2 in lattice_vertices
                         lv1 != lv2 && (masking_matrix[lv1, lv2] = ev_idx)
                 end
         end

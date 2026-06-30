@@ -58,5 +58,5 @@ summation!(expansion, m_order)
 ## Writing to JSON
 
 ```julia
-write_to_json(expansion, lattice, iso_clusters, "pyrochlore_lattice_uc_exp.json")
+write_to_json(expansion, lattice, "square_cluster.json")
 ```

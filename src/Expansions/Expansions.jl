@@ -28,7 +28,7 @@ abstract type AbstractExpansion end
 Base.getindex(e::AbstractExpansion, cluster_hash::UInt) = _NI("getindex")
 each_order(e::AbstractExpansion, max_order::Int) = _NI("each_order")
 order_offset(e::AbstractExpansion) = _NI("order_offset")
-_expansion_table_data(e::AbstractExpansion, cs::Vector{<:AbstractClusterSet}, max_order::Int) = _NI("_expansion_table_data")
+_expansion_table_data(e::AbstractExpansion, cluster_sets::Vector{<:AbstractClusterSet}, max_order::Int) = _NI("_expansion_table_data")
 
 """
     summation!(expansion, max_order)
@@ -59,33 +59,48 @@ const latex_table_column_labels = Dict{Any,String}(
         SymmetricHasher => "No. of symmetric clusters",
 )
 
-_cs_column_label(cs::ClusterSet{C,H}) where {C,H} =
+_cluster_set_column_label(cluster_set::ClusterSet{C,H}) where {C,H} =
         get(latex_table_column_labels, H, "")
 
-function print_latex_table(io::IO, e::AbstractExpansion, cs::Vector{<:AbstractClusterSet}, max_order::Int)
-        data, cs_labels = _expansion_table_data(e, cs, max_order)
-        cs_headers = [LatexCell(l) for l in cs_labels]
-        column_labels = [vcat(["Order"], cs_headers, [LatexCell("\$\\sum L(c)\$"), LatexCell("\$\\sum |\\text{subgraphs}|\$"), LatexCell("\$\\sum \\F{c}\$")])]
+"""
+    print_latex_table([io], expansion, cluster_sets, max_order)
+
+Prints a LaTeX table akin to those found in scientific papers that utilize NLCE.
+"""
+function print_latex_table(io::IO, e::AbstractExpansion, cluster_sets::Vector{<:AbstractClusterSet}, max_order::Int)
+        data, cluster_set_labels = _expansion_table_data(e, cluster_sets, max_order)
+        cluster_set_headers = [LatexCell(l) for l in cluster_set_labels]
+        column_labels = [vcat(["Order"], cluster_set_headers, [LatexCell("\$\\sum L(c)\$"), LatexCell("\$\\sum |\\text{subgraphs}|\$"), LatexCell("\$\\sum \\F{c}\$")])]
         pretty_table_latex_backend(io, data; column_labels=column_labels)
 end
 
-function print_html_table(io::IO, e::AbstractExpansion, cs::Vector{<:AbstractClusterSet}, max_order::Int)
-        data, cs_labels = _expansion_table_data(e, cs, max_order)
-        column_labels = [vcat(["Order"], cs_labels, ["∑ L(c)", "∑ |subgraphs|", "∑ F(c)"])]
+"""
+    print_html_table([io], expansion, cluster_sets, max_order)
+
+Prints an HTML table akin to those found in scientific papers that utilize NLCE.
+"""
+function print_html_table(io::IO, e::AbstractExpansion, cluster_sets::Vector{<:AbstractClusterSet}, max_order::Int)
+        data, cluster_set_labels = _expansion_table_data(e, cluster_sets, max_order)
+        column_labels = [vcat(["Order"], cluster_set_labels, ["∑ L(c)", "∑ |subgraphs|", "∑ F(c)"])]
         pretty_table_html_backend(io, data; column_labels=column_labels)
 end
 
-function print_ascii_table(io::IO, e::AbstractExpansion, cs::Vector{<:AbstractClusterSet}, max_order::Int)
-        data, cs_labels = _expansion_table_data(e, cs, max_order)
-        column_labels = [vcat(["Order"], cs_labels, ["∑ L(c)", "∑ |subgraphs|", "∑ F(c)"])]
+"""
+    print_ascii_table([io], expansion, cluster_sets, max_order)
+
+Prints an ASCII table akin to those found in scientific papers that utilize NLCE.
+"""
+function print_ascii_table(io::IO, e::AbstractExpansion, cluster_sets::Vector{<:AbstractClusterSet}, max_order::Int)
+        data, cluster_set_labels = _expansion_table_data(e, cluster_sets, max_order)
+        column_labels = [vcat(["Order"], cluster_set_labels, ["∑ L(c)", "∑ |subgraphs|", "∑ F(c)"])]
         pretty_table(io, data; column_labels=column_labels)
 end
 
-print_latex_table(e::AbstractExpansion, cs::Vector{<:AbstractClusterSet}, max_order::Int) =
-        print_latex_table(stdout, e, cs, max_order)
+print_latex_table(e::AbstractExpansion, cluster_sets::Vector{<:AbstractClusterSet}, max_order::Int) =
+        print_latex_table(stdout, e, cluster_sets, max_order)
 
-print_html_table(e::AbstractExpansion, cs::Vector{<:AbstractClusterSet}, max_order::Int) =
-        print_html_table(stdout, e, cs, max_order)
+print_html_table(e::AbstractExpansion, cluster_sets::Vector{<:AbstractClusterSet}, max_order::Int) =
+        print_html_table(stdout, e, cluster_sets, max_order)
 
-print_ascii_table(e::AbstractExpansion, cs::Vector{<:AbstractClusterSet}, max_order::Int) =
-        print_ascii_table(stdout, e, cs, max_order)
+print_ascii_table(e::AbstractExpansion, cluster_sets::Vector{<:AbstractClusterSet}, max_order::Int) =
+        print_ascii_table(stdout, e, cluster_sets, max_order)

@@ -25,8 +25,8 @@ centers(lattice::SiteExpansionLattice) = LatticeVertices(find_centers(lattice.co
 max_order(lattice::SiteExpansionLattice) = lattice.max_order
 n_unique_sites(lattice::SiteExpansionLattice) = basis_size(lattice.unit_cell)
 
-neighbors(lattice::SiteExpansionLattice, vs::LatticeVertices) =
-        union(LatticeVertices(), lattice.neighbor_list[vs])
+neighbors(lattice::SiteExpansionLattice, vertices::LatticeVertices) =
+        setdiff(union(LatticeVertices(), lattice.neighbor_list[vertices]), vertices)
 
 get_coordinates(lattice::SiteExpansionLattice) = shift_unit_cell(lattice.unit_cell, lattice.coordinates)
 get_labels(lattice::SiteExpansionLattice) = lattice.coordinates[end, :]

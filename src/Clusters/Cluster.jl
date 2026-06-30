@@ -1,13 +1,13 @@
-struct Cluster <: AbstractCluster
-        vs::AbstractVertices
-        lc::Float64
+struct Cluster{V<:AbstractVertices} <: AbstractCluster
+        vertices::V
+        lattice_constant::Float64
         ghash::UInt64
 end
 
-function Cluster(vs::AbstractVertices, cs::AbstractClusterSet{C,H}, lattice::AbstractInfiniteLattice) where {C<:AbstractCluster,H<:AbstractHasher}
-        Cluster(vs, 1 / n_unique_sites(lattice), ghash(cs, vs))
+function Cluster(vertices::AbstractVertices, cluster_set::AbstractClusterSet, lattice::AbstractInfiniteLattice)
+        Cluster(vertices, 1 / n_unique_sites(lattice), ghash(cluster_set, vertices))
 end
 
-Base.length(c::Cluster) = length(c.vs)
+Base.length(c::Cluster) = length(c.vertices)
 Base.hash(c::Cluster, h::UInt) = hash(c.ghash, h)
-lattice_constant(c::Cluster) = c.lc
+lattice_constant(c::Cluster) = c.lattice_constant

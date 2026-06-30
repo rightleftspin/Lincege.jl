@@ -13,4 +13,15 @@ function pairwise_direction(coordinates::AbstractMatrix{<:Real})
         pw_dir
 end
 
-const all_lattice_symmetries = Dict([:Square => Vector{Matrix{Float64}}([[1 0; 0 1], [0 1; -1 0], [-1 0; 0 -1], [0 -1; 1 0], [0 1; 1 0], [0 -1; -1 0], [1 0; 0 -1], [-1 0; 0 1]])])
+const all_lattice_symmetries = Dict(
+        :Square => Vector{Matrix{Float64}}([
+                [1 0; 0 1],
+                [0 1; -1 0],
+                [-1 0; 0 -1],
+                [0 -1; 1 0],
+                [0 1; 1 0],
+                [0 -1; -1 0],
+                [1 0; 0 -1],
+                [-1 0; 0 1],
+        ]),
+)

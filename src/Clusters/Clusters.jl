@@ -18,12 +18,13 @@ Abstract base type for a collection of unique clusters sharing a common hasher.
 Clusters that are equivalent under the hasher's symmetry are merged
 
 Subtypes must implement:
-- `Base.length(cs)` — number of stored clusters
-- `Base.in(c, cs)` — membership test
-- `Base.iterate(cs)` / `Base.iterate(cs, state)` — iteration over clusters
-- `Base.push!(cs, c)` — add a cluster
-- `Base.pop!(cs, c)` — remove and return a cluster
-- `ghash(cs, c)` / `ghash(cs, vs)` — delegate to the hasher
+- `Base.length(cluster_set)` — number of stored clusters
+- `Base.in(c, cluster_set)` — membership test
+- `Base.iterate(cluster_set)` / `Base.iterate(cluster_set, state)` — iteration over clusters
+- `Base.push!(cluster_set, c)` — add a cluster
+- `Base.pop!(cluster_set, c)` — remove and return a cluster
+- `Base.get(cluster_set, ghash, default)` — look up a stored cluster by its graph hash
+- `ghash(cluster_set, c)` / `ghash(cluster_set, vertices)` — delegate to the hasher
 """
 abstract type AbstractClusterSet{C<:AbstractCluster,H<:AbstractHasher} end
 
@@ -36,15 +37,16 @@ Base.isequal(c1::C, c2::C) where {C<:AbstractCluster} = c1 == c2
 Base.:(==)(c1::C, c2::C) where {C<:AbstractCluster} = (hash(c1) == hash(c2))
 
 # Cluster Set Methods
-Base.length(cs::AbstractClusterSet)::Int = _NI("Base.length")
-Base.in(cluster::C, cs::AbstractClusterSet{C,H}) where {C<:AbstractCluster,H} = _NI("Base.in")
-Base.iterate(cs::AbstractClusterSet) = _NI("Base.iterate")
-Base.iterate(cs::AbstractClusterSet, state) = _NI("Base.iterate")
-Base.push!(cs::AbstractClusterSet{C,H}, c::C) where {C<:AbstractCluster,H} = _NI("Base.push!")
-Base.pop!(cs::AbstractClusterSet{C,H}, c::C) where {C<:AbstractCluster,H} = _NI("Base.pop!")
-ghash(cs::AbstractClusterSet, c::AbstractCluster) = _NI("ghash")
-ghash(cs::AbstractClusterSet, vs::AbstractVertices) = _NI("ghash")
-n_unique_sites(cs::AbstractClusterSet) = _NI("n_unique_sites")
+Base.length(cluster_set::AbstractClusterSet)::Int = _NI("Base.length")
+Base.in(cluster::C, cluster_set::AbstractClusterSet{C,H}) where {C<:AbstractCluster,H} = _NI("Base.in")
+Base.iterate(cluster_set::AbstractClusterSet) = _NI("Base.iterate")
+Base.iterate(cluster_set::AbstractClusterSet, state) = _NI("Base.iterate")
+Base.push!(cluster_set::AbstractClusterSet{C,H}, c::C) where {C<:AbstractCluster,H} = _NI("Base.push!")
+Base.pop!(cluster_set::AbstractClusterSet{C,H}, c::C) where {C<:AbstractCluster,H} = _NI("Base.pop!")
+Base.get(cluster_set::AbstractClusterSet, graph_hash::UInt, default) = _NI("Base.get")
+ghash(cluster_set::AbstractClusterSet, c::AbstractCluster) = _NI("ghash")
+ghash(cluster_set::AbstractClusterSet, vertices::AbstractVertices) = _NI("ghash")
+n_unique_sites(cluster_set::AbstractClusterSet) = _NI("n_unique_sites")
 
 include("util.jl")
 include("Cluster.jl")

@@ -22,6 +22,10 @@ SUITE["square"]["clusters_from_clusters"] = @benchmarkable begin
         iso = IsomorphicClusterSet($lattice_sq)
         clusters_from_clusters!(iso, $trans_sq)
 end
+SUITE["square"]["clusters_from_clusters_symmetric"] = @benchmarkable begin
+        sym = SymmetricClusterSet($lattice_sq, :Square)
+        clusters_from_clusters!(sym, $trans_sq)
+end
 SUITE["square"]["Expansion"] = @benchmarkable Expansion($iso_sq, $lattice_sq)
 SUITE["square"]["summation"] = @benchmarkable begin
         e = Expansion($iso_sq, $lattice_sq)
@@ -116,6 +120,10 @@ end
 SUITE["square_cluster"]["clusters_from_clusters"] = @benchmarkable begin
         iso = IsomorphicClusterSet($lattice_sq_cluster)
         clusters_from_clusters!(iso, $trans_sq_cluster)
+end
+SUITE["square_cluster"]["clusters_from_clusters_symmetric"] = @benchmarkable begin
+        sym = SymmetricClusterSet($lattice_sq_cluster, :Square)
+        clusters_from_clusters!(sym, $trans_sq_cluster)
 end
 SUITE["square_cluster"]["summation"] = @benchmarkable begin
         e = Expansion($iso_sq_cluster, $lattice_sq_cluster)

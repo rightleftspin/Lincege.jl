@@ -4,59 +4,59 @@
 Cluster from a set of clusters that contains information necessary for summation! and writing to disk.
 """
 struct ExpansionCluster <: AbstractExpansionCluster
-        vertices::LatticeVertices
+        vertices::LatticeVertices{Int}
         lattice_constant::Float64
         subgraphs::Vector{UInt}
         weights::Dict{UInt,Float64}
 end
 
 function ExpansionCluster(cluster::AbstractCluster, clusters::AbstractClusterSet, lattice::SiteExpansionLattice)
-        lc = lattice_constant(cluster)
-        sgs = Vector{UInt}()
+        cluster_lattice_constant = lattice_constant(cluster)
+        subgraphs = Vector{UInt}()
 
-        for sg in get_subgraphs(cluster, lattice)
-                push!(sgs, ghash(clusters, sg))
+        for subgraph in get_subgraphs(cluster, lattice)
+                push!(subgraphs, ghash(clusters, subgraph))
         end
 
-        ExpansionCluster(cluster.vs, lc, sgs, Dict{UInt,Float64}(cluster.ghash => 1.0))
+        ExpansionCluster(cluster.vertices, cluster_lattice_constant, subgraphs, Dict{UInt,Float64}(cluster.ghash => 1.0))
 end
 
 function ExpansionCluster(cluster::AbstractCluster, clusters::AbstractClusterSet, lattice::StrongClusterExpansionLattice)
-        lc = lattice_constant(cluster)
-        lvs = connections(lattice)[cluster.vs]
-        sgs = Vector{UInt}()
-        sizehint!(sgs, length(lvs) + length(cluster) - 1)
+        cluster_lattice_constant = lattice_constant(cluster)
+        lattice_vertices = connections(lattice)[cluster.vertices]
+        subgraphs = Vector{UInt}()
+        sizehint!(subgraphs, length(lattice_vertices) + length(cluster) - 1)
 
-        for lv in lvs
-                push!(sgs, ghash(clusters, LatticeVertices(lv)))
+        for lv in lattice_vertices
+                push!(subgraphs, ghash(clusters, LatticeVertices(lv)))
         end
-        for sg in get_subgraphs(cluster, lattice)
-                push!(sgs, ghash(clusters, sg))
+        for subgraph in get_subgraphs(cluster, lattice)
+                push!(subgraphs, ghash(clusters, subgraph))
         end
 
-        ExpansionCluster(lvs, lc, sgs, Dict{UInt,Float64}(cluster.ghash => 1.0))
+        ExpansionCluster(lattice_vertices, cluster_lattice_constant, subgraphs, Dict{UInt,Float64}(cluster.ghash => 1.0))
 end
 
 function ExpansionCluster(cluster::AbstractCluster, clusters::AbstractClusterSet, lattice::WeakClusterExpansionLattice)
-        lc = lattice_constant(cluster)
-        lvs = just_lvs(connections(lattice), cluster.vs)
-        sgs = Vector{UInt}()
-        sizehint!(sgs, length(lvs) + length(cluster) - 1)
+        cluster_lattice_constant = lattice_constant(cluster)
+        lattice_vertices = just_lattice_vertices(connections(lattice), cluster.vertices)
+        subgraphs = Vector{UInt}()
+        sizehint!(subgraphs, length(lattice_vertices) + length(cluster) - 1)
 
-        for lv in lvs
-                push!(sgs, ghash(clusters, LatticeVertices(lv)))
+        for lv in lattice_vertices
+                push!(subgraphs, ghash(clusters, LatticeVertices(lv)))
         end
-        for sg in get_subgraphs(cluster, lattice)
-                push!(sgs, ghash(clusters, sg))
+        for subgraph in get_subgraphs(cluster, lattice)
+                push!(subgraphs, ghash(clusters, subgraph))
         end
 
-        ExpansionCluster(lvs, lc, sgs, Dict{UInt,Float64}(cluster.ghash => 1.0))
+        ExpansionCluster(lattice_vertices, cluster_lattice_constant, subgraphs, Dict{UInt,Float64}(cluster.ghash => 1.0))
 end
 
 function ExpansionCluster(lv::Int, single_site_hash::UInt, n_single_site_clusters::Int)
-        lc = 1 / n_single_site_clusters
+        cluster_lattice_constant = 1 / n_single_site_clusters
 
-        ExpansionCluster(LatticeVertices(lv), lc, UInt[], Dict{UInt,Float64}(single_site_hash => 1.0))
+        ExpansionCluster(LatticeVertices(lv), cluster_lattice_constant, UInt[], Dict{UInt,Float64}(single_site_hash => 1.0))
 end
 
 lattice_constant(cluster::ExpansionCluster) = cluster.lattice_constant

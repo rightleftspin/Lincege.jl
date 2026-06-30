@@ -32,6 +32,14 @@ If Lincege.jl helped you in your research, please cite us using the following
 citation:
 
 ```bibtex
+@misc{Lincege.jl,
+	author  = {Seetharaman, Pranav and contributors},
+	title   = {Lincege.jl},
+	url     = {https://github.com/rightleftspin/Lincege.jl},
+	version = {v1.0.0},
+	year    = {2026},
+	month   = {04}
+}
 ```
 
 Funded by the U.S. Department of Energy: Grant Number DE-SC0022311
