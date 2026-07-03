@@ -115,9 +115,9 @@ find_centers(coordinates::AbstractMatrix{Int}) = findall(col -> all(==(0), col[1
 function generate_strong_connections(expansion_coordinates::AbstractMatrix{Int}, lattice_coordinates::AbstractMatrix{Int})
 
         connections_vec = fill(LatticeVertices{Int}(), size(expansion_coordinates, 2))
-        lattice_slice = @view lattice_coordinates[1:end-2, :]
+        lattice_slice = @view lattice_coordinates[1:end-1, :]
         for (i, coord) in enumerate(eachcol(expansion_coordinates))
-                connection = findall(==(@view coord[1:end-1]), eachcol(lattice_slice))
+                connection = findall(==(coord), eachcol(lattice_slice))
                 connections_vec[i] = LatticeVertices(collect(connection))
         end
         connections_vec

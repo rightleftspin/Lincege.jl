@@ -24,4 +24,9 @@ const all_lattice_symmetries = Dict(
                 [1 0; 0 -1],
                 [-1 0; 0 1],
         ]),
+        :Shastry_Sutherland => Vector{Matrix{Float64}}([
+                [1 0; 0 1],
+                [1 0; 0 -1],
+                [-1 0; 0 1],
+        ]),
 )
