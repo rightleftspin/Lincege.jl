@@ -14,9 +14,14 @@ function Expansion(clusters::AbstractClusterSet, lattice::SiteExpansionLattice)
         sizehint!(expansion_clusters, length(clusters))
         order_ids = [Vector{UInt}() for _ in 1:max_order(lattice)]
 
-        for cluster in clusters
+        cluster_vec = collect(clusters)
+        results = Vector{ExpansionCluster}(undef, length(cluster_vec))
+        @threads for i in eachindex(cluster_vec)
+                results[i] = ExpansionCluster(cluster_vec[i], clusters, lattice)
+        end
+        for (cluster, ec) in zip(cluster_vec, results)
                 push!(order_ids[length(cluster)], cluster.ghash)
-                expansion_clusters[cluster.ghash] = ExpansionCluster(cluster, clusters, lattice)
+                expansion_clusters[cluster.ghash] = ec
         end
 
         Expansion(expansion_clusters, order_ids, 0)
@@ -30,7 +35,9 @@ function Expansion(clusters::AbstractClusterSet, lattice::AbstractClusterExpansi
         # Adds Single Sites to the cluster expansion
         lv::Int = 1
         n_single_site_clusters = n_unique_sites(clusters)
-        while length(order_ids[1]) < n_single_site_clusters
+        # Need to consider the number of distinct sites under the hasher, not the number of distinct sites total.
+        n_total_sites = length(get_labels(lattice))
+        while length(order_ids[1]) < n_single_site_clusters && lv <= n_total_sites
 
                 lv_hash = ghash(clusters, LatticeVertices(lv))
 
@@ -42,25 +49,30 @@ function Expansion(clusters::AbstractClusterSet, lattice::AbstractClusterExpansi
                 lv += 1
         end
 
-        for cluster in clusters
+        cluster_vec = collect(clusters)
+        results = Vector{ExpansionCluster}(undef, length(cluster_vec))
+        @threads for i in eachindex(cluster_vec)
+                results[i] = ExpansionCluster(cluster_vec[i], clusters, lattice)
+        end
+        for (cluster, ec) in zip(cluster_vec, results)
                 push!(order_ids[length(cluster)+1], cluster.ghash)
-                expansion_clusters[cluster.ghash] = ExpansionCluster(cluster, clusters, lattice)
+                expansion_clusters[cluster.ghash] = ec
         end
 
         Expansion(expansion_clusters, order_ids, 1)
 end
 
 Base.getindex(e::Expansion, cluster_hash::UInt) = e.expansion_clusters[cluster_hash]
-each_order(e::Expansion, max_order::Int) = e.order_ids[1:max_order]
+each_order(e::Expansion, max_order::Int) = @view e.order_ids[1:max_order]
 order_offset(e::Expansion) = e.order_offset
 
 function weights(e::Expansion, order::Int)
         result = Dict{UInt,Float64}()
         for ch in e.order_ids[order]
                 cluster = e.expansion_clusters[ch]
-                lc = cluster.lattice_constant
+                cluster_lattice_constant = cluster.lattice_constant
                 for (k, v) in cluster.weights
-                        result[k] = get(result, k, 0.0) + lc * v
+                        result[k] = get(result, k, 0.0) + cluster_lattice_constant * v
                 end
         end
         result
@@ -92,12 +104,12 @@ function write_to_json(e::Expansion, lattice::AbstractLattice, filepath::String)
         for (order_idx, cluster_hashes) in enumerate(e.order_ids)
                 for cluster_hash in cluster_hashes
                         cluster = e.expansion_clusters[cluster_hash]
-                        vs = cluster.vertices
-                        n = length(vs)
+                        vertices = cluster.vertices
+                        n = length(vertices)
 
-                        coords = [collect(col) for col in eachcol(all_coords[:, vs])]
-                        colors = collect(all_colors[vs])
-                        bonds = [[b[1], b[2], b[3]] for b in adj_mat_to_edge_list(adj[vs, vs])]
+                        coords = [collect(col) for col in eachcol(all_coords[:, vertices])]
+                        colors = collect(all_colors[vertices])
+                        bonds = [[b[1], b[2], b[3]] for b in adj_mat_to_edge_list(adj[vertices, vertices])]
                         wts = [get(d, cluster_hash, 0.0) for d in all_weights]
 
                         push!(clusters_data, Dict(
@@ -117,7 +129,7 @@ function write_to_json(e::Expansion, lattice::AbstractLattice, filepath::String)
         end
 end
 
-function _expansion_table_data(e::Expansion, cs::Vector{<:AbstractClusterSet}, max_order::Int)
+function _expansion_table_data(e::Expansion, cluster_sets::Vector{<:AbstractClusterSet}, max_order::Int)
         off = order_offset(e)
         table_rows = Vector{Vector{Any}}()
         all_weights = [weights(e, i) for i in 1:length(e.order_ids)]
@@ -127,30 +139,30 @@ function _expansion_table_data(e::Expansion, cs::Vector{<:AbstractClusterSet}, m
                 row = Vector{Any}()
                 push!(row, order)
                 if order != 0
-                        for c in cs
+                        for c in cluster_sets
                                 push!(row, count(x -> length(x) == order, c))
                         end
                 else
-                        for _ in cs
+                        for _ in cluster_sets
                                 push!(row, 1)
                         end
 
                 end
 
-                lc_sum = 0
-                sg_sum = 0
+                lattice_constant_sum = 0
+                subgraph_sum = 0
                 for id in e.order_ids[idx]
-                        lc_sum += e.expansion_clusters[id].lattice_constant
-                        sg_sum += length(e.expansion_clusters[id].subgraphs)
+                        lattice_constant_sum += e.expansion_clusters[id].lattice_constant
+                        subgraph_sum += length(e.expansion_clusters[id].subgraphs)
                 end
-                push!(row, lc_sum)
-                push!(row, sg_sum)
+                push!(row, lattice_constant_sum)
+                push!(row, subgraph_sum)
                 push!(row, sum(p -> p.second, all_weights[idx]))
 
                 push!(table_rows, row)
         end
         data = permutedims(reduce(hcat, table_rows))
-        cs_labels = [_cs_column_label(c) for c in cs]
-        return data, cs_labels
+        cluster_set_labels = [_cluster_set_column_label(c) for c in cluster_sets]
+        return data, cluster_set_labels
 end
 

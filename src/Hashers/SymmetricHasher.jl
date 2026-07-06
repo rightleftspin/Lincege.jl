@@ -1,5 +1,10 @@
-struct SymmetricHasher{C<:Union{<:AbstractConnections,Nothing}} <: AbstractHasher
-        trans_hasher::TranslationHasher
+"""
+    SymmetricHasher(lattice, lattice_symmetries)
+
+Hasher that identifies clusters equivalent under the lattice's point-group symmetries.
+"""
+struct SymmetricHasher{C<:Union{<:AbstractConnections,Nothing},T<:TranslationHasher} <: AbstractHasher
+        trans_hasher::T
         permutations::Vector{Vector{Int64}}
         connections::C
 end
@@ -12,7 +17,7 @@ function SymmetricHasher(lattice::AbstractInfiniteLattice, lattice_symmetries::V
         # For infinite-lattice use this is safe: clusters are grown from the center
         # and never reach the corners, so no cluster site will land on a zero entry.
         # For finite lattices the incomplete permutations must be filtered out before
-        # constructing this hasher, otherwise `perm[lvs]` below will index with 0.
+        # constructing this hasher, otherwise `perm[lattice_vertices]` below will index with 0.
         permutations = get_permutations(all_coords, lattice_symmetries)
 
         SymmetricHasher(
@@ -27,25 +32,23 @@ SymmetricHasher(lattice::AbstractInfiniteLattice, lattice_symmetries::Vector{Mat
 SymmetricHasher(lattice::AbstractClusterExpansionLattice, lattice_symmetries::Vector{Matrix{Float64}}) = SymmetricHasher(lattice, lattice_symmetries, connections(lattice))
 
 n_unique_sites(h::SymmetricHasher) = n_unique_sites(h.trans_hasher)
-function ghash(h::SymmetricHasher, lvs::LatticeVertices)
-        all_hashes = Set()
-        for perm in h.permutations
-                push!(all_hashes, ghash(h.trans_hasher, LatticeVertices(perm[lvs])))
-        end
-        hash(all_hashes)
+
+function ghash(h::SymmetricHasher, lattice_vertices::LatticeVertices)
+        idx = collect(lattice_vertices)
+        # minimum over the orbit is a canonical representative
+        minimum(ghash_idx(h.trans_hasher, sort(perm[idx])) for perm in h.permutations)
 end
 
-ghash(h::SymmetricHasher{StrongClusterConnections}, evs::ExpansionVertices) = ghash(h, h.connections[evs])
+ghash(h::SymmetricHasher{StrongClusterConnections}, expansion_vertices::ExpansionVertices) = ghash(h, h.connections[expansion_vertices])
 
-function ghash(h::SymmetricHasher{WeakClusterConnections}, evs::ExpansionVertices)
-        all_hashes = Set()
-        for perm in h.permutations
-                lvs, mask = h.connections[evs]
-                new_lvs = perm[lvs]
-                hm = h.trans_hasher.hashing_matrix[sort(new_lvs), sort(new_lvs)]
-                hm[mask[sortperm(new_lvs), sortperm(new_lvs)]] .= 0
-                push!(all_hashes, hash(sum(hm, dims=2)))
+function ghash(h::SymmetricHasher{WeakClusterConnections}, expansion_vertices::ExpansionVertices)
+        lattice_vertices, mask = h.connections[expansion_vertices]
+        function perm_hash(perm)
+                new_lattice_vertices = perm[lattice_vertices]
+                sp = sortperm(new_lattice_vertices)
+                hm = h.trans_hasher.hashing_matrix[new_lattice_vertices[sp], new_lattice_vertices[sp]]
+                hm[mask[sp, sp]] .= 0
+                hash(sum(hm, dims=2))
         end
-
-        hash(all_hashes)
+        minimum(perm_hash(perm) for perm in h.permutations)
 end

@@ -62,5 +62,6 @@ export ImportedCluster, import_from_json, import_from_json_by_order
 # Physics
 export AbstractPhysicsSolver, observables, eigenvalues, eigenvectors, cluster_weights,
         IsingSolver,
-        NLCEResult, perform_nlce
+        NLCEResult, perform_nlce,
+        euler_resummation, wynn_resummation, apply_resummations
 end

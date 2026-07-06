@@ -5,7 +5,7 @@ DocMeta.setdocmeta!(Lincege, :DocTestSetup, :(using Lincege); recursive=true)
 
 makedocs(;
         modules=[Lincege],
-        authors="Pranav Seetharaman <pranav@myrdd.info> and contributors",
+        authors="Pranav Seetharaman <pjseetha@uwaterloo.ca> and contributors",
         sitename="Lincege.jl",
         format=Documenter.HTML(;
                 canonical="https://rightleftspin.github.io/Lincege.jl",

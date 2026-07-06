@@ -68,19 +68,27 @@ print_ascii_table(expansion, [trans_clusters, iso_clusters, sym_clusters], m_ord
 
 ## Writing to JSON
 
-```julia
-write_to_json(expansion, lattice, iso_clusters, "square_lattice.json")
+```@example square
+json_path = joinpath(mktempdir(), "square_lattice.json")
+write_to_json(expansion, lattice, json_path)
 ```
 
 ## Ising Model Simulation
 
-```julia
+```@example square
 temperatures = collect(range(0.5, 5.0, length=200))
 
-clusters = import_from_json("square_lattice.json")
+clusters = import_from_json(json_path)
 solvers = [IsingSolver(c) for c in clusters]
 
 nlce_result = perform_nlce(solvers, temperatures)
+resummed = apply_resummations(nlce_result, [(:Euler, 2), (:Wynn, 1)])
+
+# Specific heat from the highest bare order vs. the final resummed estimate
+T_idx = argmax(temperatures .>= 2.0)
+(temperature = temperatures[T_idx],
+ bare = nlce_result.specific_heat[end][T_idx],
+ resummed = resummed.specific_heat[end][T_idx])
 ```
 
 ## Plotting Results

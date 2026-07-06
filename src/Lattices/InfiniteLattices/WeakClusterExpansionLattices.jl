@@ -1,3 +1,8 @@
+"""
+    WeakClusterExpansionLattice(max_order, expansion_unit_cell)
+
+An infinite lattice for the weak-embedding cluster expansion up to `max_order`.
+"""
 struct WeakClusterExpansionLattice <: AbstractClusterExpansionLattice
         max_order::UInt8
 
@@ -19,14 +24,9 @@ function WeakClusterExpansionLattice(max_order::Int, expansion_unit_cell::Expans
 
         expansion_coordinates = generate_coordinates(max_order, length(basis_size(expansion_unit_cell)), dimension(expansion_unit_cell))
         neighbor_list = generate_neighbor_list(expansion_coordinates, expansion_unit_cell)
-        ctrs = ExpansionVertices(find_centers(expansion_coordinates))
+        center_vertices = ExpansionVertices(find_centers(expansion_coordinates))
 
-        lattice_coordinates = Matrix{Int}[]
-        for i in 1:length(basis_size(expansion_unit_cell))
-                coords = generate_coordinates(max_order, basis_size(expansion_unit_cell)[i], dimension(expansion_unit_cell))
-                push!(lattice_coordinates, vcat(coords[1:dimension(expansion_unit_cell), :], ones(Int, size(coords, 2))' * i, coords[end, :]'))
-        end
-        lattice_coordinates = hcat(lattice_coordinates...)
+        lattice_coordinates = build_lattice_coordinates(max_order, expansion_unit_cell)
 
         connections_vec, rev_connections, masking_matrix, unique_inds = generate_weak_connections(expansion_coordinates, lattice_coordinates, expansion_unit_cell)
 
@@ -40,7 +40,7 @@ function WeakClusterExpansionLattice(max_order::Int, expansion_unit_cell::Expans
         return WeakClusterExpansionLattice(
                 UInt8(max_order),
                 expansion_unit_cell,
-                ctrs,
+                center_vertices,
                 neighbor_list,
                 lattice_coordinates,
                 translation_labels,
@@ -51,13 +51,3 @@ function WeakClusterExpansionLattice(max_order::Int, expansion_unit_cell::Expans
         )
 end
 
-centers(lattice::WeakClusterExpansionLattice) = lattice.centers
-max_order(lattice::WeakClusterExpansionLattice) = lattice.max_order
-n_unique_sites(lattice::WeakClusterExpansionLattice) = lattice.n_unique
-n_site_colors(lattice::WeakClusterExpansionLattice) = length(unique(Iterators.flatten(lattice.expansion_unit_cell.site_colors)))
-neighbors(lattice::WeakClusterExpansionLattice, vs::ExpansionVertices) = union(ExpansionVertices(), lattice.neighbor_list[vs])
-get_coordinates(lattice::WeakClusterExpansionLattice) = shift_unit_cell(lattice.expansion_unit_cell, lattice.lattice_coordinates)
-get_labels(lattice::WeakClusterExpansionLattice) = lattice.translation_labels
-get_site_colors(lattice::WeakClusterExpansionLattice) = lattice.site_colors
-connections(lattice::WeakClusterExpansionLattice) = lattice.connections
-bond_matrix(lattice::WeakClusterExpansionLattice) = lattice.adj_matrix

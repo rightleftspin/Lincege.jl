@@ -1,12 +1,12 @@
 function get_subgraphs(c::AbstractCluster, lattice::AbstractLattice)
-        ctrs = c.vs
+        cluster_vertices = c.vertices
         if length(c) == 1
-                return Set{typeof(ctrs)}()
+                return Set{typeof(cluster_vertices)}()
         end
 
         max_depth = length(c) - 1
-        roots = [typeof(ctrs)(center) for center in ctrs]
-        visited = Set{typeof(ctrs)}()
+        roots = [typeof(cluster_vertices)(center) for center in cluster_vertices]
+        visited = Set{typeof(cluster_vertices)}()
 
         function try_mark(cluster)
                 already = cluster in visited
@@ -25,8 +25,8 @@ function get_subgraphs(c::AbstractCluster, lattice::AbstractLattice)
                         return
                 end
                 for v in neighbors(lattice, cluster)
-                        if v in c.vs
-                                dfs(union(cluster, typeof(ctrs)(v)))
+                        if v in c.vertices
+                                dfs(union(cluster, typeof(cluster_vertices)(v)))
                         end
                 end
         end

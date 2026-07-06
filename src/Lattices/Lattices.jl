@@ -6,7 +6,7 @@ Abstract base type for a lattice geometry.
 Subtypes must implement:
 - `centers(lattice)` — vertex set(s) used as DFS roots when generating clusters
 - `max_order(lattice)` — maximum cluster order (number of sites) to generate
-- `neighbors(lattice, vs)` — vertex indices adjacent to the vertex set `vs` but not in it
+- `neighbors(lattice, vertices)` — vertex indices adjacent to the vertex set `vertices` but not in it
 - `get_coordinates(lattice)` — Cartesian coordinate matrix (dim × n_sites)
 - `get_labels(lattice)` — translation labels for each site
 - `get_site_colors(lattice)` — site colors for each site
@@ -16,7 +16,7 @@ abstract type AbstractLattice end
 
 centers(lattice::AbstractLattice) = _NI("centers")
 max_order(lattice::AbstractLattice) = _NI("max_order")
-neighbors(lattice::AbstractLattice, vs::AbstractVertices) = _NI("neighbors")
+neighbors(lattice::AbstractLattice, vertices::AbstractVertices) = _NI("neighbors")
 get_coordinates(lattice::AbstractLattice) = _NI("get_coordinates")
 get_labels(lattice::AbstractLattice) = _NI("get_labels")
 get_site_colors(lattice::AbstractLattice) = _NI("get_site_colors")
