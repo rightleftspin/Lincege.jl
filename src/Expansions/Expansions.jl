@@ -70,8 +70,10 @@ Prints a LaTeX table akin to those found in scientific papers that utilize NLCE.
 function print_latex_table(io::IO, e::AbstractExpansion, cluster_sets::Vector{<:AbstractClusterSet}, max_order::Int)
         data, cluster_set_labels = _expansion_table_data(e, cluster_sets, max_order)
         cluster_set_headers = [LatexCell(l) for l in cluster_set_labels]
-        column_labels = [vcat(["Order"], cluster_set_headers, [LatexCell("\$\\sum L(c)\$"), LatexCell("\$\\sum |\\text{subgraphs}|\$"), LatexCell("\$\\sum \\F{c}\$")])]
-        pretty_table_latex_backend(io, data; column_labels=column_labels)
+	column_labels = [vcat(["Order"], cluster_set_headers, [LatexCell("\$\\sum L(c)\$"), LatexCell("\$\\sum S(c)\$"), LatexCell("\$\\sum F(c)\$")])]
+        style = LatexTableStyle(first_line_column_label=String[], column_label=String[])
+        table_format = LatexTableFormat(; @latex__no_vertical_lines)
+        pretty_table_latex_backend(io, data; column_labels=column_labels, style=style, table_format=table_format)
 end
 
 """
