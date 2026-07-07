@@ -4,7 +4,7 @@
 [![Build Status](https://github.com/rightleftspin/Lincege.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/rightleftspin/Lincege.jl/actions/workflows/CI.yml?query=branch%3Amain)
 
 Lincege.jl is a julia package for computing LINked Cluster Expansions on a
-GEneral geometry (LINCEGE). Utilizing Lincege.jl, you can easily generate
+GEneral GEometry (LiNCEGE). Utilizing Lincege.jl, you can easily generate
 clusters and reduced lattice constants for any lattice in order to perform NLCE.
 
 ## Installation
