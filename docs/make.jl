@@ -11,6 +11,7 @@ makedocs(;
                 canonical="https://rightleftspin.github.io/Lincege.jl",
                 edit_link="main",
                 assets=String[],
+                prettyurls=false,
         ),
         pages=[
                 "Home" => "index.md",
@@ -20,6 +21,10 @@ makedocs(;
                         "Pyrochlore Lattice Unit Cell" => "examples/pyrochlore_unit_cell_expansion.md",
                         "Square Lattice Cluster" => "examples/square_cluster.md",
                 ],
+                "Development" => [
+                        "Contributing" => "dev/contributing.md",
+                        "Building the Docs" => "dev/building_docs.md",
+                        ],
         ],
 )
 
