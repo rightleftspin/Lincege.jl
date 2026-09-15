@@ -9,6 +9,7 @@ Define the three-site lieb unit cell:
 
 ```@example lieb
 using Lincege
+import Lincege: weights
 
 lieb_basis = [[0.0, 0.0], [0.0, 1.0], [1, 0]]
 lieb_pvecs = [[2.0, 0.0], [0.0, 2.0]]
@@ -32,13 +33,13 @@ clusters_from_clusters!(iso_clusters, trans_clusters)
 ## Computing the expansion
 
 ```@example lieb
-expansion = Expansion(iso_clusters, lattice, m_order)
+expansion = Expansion(iso_clusters, lattice)
 summation!(expansion, m_order)
-expansion.weights
+weights(expansion, m_order)
 ```
 
 ## Writing to JSON
 
 ```julia
-write_to_json(expansion, lattice, iso_clusters, "lieb_lattice.json")
+write_to_json(expansion, lattice, "lieb_lattice.json")
 ```

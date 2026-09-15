@@ -7,8 +7,9 @@ order 3.
 
 Define the triangular unit cell:
 
-```@example kagome
+```@example triangular
 using Lincege
+import Lincege: weights
 
 triangular_basis = [[0.0, 0.0]]
 triangular_pvecs = [[1.0, 0.0], [1.0/2, sqrt(3)/2]]
@@ -18,7 +19,7 @@ triangular_uc = UnitCell(triangular_basis, triangular_pvecs, triangular_bonds, [
 
 ## Building the lattice and clusters
 
-```@example kagome
+```@example triangular
 m_order = 3
 lattice = SiteExpansionLattice(m_order, triangular_uc)
 
@@ -31,14 +32,14 @@ clusters_from_clusters!(iso_clusters, trans_clusters)
 
 ## Computing the expansion
 
-```@example kagome
-expansion = Expansion(iso_clusters, lattice, m_order)
+```@example triangular
+expansion = Expansion(iso_clusters, lattice)
 summation!(expansion, m_order)
-expansion.weights
+weights(expansion, m_order)
 ```
 
 ## Writing to JSON
 
 ```julia
-write_to_json(expansion, lattice, iso_clusters, "triangular_lattice.json")
+write_to_json(expansion, lattice, "triangular_lattice.json")
 ```

@@ -10,6 +10,7 @@ Define the one-fifth-depleted unit cell:
 
 ```@example one-fifth-depleted
 using Lincege
+import Lincege: weights
 one_fifth_basis = [[0.0, 0.0], [0.0, 1.0], [0.0, 2.0],[1.0,1.0]]
 one_fifth_pvecs = [[2.0, 1.0], [-1.0, 2.0]]
 one_fifth_bonds = [Bond(1,2,[0,0],1),Bond(1,3,[0,-1],1),Bond(2,4,[0,0],1), Bond(3,4,[0,1],1),Bond(2,3,[0,0],2),Bond(1,4,[-1,0],2)]
@@ -32,13 +33,13 @@ clusters_from_clusters!(iso_clusters, trans_clusters)
 ## Computing the expansion
 
 ```@example one-fifth-depleted
-expansion = Expansion(iso_clusters, lattice, m_order)
+expansion = Expansion(iso_clusters, lattice)
 summation!(expansion, m_order)
-expansion.weights
+weights(expansion, m_order)
 ```
 
 ## Writing to JSON
 
 ```julia
-write_to_json(expansion, lattice, iso_clusters, "one_fifth_lattice.json")
+write_to_json(expansion, lattice, "one_fifth_lattice.json")
 ```

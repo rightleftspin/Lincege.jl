@@ -1,4 +1,4 @@
-# Kagome Lattice
+# Shastry-Sutherland Lattice
 
 This example computes the linked cluster expansion on a shastry-sutherland up to
 order 3.
@@ -9,6 +9,7 @@ Define the unit cell of the Shastry-Sutherland lattice:
 
 ```@example shastry-sutherland
 using Lincege
+import Lincege: weights
 
 shsu_basis = [[0.0, 0.0], [(sqrt(3) + 1) / (2 * sqrt(2)), (sqrt(3) - 1) / (2 * sqrt(2))], [sqrt(2) / 2, sqrt(6) / 2], [(sqrt(3) + 3) / (2 * sqrt(2)), (sqrt(3) + 1) / (2 * sqrt(2))]]
 shsu_pvecs = [[(sqrt(3) + 1) / sqrt(2), 0.0], [0.0, (sqrt(3) + 1) / sqrt(2)]]
@@ -22,7 +23,7 @@ One of the important aspects of this lattice is coloring each basis site with a 
 ## Imaging lattice and unit cell
 Using the defined unit cell it is possible to image both a singular unit cell and how the lattice images into a larger grid. Imaging the lattice is critical to ensure that all the information in the creation of the unit cell is correct. In order for the imaging functions to work you must first import the Plots library.
 
-```@example shastry-sutherland
+```julia
 using Plots
 Lincege.image_unit_cell(shsu_uc)
 Lincege.image_lattice(shsu_uc)
@@ -43,13 +44,13 @@ clusters_from_clusters!(iso_clusters, trans_clusters)
 ## Computing the expansion
 
 ```@example shastry-sutherland
-expansion = Expansion(iso_clusters, lattice, m_order)
+expansion = Expansion(iso_clusters, lattice)
 summation!(expansion, m_order)
-expansion.weights
+weights(expansion, m_order)
 ```
 
 ## Writing to JSON
 
 ```julia
-write_to_json(expansion, lattice, iso_clusters, "shastry-sutherland_lattice.json")
+write_to_json(expansion, lattice, "shastry-sutherland_lattice.json")
 ```
