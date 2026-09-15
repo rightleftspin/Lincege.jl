@@ -1,12 +1,12 @@
 function get_subgraphs(c::AbstractCluster, lattice::AbstractLattice)
+        cluster_vertices = c.vertices
         if length(c) == 1
-                return Set()
+                return Set{typeof(cluster_vertices)}()
         end
 
         max_depth = length(c) - 1
-        ctrs = c.vs
-        roots = [typeof(ctrs)(center) for center in ctrs]
-        visited = Set()
+        roots = [typeof(cluster_vertices)(center) for center in cluster_vertices]
+        visited = Set{typeof(cluster_vertices)}()
 
         function try_mark(cluster)
                 already = cluster in visited
@@ -25,21 +25,21 @@ function get_subgraphs(c::AbstractCluster, lattice::AbstractLattice)
                         return
                 end
                 for v in neighbors(lattice, cluster)
-                        if v in c.vs
-                                dfs(union(cluster, typeof(ctrs)(v)))
+                        if v in c.vertices
+                                dfs(union(cluster, typeof(cluster_vertices)(v)))
                         end
                 end
         end
 
-        for c in roots
-                dfs(c)
+        for root in roots
+                dfs(root)
         end
 
         visited
 end
 
 function adj_mat_to_edge_list(adj_matrix::AbstractMatrix{<:Real})
-        edge_list = []
+        edge_list = Tuple{Int,Int,Int}[]
 
         n = size(adj_matrix, 1)
         for i in 1:n
@@ -53,3 +53,4 @@ function adj_mat_to_edge_list(adj_matrix::AbstractMatrix{<:Real})
 
         edge_list
 end
+

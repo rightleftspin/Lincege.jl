@@ -7,6 +7,14 @@ Lincege.jl is a julia package for computing LINked Cluster Expansions on a
 GEneral geometry (LINCEGE). Utilizing Lincege.jl, you can easily generate
 clusters and reduced lattice constants for any lattice in order to perform NLCE.
 
+## Installation
+
+In the Julia REPL type `]` to switch to package mode, then type the command:
+
+```julia
+pkg> add Lincege
+```
+
 ## Try Lincege.jl
 
 To try Lincege.jl for an example use case, try the
@@ -24,6 +32,14 @@ If Lincege.jl helped you in your research, please cite us using the following
 citation:
 
 ```bibtex
+@misc{Lincege.jl,
+	author  = {Seetharaman, Pranav and contributors},
+	title   = {Lincege.jl},
+	url     = {https://github.com/rightleftspin/Lincege.jl},
+	version = {v1.0.0},
+	year    = {2026},
+	month   = {04}
+}
 ```
 
 Funded by the U.S. Department of Energy: Grant Number DE-SC0022311

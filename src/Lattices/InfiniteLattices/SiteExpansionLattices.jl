@@ -14,7 +14,7 @@ end
 function SiteExpansionLattice(max_order::Int, unit_cell::UnitCell)
         @assert max_order > 0 "max_order must be a positive integer"
 
-        coordinates = generate_coordinates(max_order, basis_size(unit_cell), dimension(unit_cell))
+        coordinates = generate_coordinates(ntuple(_ -> max_order, dimension(unit_cell)), basis_size(unit_cell))
         adj_matrix = generate_adj_matrix(coordinates, unit_cell)
         neighbor_list = generate_neighbor_list(coordinates, unit_cell)
 
@@ -25,8 +25,8 @@ centers(lattice::SiteExpansionLattice) = LatticeVertices(find_centers(lattice.co
 max_order(lattice::SiteExpansionLattice) = lattice.max_order
 n_unique_sites(lattice::SiteExpansionLattice) = basis_size(lattice.unit_cell)
 
-neighbors(lattice::SiteExpansionLattice, vs::LatticeVertices) =
-        union(LatticeVertices(), lattice.neighbor_list[vs])
+neighbors(lattice::SiteExpansionLattice, vertices::LatticeVertices) =
+        setdiff(union(LatticeVertices(), lattice.neighbor_list[vertices]), vertices)
 
 get_coordinates(lattice::SiteExpansionLattice) = shift_unit_cell(lattice.unit_cell, lattice.coordinates)
 get_labels(lattice::SiteExpansionLattice) = lattice.coordinates[end, :]

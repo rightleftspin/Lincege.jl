@@ -16,10 +16,8 @@ module Lincege
 using Base.Threads
 using LinearAlgebra
 using NautyGraphs
-using JSON3
-
-# Some limited utility functions for the rest of the algorithm
-include("util.jl")
+using JSON
+using PrettyTables
 
 # Basic not-implemented functionality, taken from Graphs.jl
 include("NI.jl")
@@ -27,18 +25,43 @@ include("NI.jl")
 # All the necessary code for constructing an Expansion
 include("Vertices/Vertices.jl")
 include("UnitCells/UnitCells.jl")
+# Utility helpers and example unit cells
+include("util.jl")
 include("Lattices/Lattices.jl")
 include("Hashers/Hashers.jl")
 include("Clusters/Clusters.jl")
 include("Expansions/Expansions.jl")
+include("Importers/Importers.jl")
+include("Physics/Physics.jl")
 
-export AbstractVertices, LatticeVertices, ExpansionVertices,
-        Bond, UnitCell, ExpansionBond, ExpansionUnitCell, image_unit_cell,
-        SiteExpansionLattice, StrongClusterExpansionLattice, WeakClusterExpansionLattice,
-        TranslationClusterSet, IsomorphicClusterSet, SymmetricClusterSet,
-        clusters_from_lattice!, clusters_from_clusters!,
-        Expansion, summation!, write_to_json
+# Vertices
+export AbstractVertices, LatticeVertices, ExpansionVertices
 
-# Extra Physics Related Code, generally slow and not needed for basic Cluster Expansion construction
-#include("Physics/Physics.jl")
+# Unit Cells
+export Bond, UnitCell, ExpansionBond, ExpansionUnitCell, image_unit_cell
+
+# Lattices
+export SiteExpansionLattice, StrongClusterExpansionLattice, WeakClusterExpansionLattice,
+        FiniteLattice, FiniteStrongClusterExpansionLattice, FiniteWeakClusterExpansionLattice
+
+# Hashers
+export TranslationHasher, IsomorphicHasher, SymmetricHasher, ConnectedHasher
+
+# Clusters
+export TranslationClusterSet, IsomorphicClusterSet, SymmetricClusterSet, ConnectedClusterSet,
+        clusters_from_lattice!, clusters_from_clusters!
+
+# Expansions
+export Expansion, summation!, write_to_json,
+        print_latex_table, print_html_table, print_ascii_table,
+        latex_table_column_labels
+
+# Importers
+export ImportedCluster, import_from_json, import_from_json_by_order
+
+# Physics
+export AbstractPhysicsSolver, observables, eigenvalues, eigenvectors, cluster_weights,
+        IsingSolver,
+        NLCEResult, perform_nlce,
+        euler_resummation, wynn_resummation, apply_resummations
 end
