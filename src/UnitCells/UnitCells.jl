@@ -11,6 +11,7 @@ shift_unit_cell(unit_cell::AbstractUnitCell, shift_vectors::AbstractMatrix{<:Int
 Return a plottable image of the unit cell's sites and bonds for visualization.
 """
 function image_unit_cell end
+function image_lattice end
 
 include("UnitCell.jl")
 include("ExpansionUnitCell.jl")

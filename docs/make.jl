@@ -18,6 +18,10 @@ makedocs(;
                 "Examples" => [
                         "Square Lattice" => "examples/square_lattice.md",
                         "Kagome Lattice" => "examples/kagome_lattice.md",
+                        "Triangular Lattice" => "examples/triangular_lattice.md",
+                        "Lieb Lattice" => "examples/lieb_lattice.md",
+                        "One Fifth Depleted Lattice" => "examples/one_fifth_depleted_lattice.md",
+                        "Shastry-Sutherland Lattice" => "examples/shastry-sutherland.md",
                         "Pyrochlore Lattice Unit Cell" => "examples/pyrochlore_unit_cell_expansion.md",
                         "Square Lattice Cluster" => "examples/square_cluster.md",
                 ],
