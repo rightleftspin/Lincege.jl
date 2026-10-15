@@ -8,7 +8,7 @@ lattice_sq = SiteExpansionLattice(10, square_uc)
 trans_sq = TranslationClusterSet(lattice_sq)
 clusters_from_lattice!(trans_sq, lattice_sq)
 iso_sq = IsomorphicClusterSet(lattice_sq)
-clusters_from_clusters!(iso_sq, trans_sq)
+reduce_clusters!(iso_sq, trans_sq)
 
 SUITE["square"] = BenchmarkGroup()
 SUITE["square"]["clusters_from_lattice"] = @benchmarkable begin
@@ -17,11 +17,11 @@ SUITE["square"]["clusters_from_lattice"] = @benchmarkable begin
 end
 SUITE["square"]["clusters_from_clusters"] = @benchmarkable begin
         iso = IsomorphicClusterSet($lattice_sq)
-        clusters_from_clusters!(iso, $trans_sq)
+        reduce_clusters!(iso, $trans_sq)
 end
 SUITE["square"]["clusters_from_clusters_symmetric"] = @benchmarkable begin
         sym = SymmetricClusterSet($lattice_sq, :Square)
-        clusters_from_clusters!(sym, $trans_sq)
+        reduce_clusters!(sym, $trans_sq)
 end
 SUITE["square"]["Expansion"] = @benchmarkable Expansion($iso_sq, $lattice_sq)
 SUITE["square"]["summation"] = @benchmarkable begin
@@ -34,7 +34,7 @@ lattice_kag = SiteExpansionLattice(4, kagome_uc)
 trans_kag = TranslationClusterSet(lattice_kag)
 clusters_from_lattice!(trans_kag, lattice_kag)
 iso_kag = IsomorphicClusterSet(lattice_kag)
-clusters_from_clusters!(iso_kag, trans_kag)
+reduce_clusters!(iso_kag, trans_kag)
 
 SUITE["kagome"] = BenchmarkGroup()
 SUITE["kagome"]["clusters_from_lattice"] = @benchmarkable begin
@@ -52,7 +52,7 @@ lattice_pyro = StrongClusterExpansionLattice(5, pyro_exp_uc_uc)
 trans_pyro = TranslationClusterSet(lattice_pyro)
 clusters_from_lattice!(trans_pyro, lattice_pyro)
 iso_pyro = IsomorphicClusterSet(lattice_pyro)
-clusters_from_clusters!(iso_pyro, trans_pyro)
+reduce_clusters!(iso_pyro, trans_pyro)
 
 SUITE["pyrochlore"] = BenchmarkGroup()
 SUITE["pyrochlore"]["clusters_from_lattice"] = @benchmarkable begin
@@ -61,7 +61,7 @@ SUITE["pyrochlore"]["clusters_from_lattice"] = @benchmarkable begin
 end
 SUITE["pyrochlore"]["clusters_from_clusters"] = @benchmarkable begin
         iso = IsomorphicClusterSet($lattice_pyro)
-        clusters_from_clusters!(iso, $trans_pyro)
+        reduce_clusters!(iso, $trans_pyro)
 end
 SUITE["pyrochlore"]["summation"] = @benchmarkable begin
         e = Expansion($iso_pyro, $lattice_pyro)
@@ -74,7 +74,7 @@ lattice_sq_cluster = WeakClusterExpansionLattice(4, square_cluster_uc)
 trans_sq_cluster = TranslationClusterSet(lattice_sq_cluster)
 clusters_from_lattice!(trans_sq_cluster, lattice_sq_cluster)
 iso_sq_cluster = IsomorphicClusterSet(lattice_sq_cluster)
-clusters_from_clusters!(iso_sq_cluster, trans_sq_cluster)
+reduce_clusters!(iso_sq_cluster, trans_sq_cluster)
 
 SUITE["square_cluster"] = BenchmarkGroup()
 SUITE["square_cluster"]["clusters_from_lattice"] = @benchmarkable begin
@@ -83,11 +83,11 @@ SUITE["square_cluster"]["clusters_from_lattice"] = @benchmarkable begin
 end
 SUITE["square_cluster"]["clusters_from_clusters"] = @benchmarkable begin
         iso = IsomorphicClusterSet($lattice_sq_cluster)
-        clusters_from_clusters!(iso, $trans_sq_cluster)
+        reduce_clusters!(iso, $trans_sq_cluster)
 end
 SUITE["square_cluster"]["clusters_from_clusters_symmetric"] = @benchmarkable begin
         sym = SymmetricClusterSet($lattice_sq_cluster, :Square)
-        clusters_from_clusters!(sym, $trans_sq_cluster)
+        reduce_clusters!(sym, $trans_sq_cluster)
 end
 SUITE["square_cluster"]["summation"] = @benchmarkable begin
         e = Expansion($iso_sq_cluster, $lattice_sq_cluster)

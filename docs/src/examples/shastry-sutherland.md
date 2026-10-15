@@ -38,7 +38,7 @@ trans_clusters = TranslationClusterSet(lattice)
 clusters_from_lattice!(trans_clusters, lattice)
 
 iso_clusters = IsomorphicClusterSet(lattice)
-clusters_from_clusters!(iso_clusters, trans_clusters)
+reduce_clusters!(iso_clusters, trans_clusters)
 ```
 
 ## Computing the expansion

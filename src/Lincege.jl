@@ -49,7 +49,7 @@ export TranslationHasher, IsomorphicHasher, SymmetricHasher, ConnectedHasher
 
 # Clusters
 export TranslationClusterSet, IsomorphicClusterSet, SymmetricClusterSet, ConnectedClusterSet,
-        clusters_from_lattice!, clusters_from_clusters!
+        clusters_from_lattice!, reduce_clusters!
 
 # Expansions
 export Expansion, summation!, write_to_json,

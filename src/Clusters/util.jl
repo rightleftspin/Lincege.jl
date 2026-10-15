@@ -6,11 +6,12 @@ end
 add_cluster!(cluster_set::AbstractClusterSet, c::AbstractCluster) = add_cluster!(cluster_set, c, ghash(cluster_set, c))
 
 """
-    clusters_from_clusters!(new_clusters, old_clusters)
+    reduce_clusters!(new_clusters, old_clusters)
 
-Populates new_clusters from the clusters inside old_clusters using the hasher inside the new_clusters ClusterSet
+Populate `new_clusters` by grouping clusters in `old_clusters` using the destination
+hasher and summing the lattice constants of equivalent clusters. Return `new_clusters`.
 """
-function clusters_from_clusters!(new_clusters::AbstractClusterSet{C,H}, old_clusters::AbstractClusterSet) where {C<:AbstractCluster,H}
+function reduce_clusters!(new_clusters::AbstractClusterSet{C,H}, old_clusters::AbstractClusterSet) where {C<:AbstractCluster,H}
         old_vec = collect(old_clusters)
         hashes = Vector{UInt}(undef, length(old_vec))
         @threads for i in eachindex(old_vec)

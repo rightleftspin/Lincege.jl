@@ -81,10 +81,10 @@
                 clusters_from_lattice!(connected, lattice)
 
                 sym = SymmetricClusterSet(lattice, :Square)
-                clusters_from_clusters!(sym, connected)
+                reduce_clusters!(sym, connected)
 
                 iso = IsomorphicClusterSet(lattice)
-                clusters_from_clusters!(iso, connected)
+                reduce_clusters!(iso, connected)
 
                 connected_counts = [16, 24, 52, 113, 244, 496, 912]
                 # Note: sym_counts differ from Table 1 of Tang et al. (2013), which lists
