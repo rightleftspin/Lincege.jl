@@ -1,5 +1,6 @@
 using Test
 using Plots
+using ColorSchemes
 using JSON
 using Lincege
 import Lincege: basis_size, dimension, shift_unit_cell,

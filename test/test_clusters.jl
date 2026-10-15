@@ -28,7 +28,7 @@
                 clusters_from_lattice!(trans_clusters, lattice)
 
                 sym_clusters = SymmetricClusterSet(lattice, :Square)
-                clusters_from_clusters!(sym_clusters, trans_clusters)
+                reduce_clusters!(sym_clusters, trans_clusters)
 
                 @test length(sym_clusters) == 533
         end
@@ -39,7 +39,7 @@
                 clusters_from_lattice!(trans_clusters, lattice)
 
                 iso_clusters = IsomorphicClusterSet(lattice)
-                clusters_from_clusters!(iso_clusters, trans_clusters)
+                reduce_clusters!(iso_clusters, trans_clusters)
 
                 order4 = filter(c -> length(c) == 4, collect(iso_clusters))
                 @test length(order4) == 3
@@ -61,7 +61,7 @@
                 clusters_from_lattice!(trans_clusters, lattice)
 
                 iso_clusters = IsomorphicClusterSet(lattice)
-                clusters_from_clusters!(iso_clusters, trans_clusters)
+                reduce_clusters!(iso_clusters, trans_clusters)
 
                 order3 = filter(c -> length(c) == 3, collect(iso_clusters))
                 order4 = filter(c -> length(c) == 4, collect(iso_clusters))
@@ -86,7 +86,7 @@
                 clusters_from_lattice!(trans_clusters, lattice)
 
                 sym_clusters = SymmetricClusterSet(lattice, :Square)
-                clusters_from_clusters!(sym_clusters, trans_clusters)
+                reduce_clusters!(sym_clusters, trans_clusters)
 
                 @test length(sym_clusters) == 56
         end
@@ -97,7 +97,7 @@
                 clusters_from_lattice!(trans_clusters, lattice)
 
                 iso_clusters = IsomorphicClusterSet(lattice)
-                clusters_from_clusters!(iso_clusters, trans_clusters)
+                reduce_clusters!(iso_clusters, trans_clusters)
 
                 order3 = filter(c -> length(c) == 3, collect(iso_clusters))
                 order4 = filter(c -> length(c) == 4, collect(iso_clusters))
