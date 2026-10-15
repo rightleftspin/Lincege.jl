@@ -1,6 +1,7 @@
 # Lincege.jl
 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://rightleftspin.github.io/Lincege.jl/)
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://rightleftspin.github.io/Lincege.jl/stable/)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://rightleftspin.github.io/Lincege.jl/dev/)
 [![Build Status](https://github.com/rightleftspin/Lincege.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/rightleftspin/Lincege.jl/actions/workflows/CI.yml?query=branch%3Amain)
 
 Lincege.jl is a julia package for computing LINked Cluster Expansions on a

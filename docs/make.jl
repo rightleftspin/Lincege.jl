@@ -25,10 +25,8 @@ makedocs(;
                         "Pyrochlore Lattice Unit Cell" => "examples/pyrochlore_unit_cell_expansion.md",
                         "Square Lattice Cluster" => "examples/square_cluster.md",
                 ],
-                "Development" => [
-                        "Contributing" => "dev/contributing.md",
-                        "Building the Docs" => "dev/building_docs.md",
-                        ],
+                "Contributing" => "contributing.md",
+                "API Reference" => "api.md",
         ],
 )
 
