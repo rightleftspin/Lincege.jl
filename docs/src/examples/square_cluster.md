@@ -1,7 +1,7 @@
-# Square Lattice Cluster Expansion
+# Square Lattice Square Expansion
 
 This example computes the linked cluster expansion on the square lattice up to
-order 3, this utilizes the corner-sharing square expansion
+order 3 using corner-sharing squares.
 
 ## Setup
 
@@ -32,10 +32,19 @@ square_cluster_uc = ExpansionUnitCell(
 )
 ```
 
+Each expansion element is a four-site square. The `ExpansionBond` entries
+connect physical sites, while the separate `Bond` entries connect neighboring
+expansion elements. Equal site colors and bond types treat the sites and
+interactions as equivalent.
+
 ## Building the lattice and clusters
 
-Note that we use a WeakClusterExpansionLattice because the expansion shares
-sites between different expansion units (the corners of the squares).
+The following code generates clusters up to order 3, starting with
+translational clusters and reducing to isomorphic clusters. Here order counts
+expansion elements.
+
+Use `WeakClusterExpansionLattice` because neighboring squares share corner
+sites. 
 
 ```@example square_cluster
 m_order = 3
@@ -50,12 +59,16 @@ reduce_clusters!(iso_clusters, trans_clusters)
 
 ## Computing the expansion
 
+The final NLCE expansion weights are computed recursively.
+
 ```@example square_cluster
 expansion = Expansion(iso_clusters, lattice)
 summation!(expansion, m_order)
 ```
 
 ## Writing to JSON
+
+Lastly, write the results to a JSON file for future computations.
 
 ```julia
 write_to_json(expansion, lattice, "square_cluster.json")

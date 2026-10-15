@@ -1,12 +1,11 @@
-# Square Lattice
+# Square Lattice Site Expansion
 
 This example computes the linked cluster expansion on a square lattice up to
 order 3.
 
 ## Setup
 
-Define the unit cell with basis positions, primitive vectors, and
-nearest-neighbour bonds:
+Define the one-site square unit cell:
 
 ```@example square
 using Lincege
@@ -17,7 +16,27 @@ square_bonds = [Bond(1, 1, [1, 0], 1), Bond(1, 1, [0, 1], 1)]
 square_uc = UnitCell(square_basis, square_pvecs, square_bonds, [1])
 ```
 
+One site and two orthogonal primitive vectors generate the square lattice.
+The offsets `[1, 0]` and `[0, 1]` are horizontal and vertical bonds.
+Equal site colors and bond types treat these sites and interactions as equivalent.
+
+## Imaging the unit cell and lattice
+
+Load Plots and ColorSchemes to activate Lincege's plotting capabilities.
+
+```@example square
+using Plots, ColorSchemes
+image_unit_cell(square_uc)
+```
+
+```@example square
+image_lattice(square_uc)
+```
+
 ## Building the lattice and clusters
+
+The following code generates clusters up to order 3, starting with translational
+clusters and reducing to isomorphic clusters.
 
 ```@example square
 m_order = 3
@@ -28,52 +47,45 @@ clusters_from_lattice!(trans_clusters, lattice)
 
 iso_clusters = IsomorphicClusterSet(lattice)
 reduce_clusters!(iso_clusters, trans_clusters)
-
-sym_clusters = SymmetricClusterSet(lattice, :Square)
-reduce_clusters!(sym_clusters, trans_clusters)
 ```
 
 ## Computing the expansion
+
+The final NLCE expansion weights are computed recursively.
 
 ```@example square
 expansion = Expansion(iso_clusters, lattice)
 summation!(expansion, m_order)
 ```
 
-## Printing Tables
-
-There are three ways to print the standard tables one sees in papers regarding
-NLCE.
-
-`print_latex_table` outputs LaTeX source ready to paste into a paper:
-
-```@example square
-print_latex_table(expansion, [trans_clusters, iso_clusters, sym_clusters], m_order)
-```
-
-`print_html_table` renders the table in the browser:
-
-```@example square
-using Markdown
-io = IOBuffer()
-Lincege.print_html_table(io, expansion, [trans_clusters, iso_clusters, sym_clusters], m_order)
-Markdown.HTML(String(take!(io)))
-```
-
-`print_ascii_table` prints a plain-text table:
-
-```@example square
-print_ascii_table(expansion, [trans_clusters, iso_clusters, sym_clusters], m_order)
-```
-
 ## Writing to JSON
+
+Write the results to a JSON file for the Ising calculation below.
 
 ```@example square
 json_path = joinpath(mktempdir(), "square_lattice.json")
 write_to_json(expansion, lattice, json_path)
 ```
 
+For a colon-separated text file containing the same cluster data, use
+`write_to_txt_file`:
+
+```@example square
+txt_path = joinpath(dirname(json_path), "square_lattice.txt")
+write_to_txt_file(expansion, lattice, txt_path)
+```
+
+Each row contains `n_sites : cluster_hash : bonds : coordinates : site_colors :
+weights : order`. Bonds are space-separated triples, coordinates use `(x,y)`
+tuples, and empty fields represent empty vectors. The header names the fields.
+The Ising example below continues to read the JSON file.
+
 ## Ising Model Simulation
+
+Load the exported clusters and create an Ising solver for each one. Compute
+the NLCE observables over a temperature range, then apply Euler and Wynn
+resummations. The final expression compares the bare and resummed specific
+heat near `T/J = 2`.
 
 ```@example square
 temperatures = collect(range(0.5, 5.0, length=200))
@@ -84,7 +96,6 @@ solvers = [IsingSolver(c) for c in clusters]
 nlce_result = perform_nlce(solvers, temperatures)
 resummed = apply_resummations(nlce_result, [(:Euler, 2), (:Wynn, 1)])
 
-# Specific heat from the highest bare order vs. the final resummed estimate
 T_idx = argmax(temperatures .>= 2.0)
 (temperature = temperatures[T_idx],
  bare = nlce_result.specific_heat[end][T_idx],
@@ -92,6 +103,9 @@ T_idx = argmax(temperatures .>= 2.0)
 ```
 
 ## Plotting Results
+
+Sum the contributions through each order to plot the energy, entropy, and
+specific heat as functions of temperature.
 
 ```julia
 using Plots
@@ -113,9 +127,8 @@ p3 = plot(T, cv_cumsum[:, plot_range]; label=false, xlabel="T/J", title="Specifi
 plot(p1, p2, p3; layout=(1, 3), size=(900, 300))
 ```
 
-The following plot shows convergence of the NLCE up to order 10 for the square
-lattice Ising model (J=1), note that the results plotted here are not directly
-evaluted from the code above, but rather a cached result from a different
-calculation:
+The following cached plot shows convergence through order 10 for the square
+lattice Ising model. It comes from a separate calculation, the code
+above runs only through order 3.
 
 ![Square Lattice NLCE](../assets/square_lattice_nlce.png)

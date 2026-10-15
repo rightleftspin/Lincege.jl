@@ -17,7 +17,28 @@ kagome_bonds = [Bond(1, 2, [0, 0], 1), Bond(2, 3, [0, 0], 1), Bond(3, 1, [0, 0],
 kagome_uc = UnitCell(kagome_basis, kagome_pvecs, kagome_bonds, [1, 1, 1])
 ```
 
+The kagome geometry consists of corner-sharing triangles with three bonds inside
+the triangle and three outside. The offsets `[-1, 0]`, `[0, -1]`, and `[1, -1]` 
+connect to neighboring triangles. Keeping all site colors and bond types equal
+treats these sites and interactions as equivalent.
+
+## Imaging the unit cell and lattice
+
+Loading the Plots dependency automatically activates Lincege's plotting capabilities.
+
+```@example kagome
+using Plots, ColorSchemes
+image_unit_cell(kagome_uc)
+```
+
+```@example kagome
+image_lattice(kagome_uc)
+```
+
 ## Building the lattice and clusters
+
+The following code generates clusters up till order 3, starting with translational
+clusters and reducing to isomorphic clusters.
 
 ```@example kagome
 m_order = 3
@@ -32,12 +53,16 @@ reduce_clusters!(iso_clusters, trans_clusters)
 
 ## Computing the expansion
 
+The NLCE expansion final weights are computed recursively.
+
 ```@example kagome
 expansion = Expansion(iso_clusters, lattice)
 summation!(expansion, m_order)
 ```
 
 ## Writing to JSON
+
+Lastly, the results are written to a JSON file to be used for future computations.
 
 ```julia
 write_to_json(expansion, lattice, "kagome_lattice.json")

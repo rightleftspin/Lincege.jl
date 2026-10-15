@@ -20,7 +20,7 @@ makedocs(;
         pages=[
                 "Home" => "index.md",
                 "Examples" => [
-                        "Square Lattice" => "examples/square_lattice.md",
+                        "Square Lattice Ising Model" => "examples/square_lattice.md",
                         "Square Lattice Symmetric Clusters" => "examples/square_symmetries.md",
                         "Finite Square Lattice (Periodic)" => "examples/finite_square_lattice.md",
                         "Kagome Lattice" => "examples/kagome_lattice.md",
@@ -29,8 +29,9 @@ makedocs(;
                         "One Fifth Depleted Lattice" => "examples/one_fifth_depleted_lattice.md",
                         "Shastry-Sutherland Lattice" => "examples/shastry-sutherland.md",
                         "Pyrochlore Lattice Unit Cell" => "examples/pyrochlore_unit_cell_expansion.md",
-                        "Square Lattice Cluster" => "examples/square_cluster.md",
+                        "Square Lattice Square Expansion" => "examples/square_cluster.md",
                 ],
+                "Output Formats" => "output_formats.md",
                 "Contributing" => "contributing.md",
                 "API Reference" => "api.md",
         ],

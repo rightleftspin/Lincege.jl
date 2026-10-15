@@ -1,7 +1,7 @@
 # Pyrochlore Lattice Unit Cell Expansion
 
 This example computes the linked cluster expansion on the pyrochlore lattice up
-to order 3, this utilizes the unit cell expansion on the lattice.
+to order 3 using four-site expansion cells.
 
 ## Setup
 
@@ -53,11 +53,19 @@ pyro_exp_uc_uc = ExpansionUnitCell(
 )
 ```
 
+Each expansion element contains four sites. The first six `ExpansionBond`
+entries connect sites within the cell, the remaining six connect neighboring
+cells. The separate `Bond` entries define connections between expansion
+elements. All sites and physical bonds use label 1.
+
 ## Building the lattice and clusters
 
-Note that we use a StrongClusterExpansionLattice because the expansion does not
-share sites between different expansion units. If we were to do the tetrahedra
-expansion, we would use a WeakClusterExpansionLattice instead.
+The following code generates clusters up to order 3, starting with
+translational clusters and reducing to isomorphic clusters. Here order counts
+expansion elements.
+
+Use `StrongClusterExpansionLattice` because these expansion cells do not
+share sites.
 
 ```@example pyrochlore
 m_order = 3
@@ -72,12 +80,16 @@ reduce_clusters!(iso_clusters, trans_clusters)
 
 ## Computing the expansion
 
+The final NLCE expansion weights are computed recursively.
+
 ```@example pyrochlore
 expansion = Expansion(iso_clusters, lattice)
 summation!(expansion, m_order)
 ```
 
 ## Writing to JSON
+
+Lastly, write the results to a JSON file for future computations.
 
 ```julia
 write_to_json(expansion, lattice, "pyrochlore_lattice_uc_exp.json")
