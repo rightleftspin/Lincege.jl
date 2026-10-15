@@ -58,6 +58,27 @@ entries connect sites within the cell, the remaining six connect neighboring
 cells. The separate `Bond` entries define connections between expansion
 elements. All sites and physical bonds use label 1.
 
+## Imaging the unit cell and lattice
+
+Load `Plots` and `ColorSchemes` to activate the plotting extension. Solid lines
+show physical bonds, and dashed black lines outline the primitive cell. The
+unit-cell view also marks neighboring sites reached by intercell physical
+bonds, so it shows more than the four basis sites.
+
+```@example pyrochlore
+using Plots, ColorSchemes
+image_unit_cell(pyro_exp_uc_uc)
+```
+
+Repeat the cell along all three primitive vectors with `cells=0:1`, giving
+eight cells plus endpoints of outgoing bonds. The optional gray dashed lines
+connect expansion-element centers; they are separate from physical bonds.
+Both `UnitCell` and `ExpansionUnitCell` support repeated 3D lattice plots.
+
+```@example pyrochlore
+image_lattice(pyro_exp_uc_uc; cells=0:1, show_expansion_bonds=true)
+```
+
 ## Building the lattice and clusters
 
 The following code generates clusters up to order 3, starting with

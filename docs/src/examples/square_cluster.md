@@ -37,6 +37,24 @@ connect physical sites, while the separate `Bond` entries connect neighboring
 expansion elements. Equal site colors and bond types treat the sites and
 interactions as equivalent.
 
+## Imaging the unit cell and lattice
+
+Load `Plots` and `ColorSchemes` to activate the plotting extension. The dashed
+black lines outline the primitive cell; the solid lines are physical bonds.
+
+```@example square_cluster
+using Plots, ColorSchemes
+image_unit_cell(square_cluster_uc)
+```
+
+The repeated lattice merges coincident shared sites. Enable the optional gray
+dashed overlay to show connections between the centers of neighboring squares.
+These connections describe the expansion geometry, rather than physical bonds.
+
+```@example square_cluster
+image_lattice(square_cluster_uc; show_expansion_bonds=true)
+```
+
 ## Building the lattice and clusters
 
 The following code generates clusters up to order 3, starting with

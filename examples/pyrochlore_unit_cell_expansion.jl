@@ -41,6 +41,11 @@ pyro_exp_uc_uc = ExpansionUnitCell(
         [[1, 1, 1, 1]]
 )
 
+using Plots, ColorSchemes
+image_unit_cell(pyro_exp_uc_uc)
+
+image_lattice(pyro_exp_uc_uc; cells=0:1, show_expansion_bonds=true)
+
 m_order = 3
 lattice = StrongClusterExpansionLattice(m_order, pyro_exp_uc_uc)
 

@@ -20,6 +20,11 @@ square_cluster_uc = ExpansionUnitCell(
         [[1, 1, 1, 1]]
 )
 
+using Plots, ColorSchemes
+image_unit_cell(square_cluster_uc)
+
+image_lattice(square_cluster_uc; show_expansion_bonds=true)
+
 m_order = 3
 lattice = WeakClusterExpansionLattice(m_order, square_cluster_uc)
 
