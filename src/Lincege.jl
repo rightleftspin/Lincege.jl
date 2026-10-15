@@ -52,7 +52,7 @@ export TranslationClusterSet, IsomorphicClusterSet, SymmetricClusterSet, Connect
         clusters_from_lattice!, reduce_clusters!
 
 # Expansions
-export Expansion, summation!, write_to_json,
+export Expansion, summation!, write_to_json, write_to_txt_file,
         print_latex_table, print_html_table, print_ascii_table,
         latex_table_column_labels
 

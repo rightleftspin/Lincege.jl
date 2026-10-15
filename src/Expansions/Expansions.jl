@@ -29,7 +29,6 @@ Base.getindex(e::AbstractExpansion, cluster_hash::UInt) = _NI("getindex")
 
 each_order(e::AbstractExpansion, max_order::Int) = _NI("each_order")
 order_offset(e::AbstractExpansion) = _NI("order_offset")
-_expansion_table_data(e::AbstractExpansion, cluster_sets::Vector{<:AbstractClusterSet}, max_order::Int) = _NI("_expansion_table_data")
 
 """
     summation!(expansion, max_order)
@@ -53,57 +52,4 @@ end
 include("ExpansionCluster.jl")
 include("Expansion.jl")
 include("util.jl")
-
-const latex_table_column_labels = Dict{Any,String}(
-        TranslationHasher => "No. of connected clusters",
-        IsomorphicHasher => "No. of isomorphic clusters",
-        SymmetricHasher => "No. of symmetric clusters",
-)
-
-_cluster_set_column_label(cluster_set::ClusterSet{C,H}) where {C,H} =
-        get(latex_table_column_labels, H, "")
-
-"""
-    print_latex_table([io], expansion, cluster_sets, max_order)
-
-Prints a LaTeX table akin to those found in scientific papers that utilize NLCE.
-"""
-function print_latex_table(io::IO, e::AbstractExpansion, cluster_sets::Vector{<:AbstractClusterSet}, max_order::Int)
-        data, cluster_set_labels = _expansion_table_data(e, cluster_sets, max_order)
-        cluster_set_headers = [LatexCell(l) for l in cluster_set_labels]
-	column_labels = [vcat(["Order"], cluster_set_headers, [LatexCell("\$\\sum L(c)\$"), LatexCell("\$\\sum S(c)\$"), LatexCell("\$\\sum F(c)\$")])]
-        style = LatexTableStyle(first_line_column_label=String[], column_label=String[])
-        table_format = LatexTableFormat(; @latex__no_vertical_lines)
-        pretty_table_latex_backend(io, data; column_labels=column_labels, style=style, table_format=table_format)
-end
-
-"""
-    print_html_table([io], expansion, cluster_sets, max_order)
-
-Prints an HTML table akin to those found in scientific papers that utilize NLCE.
-"""
-function print_html_table(io::IO, e::AbstractExpansion, cluster_sets::Vector{<:AbstractClusterSet}, max_order::Int)
-        data, cluster_set_labels = _expansion_table_data(e, cluster_sets, max_order)
-        column_labels = [vcat(["Order"], cluster_set_labels, ["sum L(c)", "sum |subgraphs|", "sum F(c)"])]
-        pretty_table_html_backend(io, data; column_labels=column_labels)
-end
-
-"""
-    print_ascii_table([io], expansion, cluster_sets, max_order)
-
-Prints an ASCII table akin to those found in scientific papers that utilize NLCE.
-"""
-function print_ascii_table(io::IO, e::AbstractExpansion, cluster_sets::Vector{<:AbstractClusterSet}, max_order::Int)
-        data, cluster_set_labels = _expansion_table_data(e, cluster_sets, max_order)
-        column_labels = [vcat(["Order"], cluster_set_labels, ["sum L(c)", "sum |subgraphs|", "sum F(c)"])]
-        pretty_table(io, data; column_labels=column_labels)
-end
-
-print_latex_table(e::AbstractExpansion, cluster_sets::Vector{<:AbstractClusterSet}, max_order::Int) =
-        print_latex_table(stdout, e, cluster_sets, max_order)
-
-print_html_table(e::AbstractExpansion, cluster_sets::Vector{<:AbstractClusterSet}, max_order::Int) =
-        print_html_table(stdout, e, cluster_sets, max_order)
-
-print_ascii_table(e::AbstractExpansion, cluster_sets::Vector{<:AbstractClusterSet}, max_order::Int) =
-        print_ascii_table(stdout, e, cluster_sets, max_order)
+include("exporters.jl")

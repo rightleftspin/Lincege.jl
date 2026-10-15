@@ -252,6 +252,112 @@
                 end
         end
 
+        @testset "write_to_txt_file" begin
+                for (name, lattice, m_order) in (
+                        ("SiteExpansionLattice", SiteExpansionLattice(3, square_uc), 3),
+                        ("StrongClusterExpansionLattice", StrongClusterExpansionLattice(2, pyro_exp_uc_uc), 2),
+                        ("WeakClusterExpansionLattice", WeakClusterExpansionLattice(2, square_cluster_uc), 2),
+                )
+                        @testset "$name" begin
+                                trans_clusters = TranslationClusterSet(lattice)
+                                clusters_from_lattice!(trans_clusters, lattice)
+                                iso_clusters = IsomorphicClusterSet(lattice)
+                                reduce_clusters!(iso_clusters, trans_clusters)
+                                expansion = Expansion(iso_clusters, lattice)
+                                summation!(expansion, m_order)
+
+                                mktempdir() do dir
+                                        json_path = joinpath(dir, "expansion.json")
+                                        txt_path = joinpath(dir, "expansion.txt")
+                                        write_to_json(expansion, lattice, json_path)
+                                        write_to_txt_file(expansion, lattice, txt_path)
+                                        data = JSON.parse(read(json_path, String))
+                                        lines = readlines(txt_path)
+
+                                        @test startswith(first(lines), "# n_sites : cluster_hash")
+                                        records = [strip.(split(line, ':'; keepempty=true)) for line in lines[2:end]]
+                                        expected = Dict(entry["cluster_hash"] => entry for entry in data)
+                                        @test length(records) == length(data)
+                                        @test Set(row[2] for row in records) == Set(keys(expected))
+
+                                        for row in records
+                                                @test length(row) == 7
+                                                entry = expected[row[2]]
+                                                bonds = collect.(Iterators.partition(parse.(Int, split(row[3])), 3))
+                                                coordinates = [parse.(Float64, split(m.captures[1], ','))
+                                                        for m in eachmatch(r"\(([^()]*)\)", row[4])]
+                                                @test parse(Int, row[1]) == entry["n_sites"]
+                                                @test bonds == entry["bonds"]
+                                                @test coordinates == entry["coordinates"]
+                                                @test parse.(Int, split(row[5])) == entry["site_colors"]
+                                                @test parse.(Float64, split(row[6])) == entry["weights"]
+                                                @test parse(Int, row[7]) == entry["order"]
+                                        end
+                                end
+                        end
+                end
+        end
+
+        @testset "write_to_txt_file isomorphic + symmetric relation" begin
+                m_order = 3
+                lattice = SiteExpansionLattice(m_order, square_uc)
+                trans_clusters = TranslationClusterSet(lattice)
+                clusters_from_lattice!(trans_clusters, lattice)
+                iso_clusters = IsomorphicClusterSet(lattice)
+                reduce_clusters!(iso_clusters, trans_clusters)
+                sym_clusters = SymmetricClusterSet(lattice, :Square)
+                reduce_clusters!(sym_clusters, trans_clusters)
+
+                iso_expansion = Expansion(iso_clusters, lattice)
+                summation!(iso_expansion, m_order)
+                sym_expansion = Expansion(sym_clusters, lattice)
+                summation!(sym_expansion, m_order)
+
+                mktempdir() do dir
+                        json_path = joinpath(dir, "related.json")
+                        txt_path = joinpath(dir, "related.txt")
+                        write_to_json(iso_expansion, iso_clusters, sym_expansion, sym_clusters, lattice, json_path)
+                        write_to_txt_file(iso_expansion, iso_clusters, sym_expansion, sym_clusters, lattice, txt_path)
+                        data = JSON.parse(read(json_path, String))
+                        lines = readlines(txt_path)
+
+                        @test startswith(lines[1], "# isomorphic :")
+                        @test startswith(lines[2], "# symmetric :")
+                        records = [strip.(split(line, ':'; keepempty=true)) for line in lines[3:end]]
+                        iso_rows = filter(row -> row[1] == "isomorphic", records)
+                        sym_rows = filter(row -> row[1] == "symmetric", records)
+                        expected = Dict(entry["cluster_hash"] => entry for entry in data)
+                        related = Dict((entry["cluster_hash"], cluster["cluster_hash"]) => cluster
+                                for entry in data for cluster in entry["related_symmetric"])
+
+                        @test length(records) == length(data) + length(sym_clusters)
+                        @test length(iso_rows) == length(iso_clusters)
+                        @test length(sym_rows) == length(sym_clusters)
+                        @test Set(row[3] for row in iso_rows) == Set(keys(expected))
+                        @test Set((row[2], row[3]) for row in sym_rows) == Set(keys(related))
+
+                        for row in iso_rows
+                                @test length(row) == 7
+                                entry = expected[row[3]]
+                                bonds = collect.(Iterators.partition(parse.(Int, split(row[4])), 3))
+                                @test parse(Int, row[2]) == entry["n_sites"]
+                                @test bonds == entry["canonical_bonds"]
+                                @test parse.(Int, split(row[5])) == entry["canonical_site_colors"]
+                                @test parse.(Float64, split(row[6])) == entry["weights"]
+                                @test parse(Int, row[7]) == entry["order"]
+                        end
+
+                        for row in sym_rows
+                                @test length(row) == 5
+                                cluster = related[(row[2], row[3])]
+                                coordinates = [parse.(Float64, split(m.captures[1], ','))
+                                        for m in eachmatch(r"\(([^()]*)\)", row[4])]
+                                @test coordinates == cluster["permuted_coordinates"]
+                                @test parse.(Float64, split(row[5])) == cluster["weights"]
+                        end
+                end
+        end
+
         @testset "import_from_json round-trip (SiteExpansionLattice)" begin
                 m_order = 3
                 lattice = SiteExpansionLattice(m_order, square_uc)
