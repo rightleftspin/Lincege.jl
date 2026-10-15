@@ -24,7 +24,7 @@ One of the important aspects of this lattice is coloring each basis site with a 
 Using the defined unit cell it is possible to image both a singular unit cell and how the lattice images into a larger grid. Imaging the lattice is critical to ensure that all the information in the creation of the unit cell is correct. In order for the imaging functions to work you must first import the Plots library.
 
 ```julia
-using Plots
+using Plots, ColorSchemes
 Lincege.image_unit_cell(shsu_uc)
 Lincege.image_lattice(shsu_uc)
 ```

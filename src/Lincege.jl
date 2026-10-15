@@ -38,7 +38,7 @@ include("Physics/Physics.jl")
 export AbstractVertices, LatticeVertices, ExpansionVertices
 
 # Unit Cells
-export Bond, UnitCell, ExpansionBond, ExpansionUnitCell, image_unit_cell
+export Bond, UnitCell, ExpansionBond, ExpansionUnitCell, image_unit_cell, image_lattice
 
 # Lattices
 export SiteExpansionLattice, StrongClusterExpansionLattice, WeakClusterExpansionLattice,
@@ -52,7 +52,7 @@ export TranslationClusterSet, IsomorphicClusterSet, SymmetricClusterSet, Connect
         clusters_from_lattice!, reduce_clusters!
 
 # Expansions
-export Expansion, summation!, write_to_json, write_to_txt_file,
+export Expansion, summation!, weights, write_to_json, write_to_txt_file,
         print_latex_table, print_html_table, print_ascii_table,
         latex_table_column_labels
 

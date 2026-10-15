@@ -1,6 +1,10 @@
 using Lincege
 using Documenter
 
+include("example_scripts.jl")
+example_scripts = ExampleScripts.generate(joinpath(@__DIR__, "src", "examples"), joinpath(@__DIR__, "..", "examples"))
+ExampleScripts.run_examples(example_scripts, @__DIR__)
+
 DocMeta.setdocmeta!(Lincege, :DocTestSetup, :(using Lincege); recursive=true)
 
 makedocs(;
@@ -17,6 +21,8 @@ makedocs(;
                 "Home" => "index.md",
                 "Examples" => [
                         "Square Lattice" => "examples/square_lattice.md",
+                        "Square Lattice Symmetric Clusters" => "examples/square_symmetries.md",
+                        "Finite Square Lattice (Periodic)" => "examples/finite_square_lattice.md",
                         "Kagome Lattice" => "examples/kagome_lattice.md",
                         "Triangular Lattice" => "examples/triangular_lattice.md",
                         "Lieb Lattice" => "examples/lieb_lattice.md",
