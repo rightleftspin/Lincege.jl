@@ -1,3 +1,15 @@
+# This script is automatically generated without explanatory comments.
+# The documentation for this script exists at https://rightleftspin.github.io/Lincege.jl/dev/examples/shastry-sutherland.html
+
+output_dir = joinpath(@__DIR__, "outputs")
+mkpath(output_dir)
+
+using Lincege
+if !@isdefined(output_dir)
+    output_dir = joinpath(pkgdir(Lincege), "examples", "outputs")
+end
+mkpath(output_dir)
+
 using Lincege
 
 shsu_basis = [[0.0, 0.0], [(sqrt(3) + 1) / (2 * sqrt(2)), (sqrt(3) - 1) / (2 * sqrt(2))], [sqrt(2) / 2, sqrt(6) / 2], [(sqrt(3) + 3) / (2 * sqrt(2)), (sqrt(3) + 1) / (2 * sqrt(2))]]
@@ -24,4 +36,4 @@ reduce_clusters!(iso_clusters, trans_clusters)
 expansion = Expansion(iso_clusters, lattice)
 summation!(expansion, m_order)
 
-write_to_json(expansion, lattice, "shastry-sutherland_lattice.json")
+write_to_json(expansion, lattice, joinpath(output_dir, "shastry_sutherland_lattice_site_expansion.json"))

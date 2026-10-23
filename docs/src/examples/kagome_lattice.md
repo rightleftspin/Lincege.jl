@@ -5,6 +5,14 @@ order 3.
 
 ## Setup
 
+```@setup kagome
+using Lincege
+if !@isdefined(output_dir)
+    output_dir = joinpath(pkgdir(Lincege), "examples", "outputs")
+end
+mkpath(output_dir)
+```
+
 Define the three-site kagome unit cell:
 
 ```@example kagome
@@ -65,5 +73,5 @@ summation!(expansion, m_order)
 Lastly, the results are written to a JSON file to be used for future computations.
 
 ```julia
-write_to_json(expansion, lattice, "kagome_lattice.json")
+write_to_json(expansion, lattice, joinpath(output_dir, "kagome_lattice_site_expansion.json"))
 ```

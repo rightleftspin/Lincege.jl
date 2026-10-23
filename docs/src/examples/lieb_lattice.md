@@ -5,6 +5,14 @@ order 3.
 
 ## Setup
 
+```@setup lieb
+using Lincege
+if !@isdefined(output_dir)
+    output_dir = joinpath(pkgdir(Lincege), "examples", "outputs")
+end
+mkpath(output_dir)
+```
+
 Define the three-site Lieb unit cell:
 
 ```@example lieb
@@ -64,5 +72,5 @@ summation!(expansion, m_order)
 Lastly, write the results to a JSON file for future computations.
 
 ```julia
-write_to_json(expansion, lattice, "lieb_lattice.json")
+write_to_json(expansion, lattice, joinpath(output_dir, "lieb_lattice_site_expansion.json"))
 ```

@@ -1,3 +1,15 @@
+# This script is automatically generated without explanatory comments.
+# The documentation for this script exists at https://rightleftspin.github.io/Lincege.jl/dev/examples/square_cluster.html
+
+output_dir = joinpath(@__DIR__, "outputs")
+mkpath(output_dir)
+
+using Lincege
+if !@isdefined(output_dir)
+    output_dir = joinpath(pkgdir(Lincege), "examples", "outputs")
+end
+mkpath(output_dir)
+
 using Lincege
 
 square_cluster_basis = [[[-1 / 2, -1 / 2], [-1 / 2, 1 / 2], [1 / 2, -1 / 2], [1 / 2, 1 / 2]]]
@@ -37,4 +49,4 @@ reduce_clusters!(iso_clusters, trans_clusters)
 expansion = Expansion(iso_clusters, lattice)
 summation!(expansion, m_order)
 
-write_to_json(expansion, lattice, "square_cluster.json")
+write_to_json(expansion, lattice, joinpath(output_dir, "square_lattice_weak_cluster_expansion.json"))

@@ -28,7 +28,9 @@ function generate(source_dir, output_dir)
                 length(contexts) > 1 && error("Multiple example contexts in $source")
                 isempty(blocks) && error("No Julia examples in $source")
                 script = joinpath(output_dir, splitext(basename(source))[1] * ".jl")
-                write(script, join(blocks, "\n\n") * "\n")
+                notice = "# This script is automatically generated without explanatory comments.\n" *
+                         "# The documentation for this script exists at https://rightleftspin.github.io/Lincege.jl/dev/examples/$(splitext(basename(source))[1]).html\n\n"
+                write(script, notice * "output_dir = joinpath(@__DIR__, \"outputs\")\nmkpath(output_dir)\n\n" * join(blocks, "\n\n") * "\n")
                 push!(scripts, script)
         end
         return scripts

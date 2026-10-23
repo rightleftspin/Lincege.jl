@@ -5,6 +5,14 @@ order 3.
 
 ## Setup
 
+```@setup square
+using Lincege
+if !@isdefined(output_dir)
+    output_dir = joinpath(pkgdir(Lincege), "examples", "outputs")
+end
+mkpath(output_dir)
+```
+
 Define the one-site square unit cell:
 
 ```@example square
@@ -63,7 +71,7 @@ summation!(expansion, m_order)
 Write the results to a JSON file for the Ising calculation below.
 
 ```@example square
-json_path = joinpath(mktempdir(), "square_lattice.json")
+json_path = joinpath(output_dir, "square_lattice_site_expansion.json")
 write_to_json(expansion, lattice, json_path)
 ```
 
@@ -71,7 +79,7 @@ For a colon-separated text file containing the same cluster data, use
 `write_to_txt_file`:
 
 ```@example square
-txt_path = joinpath(dirname(json_path), "square_lattice.txt")
+txt_path = joinpath(output_dir, "square_lattice_site_expansion.txt")
 write_to_txt_file(expansion, lattice, txt_path)
 ```
 

@@ -5,6 +5,14 @@ order 3 using corner-sharing squares.
 
 ## Setup
 
+```@setup square_cluster
+using Lincege
+if !@isdefined(output_dir)
+    output_dir = joinpath(pkgdir(Lincege), "examples", "outputs")
+end
+mkpath(output_dir)
+```
+
 Define the unit cell with basis positions, primitive vectors, and
 nearest-neighbour bonds:
 
@@ -89,5 +97,5 @@ summation!(expansion, m_order)
 Lastly, write the results to a JSON file for future computations.
 
 ```julia
-write_to_json(expansion, lattice, "square_cluster.json")
+write_to_json(expansion, lattice, joinpath(output_dir, "square_lattice_weak_cluster_expansion.json"))
 ```

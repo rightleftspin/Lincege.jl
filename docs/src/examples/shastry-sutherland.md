@@ -5,6 +5,14 @@ order 3.
 
 ## Setup
 
+```@setup shastry-sutherland
+using Lincege
+if !@isdefined(output_dir)
+    output_dir = joinpath(pkgdir(Lincege), "examples", "outputs")
+end
+mkpath(output_dir)
+```
+
 Define the unit cell of the Shastry-Sutherland lattice:
 
 ```@example shastry-sutherland
@@ -65,5 +73,5 @@ summation!(expansion, m_order)
 Lastly, write the results to a JSON file for future computations.
 
 ```julia
-write_to_json(expansion, lattice, "shastry-sutherland_lattice.json")
+write_to_json(expansion, lattice, joinpath(output_dir, "shastry_sutherland_lattice_site_expansion.json"))
 ```

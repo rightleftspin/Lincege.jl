@@ -1,4 +1,5 @@
 /examples/output/*
+/examples/outputs/
 Manifest.toml
 docs/build/
 .direnv/

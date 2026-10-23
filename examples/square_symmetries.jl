@@ -1,3 +1,15 @@
+# This script is automatically generated without explanatory comments.
+# The documentation for this script exists at https://rightleftspin.github.io/Lincege.jl/dev/examples/square_symmetries.html
+
+output_dir = joinpath(@__DIR__, "outputs")
+mkpath(output_dir)
+
+using Lincege
+if !@isdefined(output_dir)
+    output_dir = joinpath(pkgdir(Lincege), "examples", "outputs")
+end
+mkpath(output_dir)
+
 using Lincege
 
 basis = [[0.0, 0.0]]
@@ -34,14 +46,14 @@ summation!(symmetric_expansion, max_order)
 isomorphic_expansion = Expansion(isomorphic_clusters, lattice)
 summation!(isomorphic_expansion, max_order)
 
-json_path = joinpath(mktempdir(), "square_symmetries.json")
+json_path = joinpath(output_dir, "square_lattice_site_expansion_isomorphic_symmetric.json")
 write_to_json(
         isomorphic_expansion, isomorphic_clusters,
         symmetric_expansion, symmetric_clusters,
         lattice, json_path,
 )
 
-txt_path = joinpath(dirname(json_path), "square_symmetries.txt")
+txt_path = joinpath(output_dir, "square_lattice_site_expansion_isomorphic_symmetric.txt")
 write_to_txt_file(
         isomorphic_expansion, isomorphic_clusters,
         symmetric_expansion, symmetric_clusters,

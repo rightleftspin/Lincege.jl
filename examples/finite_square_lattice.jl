@@ -1,3 +1,15 @@
+# This script is automatically generated without explanatory comments.
+# The documentation for this script exists at https://rightleftspin.github.io/Lincege.jl/dev/examples/finite_square_lattice.html
+
+output_dir = joinpath(@__DIR__, "outputs")
+mkpath(output_dir)
+
+using Lincege
+if !@isdefined(output_dir)
+    output_dir = joinpath(pkgdir(Lincege), "examples", "outputs")
+end
+mkpath(output_dir)
+
 using Lincege
 
 square_basis = [[0.0, 0.0]]
@@ -20,5 +32,5 @@ reduce_clusters!(finite_isomorphic, finite_connected)
 finite_expansion = Expansion(finite_isomorphic, finite_lattice)
 summation!(finite_expansion, finite_order)
 
-finite_json_path = joinpath(mktempdir(), "square_lattice_periodic.json")
+finite_json_path = joinpath(output_dir, "square_lattice_periodic_finite_cluster_expansion.json")
 write_to_json(finite_expansion, finite_lattice, finite_json_path)

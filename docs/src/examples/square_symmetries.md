@@ -5,6 +5,14 @@ translation, point-group symmetry, and graph-isomorphism reductions.
 
 ## Setup
 
+```@setup square_symmetries
+using Lincege
+if !@isdefined(output_dir)
+    output_dir = joinpath(pkgdir(Lincege), "examples", "outputs")
+end
+mkpath(output_dir)
+```
+
 Define the square unit cell and bonds:
 
 ```@example square_symmetries
@@ -76,7 +84,7 @@ containing the symmetric cluster's weights and coordinates reordered to
 match the canonical graph. 
 
 ```@example square_symmetries
-json_path = joinpath(mktempdir(), "square_symmetries.json")
+json_path = joinpath(output_dir, "square_lattice_site_expansion_isomorphic_symmetric.json")
 write_to_json(
         isomorphic_expansion, isomorphic_clusters,
         symmetric_expansion, symmetric_clusters,
@@ -87,7 +95,7 @@ write_to_json(
 The text export preserves every field of the joint JSON export:
 
 ```@example square_symmetries
-txt_path = joinpath(dirname(json_path), "square_symmetries.txt")
+txt_path = joinpath(output_dir, "square_lattice_site_expansion_isomorphic_symmetric.txt")
 write_to_txt_file(
         isomorphic_expansion, isomorphic_clusters,
         symmetric_expansion, symmetric_clusters,

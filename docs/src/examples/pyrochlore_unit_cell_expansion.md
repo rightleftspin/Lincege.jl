@@ -5,6 +5,14 @@ to order 3 using four-site expansion cells.
 
 ## Setup
 
+```@setup pyrochlore
+using Lincege
+if !@isdefined(output_dir)
+    output_dir = joinpath(pkgdir(Lincege), "examples", "outputs")
+end
+mkpath(output_dir)
+```
+
 Define the unit cell with basis positions, primitive vectors, and
 nearest-neighbour bonds:
 
@@ -113,5 +121,5 @@ summation!(expansion, m_order)
 Lastly, write the results to a JSON file for future computations.
 
 ```julia
-write_to_json(expansion, lattice, "pyrochlore_lattice_uc_exp.json")
+write_to_json(expansion, lattice, joinpath(output_dir, "pyrochlore_lattice_unit_cell_expansion.json"))
 ```
