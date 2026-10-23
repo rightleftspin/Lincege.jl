@@ -6,6 +6,14 @@ with four neighbors. Here the expansion includes clusters of up to three sites.
 
 ## Setup
 
+```@setup finite_square
+using Lincege
+if !@isdefined(output_dir)
+    output_dir = joinpath(pkgdir(Lincege), "examples", "outputs")
+end
+mkpath(output_dir)
+```
+
 Define the one-site square unit cell:
 
 ```@example finite_square
@@ -44,6 +52,6 @@ Compute the expansion from the isomorphic clusters and export it for later.
 finite_expansion = Expansion(finite_isomorphic, finite_lattice)
 summation!(finite_expansion, finite_order)
 
-finite_json_path = joinpath(mktempdir(), "square_lattice_periodic.json")
+finite_json_path = joinpath(output_dir, "square_lattice_periodic_finite_cluster_expansion.json")
 write_to_json(finite_expansion, finite_lattice, finite_json_path)
 ```

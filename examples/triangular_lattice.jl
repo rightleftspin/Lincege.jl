@@ -1,3 +1,15 @@
+# This script is automatically generated without explanatory comments.
+# The documentation for this script exists at https://rightleftspin.github.io/Lincege.jl/dev/examples/triangular_lattice.html
+
+output_dir = joinpath(@__DIR__, "outputs")
+mkpath(output_dir)
+
+using Lincege
+if !@isdefined(output_dir)
+    output_dir = joinpath(pkgdir(Lincege), "examples", "outputs")
+end
+mkpath(output_dir)
+
 using Lincege
 
 triangular_basis = [[0.0, 0.0]]
@@ -22,4 +34,4 @@ reduce_clusters!(iso_clusters, trans_clusters)
 expansion = Expansion(iso_clusters, lattice)
 summation!(expansion, m_order)
 
-write_to_json(expansion, lattice, "triangular_lattice.json")
+write_to_json(expansion, lattice, joinpath(output_dir, "triangular_lattice_site_expansion.json"))

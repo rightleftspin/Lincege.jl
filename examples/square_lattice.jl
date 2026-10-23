@@ -1,3 +1,15 @@
+# This script is automatically generated without explanatory comments.
+# The documentation for this script exists at https://rightleftspin.github.io/Lincege.jl/dev/examples/square_lattice.html
+
+output_dir = joinpath(@__DIR__, "outputs")
+mkpath(output_dir)
+
+using Lincege
+if !@isdefined(output_dir)
+    output_dir = joinpath(pkgdir(Lincege), "examples", "outputs")
+end
+mkpath(output_dir)
+
 using Lincege
 
 square_basis = [[0.0, 0.0]]
@@ -22,10 +34,10 @@ reduce_clusters!(iso_clusters, trans_clusters)
 expansion = Expansion(iso_clusters, lattice)
 summation!(expansion, m_order)
 
-json_path = joinpath(mktempdir(), "square_lattice.json")
+json_path = joinpath(output_dir, "square_lattice_site_expansion.json")
 write_to_json(expansion, lattice, json_path)
 
-txt_path = joinpath(dirname(json_path), "square_lattice.txt")
+txt_path = joinpath(output_dir, "square_lattice_site_expansion.txt")
 write_to_txt_file(expansion, lattice, txt_path)
 
 temperatures = collect(range(0.5, 5.0, length=200))

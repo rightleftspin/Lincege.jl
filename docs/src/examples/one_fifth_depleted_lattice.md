@@ -5,6 +5,14 @@ order 3.
 
 ## Setup
 
+```@setup one-fifth-depleted
+using Lincege
+if !@isdefined(output_dir)
+    output_dir = joinpath(pkgdir(Lincege), "examples", "outputs")
+end
+mkpath(output_dir)
+```
+
 Define the one-fifth-depleted unit cell:
 
 ```@example one-fifth-depleted
@@ -64,5 +72,5 @@ summation!(expansion, m_order)
 Lastly, write the results to a JSON file for future computations.
 
 ```julia
-write_to_json(expansion, lattice, "one_fifth_lattice.json")
+write_to_json(expansion, lattice, joinpath(output_dir, "one_fifth_depleted_lattice_site_expansion.json"))
 ```
