@@ -1,6 +1,6 @@
 # Contributing
 
-Additions to LiNCEGE.jl are welcome in the following forms:
+Additions to LINCEGE.jl are welcome in the following forms:
 
 1. **Issues** – Report bugs or suggest new features.
 2. **Pull Requests** – Submit code changes or documentation updates.
@@ -11,7 +11,7 @@ Please ensure all your edits pass the tests located in `test/runtests.jl`.
 
 We use the feature branch workflow for contributions. Please follow these steps:
 
-1. Fork the LiNCEGE.jl repository to your own GitHub account.
+1. Fork the LINCEGE.jl repository to your own GitHub account.
 
 3. Create a new branch in your local fork for your specific changes.
    ```bash
@@ -53,7 +53,7 @@ results = run(SUITE["square"]; verbose=true)
 show(stdout, MIME"text/plain"(), results)
 ```
 
-### Building the Documentation for LiNCEGE.jl
+### Building the Documentation for LINCEGE.jl
 
 Install the documentation environment:
 
@@ -70,4 +70,7 @@ julia --project=docs docs/make.jl
 Open `docs/build/index.html` in a browser to view the result.
 
 ### AI Policy
-TODO
+The core code for LINCEGE.jl was written without the use of large language models. Pull requests
+should explictly note the use of large language models and human authors must understand the
+full extent of the code that is added. NLCE is a very delicate process and the weights must be
+calculated accurately.

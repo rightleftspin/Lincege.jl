@@ -1,11 +1,11 @@
-# LiNCEGE.jl
+# LINCEGE.jl
 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://rightleftspin.github.io/LiNCEGE.jl/stable/)
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://rightleftspin.github.io/LiNCEGE.jl/dev/)
-[![Build Status](https://github.com/rightleftspin/LiNCEGE.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/rightleftspin/LiNCEGE.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://rightleftspin.github.io/Lincege.jl/stable/)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://rightleftspin.github.io/Lincege.jl/dev/)
+[![Build Status](https://github.com/rightleftspin/Lincege.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/rightleftspin/Lincege.jl/actions/workflows/CI.yml?query=branch%3Amain)
 
-LiNCEGE.jl is a julia package for computing LINked Cluster Expansions on a
-GEneral geometry (LiNCEGE). Utilizing LiNCEGE.jl, you can easily generate
+LINCEGE.jl is a julia package for computing LINked Cluster Expansions on a
+GEneral geometry (LINCEGE). Utilizing LINCEGE.jl, one can easily generate
 clusters and reduced lattice constants for any lattice in order to perform NLCE.
 
 ## Installation
@@ -18,7 +18,7 @@ In the Julia REPL type `]` to switch to package mode, then type the command:
 pkg> add Lincege
 ```
 
-## Try LiNCEGE.jl
+## Try LINCEGE.jl
 
 Generate square-lattice clusters containing up to three sites, grouping
 them by graph isomorphism (topological clusters):
@@ -41,10 +41,10 @@ isomorphic_clusters = IsomorphicClusterSet(lattice)
 reduce_clusters!(isomorphic_clusters, translation_clusters)
 ```
 
-To try LiNCEGE.jl for an example use case, try the
-[square lattice example](https://rightleftspin.github.io/LiNCEGE.jl/dev/examples/square_lattice.html)
+To try LINCEGE.jl for an example use case, try the
+[square lattice example](https://rightleftspin.github.io/Lincege.jl/dev/examples/square_lattice.html)
 in the docs. For a more complicated site expansion example, try the
-[kagome lattice example](https://rightleftspin.github.io/LiNCEGE.jl/dev/examples/kagome_lattice.html).
+[kagome lattice example](https://rightleftspin.github.io/Lincege.jl/dev/examples/kagome_lattice.html).
 
 Example scripts are in [`examples/`](examples/).
 See the corresponding [README](examples/README.md) for run instructions.
@@ -72,14 +72,14 @@ To contact the authors of this package, please email either Pranav Seetharaman
 at [pjseetha@uwaterloo.ca](mailto:pjseetha@uwaterloo.ca) or Professor Ehsan
 Khatami at [ehsan.khatami@sjsu.edu](mailto:ehsan.khatami@sjsu.edu).
 
-If LiNCEGE.jl helped you in your research, please cite us using the following
+If LINCEGE.jl helped you in your research, please cite us using the following
 citation:
 
 ```bibtex
-@misc{LiNCEGE.jl,
+@misc{LINCEGE.jl,
 	author  = {Seetharaman, Pranav and contributors},
-	title   = {LiNCEGE.jl},
-	url     = {https://github.com/rightleftspin/LiNCEGE.jl},
+	title   = {LINCEGE.jl},
+	url     = {https://github.com/rightleftspin/Lincege.jl},
 	version = {v1.1.0},
 	year    = {2026},
 	month   = {04}
