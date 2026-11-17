@@ -38,6 +38,7 @@ makedocs(;
 )
 
 deploydocs(;
-        repo="github.com/rightleftspin/Lincege.jl",
-        devbranch="main",
+    repo="github.com/rightleftspin/Lincege.jl",
+    devbranch="main",
+    versions = ["stable" => "v^", "v#.#", "dev" => "dev"],
 )
