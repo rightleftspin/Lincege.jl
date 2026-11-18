@@ -2,38 +2,32 @@ name: Docs
 on:
   push:
     branches: [main]
-    tags: ['v*']
+    tags: ['*']
   pull_request:
   workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Release tag to build'
-        required: true
-
-permissions:
-  contents: write
 
 jobs:
-  docs:
+  build:
+    permissions:
+      actions: write
+      contents: write
+      pull-requests: read
+      statuses: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-        with:
-          ref: ${{ inputs.tag || github.ref }}
       - uses: julia-actions/setup-julia@v3
         with:
-          version: '1.11'
+          version: '1'
       - uses: julia-actions/cache@v3
       - name: Install dependencies
+        shell: julia --color=yes --project=docs {0}
         run: |
-          julia --project=docs -e '
-            using Pkg
-            Pkg.develop(PackageSpec(path=pwd()))
-            Pkg.instantiate()
-          '
-      - name: Build and deploy docs
-        run: julia --project=docs docs/make.jl
+          using Pkg
+          Pkg.develop(PackageSpec(path=pwd()))
+          Pkg.instantiate()
+      - name: Build and deploy
+        run: julia --color=yes --project=docs docs/make.jl
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }} 
           GKSwstype: "100"
-          GITHUB_REF: refs/tags/v1.1.0
