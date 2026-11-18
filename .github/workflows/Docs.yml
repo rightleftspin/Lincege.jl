@@ -36,3 +36,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GKSwstype: "100"
+          GITHUB_REF: refs/tags/v1.1.0
