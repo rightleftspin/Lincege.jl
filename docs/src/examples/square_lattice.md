@@ -30,7 +30,7 @@ Equal site colors and bond types treat these sites and interactions as equivalen
 
 ## Imaging the unit cell and lattice
 
-Load Plots and ColorSchemes to activate LINCEGE.jl's plotting capabilities.
+Load Plots and ColorSchemes to activate Lincege.jl's plotting capabilities.
 
 ```@example square
 using Plots, ColorSchemes

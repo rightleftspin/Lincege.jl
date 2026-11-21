@@ -1,5 +1,5 @@
 """
-A julia package for computing LINked Cluster Expansions on a GEneral geometry (LINCEGE).
+A julia package for computing LINked Cluster Expansions on a GEneral GEometry (Lincege).
 
 The general pipeline is:
 1. Define a unit cell and lattice geometry.
