@@ -76,13 +76,11 @@ If Lincege.jl helped you in your research, please cite us using the following
 citation:
 
 ```bibtex
-@misc{LINCEGE.jl,
-	author  = {Seetharaman, Pranav and contributors},
-	title   = {LINCEGE.jl},
-	url     = {https://github.com/rightleftspin/Lincege.jl},
-	version = {v1.1.0},
+@misc{Lincege.jl,
+	title   = {Lincege.jl: LINked Cluster Expansions on a GEneral GEometry},
+	author  = {Pranav Seetharaman, Francisco Correia, and Ehsan Khatami},
 	year    = {2026},
-	month   = {04}
+	month   = {11},
 }
 ```
 
