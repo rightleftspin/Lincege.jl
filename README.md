@@ -76,11 +76,14 @@ If Lincege.jl helped you in your research, please cite us using the following
 citation:
 
 ```bibtex
-@misc{Lincege.jl,
-	title   = {Lincege.jl: LINked Cluster Expansions on a GEneral GEometry},
-	author  = {Pranav Seetharaman, Francisco Correia, and Ehsan Khatami},
-	year    = {2026},
-	month   = {11},
+@misc{lincege2026,
+      title={Lincege.jl: LINked Cluster Expansions on a GEneral GEometry}, 
+      author={Pranav Seetharaman and Francisco Correia and Ehsan Khatami},
+      year={2026},
+      eprint={2611.31102},
+      archivePrefix={arXiv},
+      primaryClass={cond-mat.str-el},
+      url={https://arxiv.org/abs/2611.31102}, 
 }
 ```
 
