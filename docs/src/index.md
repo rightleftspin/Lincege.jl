@@ -2,14 +2,14 @@
 CurrentModule = Lincege
 ```
 
-# LINCEGE.jl
+# Lincege.jl
 
-This is the documentation for [LINCEGE.jl](https://github.com/rightleftspin/Lincege.jl), a
-julia package for computing LINked Cluster Expansions on a GEneral geometry (LINCEGE).
+This is the documentation for [Lincege.jl](https://github.com/rightleftspin/Lincege.jl), a
+julia package for computing LINked Cluster Expansions on a GEneral GEometry (Lincege).
 
 The registered Julia package and module are named `Lincege`; load it with `using Lincege`.
 
-The general pipeline that LINCEGE follows is:
+The general pipeline that Lincege follows is:
 1. Define a unit cell and lattice geometry.
 2. Generate all unique clusters up to a desired order using a cluster set and hasher.
 3. Build an `Expansion` from those clusters.
